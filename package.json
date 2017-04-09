@@ -1,8 +1,8 @@
 {
-  "name": "cscbot.js",
+  "name": "bot.js",
   "version": "1.0.0",
   "description": "A simple chatbot for the Cyberpunk Social Club.",
-  "main": "app.js\u001b[D\u001b[D\u001b[D\u001b\u001b[3~bot\u001b[3~",
+  "main": "bot.js",
   "dependencies": {
     "discord.js": "^11.0.0"
   },
