@@ -1,0 +1,15 @@
+{
+  "name": "cscbot.js",
+  "version": "1.0.0",
+  "description": "A simple chatbot for the Cyberpunk Social Club.",
+  "main": "app.js\u001b[D\u001b[D\u001b[D\u001b\u001b[3~bot\u001b[3~",
+  "dependencies": {
+    "discord.js": "^11.0.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "destru@protonmail.com",
+  "license": "ISC"
+}
