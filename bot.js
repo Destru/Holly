@@ -1,9 +1,9 @@
 const Discord = require('discord.js');
-const NodeSpotifyWebHelper = require('node-spotify-webhelper');
+const Spotify = require('node-spotify-webhelper');
 
-const bot = new Discord.Client({ autoReconnect: true });
-const spotify = new NodeSpotifyWebHelper.SpotifyWebHelper();
-const token = 'MzAwNTM1Njg3NTI1MTcxMjAx.C8t40g.2fx0Ds1_awaYskAqsksJUWk2cNY';
+var bot = new Discord.Client({ autoReconnect: true });
+var spotify = new Spotify.SpotifyWebHelper();
+var token = 'MzAwNTM1Njg3NTI1MTcxMjAx.C8t40g.2fx0Ds1_awaYskAqsksJUWk2cNY';
 
 bot.on('ready', () => {
   console.log('Holly is online!');
