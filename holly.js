@@ -32,8 +32,7 @@ bot.on('message', message => {
   }
 
   else if (message.content === '!binaerpilot') {
-    message.author.sendFile(TORRENT, 'Binaerpilot_Discography.torrent',
-      LINK_FLAVOR_TEXT);
+    message.channel.sendFile(TORRENT, 'Binaerpilot_Discography.torrent');
   }
 
   else if (message.content === '!backstage') {
@@ -51,7 +50,7 @@ bot.on('message', message => {
 
   else if (message.content === '!flac' || message.content === '!FLAC') {
     if (message.member.roles.has(ROLE_HACKER) ||
-      message.member.roles.has(ROLE_BOT)) {
+      message.member.roles.has(ROLE_STATE)) {
         message.channel.sendMessage(kudos);
         message.author.sendFile(TORRENT_FLAC, 'Binaerpilot_FLAC.torrent',
           LINK_FLAVOR_TEXT);
