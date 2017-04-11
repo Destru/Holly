@@ -2,7 +2,7 @@
   "name": "holly",
   "version": "1.0.0",
   "description": "A simple chatbot for the Cyberpunk Social Club.",
-  "main": "bot.js",
+  "main": "holly.js",
   "dependencies": {
     "discord.js": "^11.0.0"
   },
