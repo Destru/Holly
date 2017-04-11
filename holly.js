@@ -33,7 +33,7 @@ bot.on('message', message => {
     });
   }
 
-  else if (message.content === '!torrent') {
+  else if (message.content === '!binaerpilot') {
     message.author.sendFile(TORRENT,
       'Binaerpilot Discography.torrent',
       DOWNLOAD_TEXT + 'Binaerpilot Discography.');
