@@ -1,4 +1,5 @@
-var fs = require("fs"); var vm = require('vm'); vm.runInThisContext(fs.readFileSync(__dirname + "/source.js"));
+var fs = require("fs"); var vm = require('vm');
+vm.runInThisContext(fs.readFileSync(__dirname + "/source.js"));
 // </safekeeping>
 
 const Discord = require('discord.js');
@@ -12,22 +13,22 @@ bot.on('ready', () => {
 });
 
 bot.on('guildMemberAdd', member => {
-  const channel = client.channels.get(CHAT_GENERAL);
+  const channel = bot.channels.get(CHAT_GENERAL);
   channel.sendMessage(`Welcome to the Cyberpunk Social Club, ${member}!`);
 });
 
 bot.on('message', message => {
-  var kudos = `Preparing your files now, ${message.author.username}. Please check your messages.`;
+  var prepMsg = `Preparing your files now, ${message.author}. Please check your messages.`;
+  var spotifyMsg = `Spotify is not running right now, ${message.author}.`;
 
-  if (message.content === '!spotify') {
+  if (message.content === '!spotify' || message.content === '!playing') {
     spotify.getStatus(function(err, res) {
-      var msg = `Spotify is not running right now, ${message.author.username}.`;
 
-      if (res.running === true) {
+      if (res.running === true && res.track !== 'undefined') {
         msg = `${res.track.artist_resource.name} — ${res.track.track_resource.name}`;
       }
 
-      message.channel.sendMessage(msg);
+      message.channel.sendMessage(spotifyMsg);
     });
   }
 
@@ -39,24 +40,24 @@ bot.on('message', message => {
     if (message.member.roles.has(ROLE_SCRIPTER) ||
       message.member.roles.has(ROLE_HACKER) ||
       message.member.roles.has(ROLE_STATE)) {
-        message.channel.sendMessage(kudos);
+        message.channel.sendMessage(prepMsg);
         message.author.sendFile(TORRENT_BACKSTAGE,
           'Binaerpilot_Backstage.torrent', LINK_FLAVOR_TEXT);
     }
     else {
-      message.channel.sendMessage(`You need to be at least a **Scripter** to access backstage, ${message.author.username}.`);
+      message.channel.sendMessage(`You need to be at least a **Scripter** to access backstage, ${message.author}.`);
     }
   }
 
   else if (message.content === '!flac' || message.content === '!FLAC') {
     if (message.member.roles.has(ROLE_HACKER) ||
       message.member.roles.has(ROLE_STATE)) {
-        message.channel.sendMessage(kudos);
+        message.channel.sendMessage(prepMsg);
         message.author.sendFile(TORRENT_FLAC, 'Binaerpilot_FLAC.torrent',
           LINK_FLAVOR_TEXT);
     }
     else {
-      message.channel.sendMessage(`You need to be a **Hacker** to access FLAC, ${message.author.username}.`);
+      message.channel.sendMessage(`You need to be a **Hacker** to access FLAC, ${message.author}.`);
     }
   }
 });
