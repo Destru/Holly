@@ -34,7 +34,7 @@ client.on('message', message => {
     });
   }
 
-  else if (message.content === '!binaerpilot') {
+  else if (message.content === '!torrent' || message.content === '!binaerpilot') {
     message.channel.sendFile(TORRENT, 'Binaerpilot_Discography.torrent');
   }
 
