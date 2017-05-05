@@ -19,8 +19,8 @@ client.on('guildMemberAdd', member => {
 });
 
 client.on('message', message => {
-  var permissionMsg = `Could not verify your identity. Please post in official C.S.C. channels only.`;
-  var prepMsg = `Preparing your files now, ${message.author}. Please check your messages.`;
+  var permissionMsg = `Could not verify your identity. Please re-state your request in an official channel.`;
+  var prepMsg = `Please check your messages, ${message.author}.`;
   var spotifyMsg = `Spotify is not running right now, ${message.author}.`;
 
   if (message.content === '!spotify' || message.content === '!playing') {
@@ -34,11 +34,12 @@ client.on('message', message => {
     });
   }
 
-  else if (message.content === '!torrent' || message.content === '!binaerpilot') {
-    message.channel.sendFile(TORRENT, 'Binaerpilot_Discography.torrent');
+  else if (message.content.toLowerCase() === '!torrent' || message.content.toLowerCase() === '!binaerpilot') {
+    message.channel.sendMessage(prepMsg);
+    message.author.sendFile(TORRENT, 'Binaerpilot_Discography.torrent');
   }
 
-  else if (message.content === '!backstage') {
+  else if (message.content.toLowerCase() === '!backstage') {
     if (message.member) {
       if(message.member.roles.has(ROLE_SCRIPTER) || message.member.roles.has(ROLE_HACKER) || message.member.roles.has(ROLE_STATE)) {
         message.channel.sendMessage(prepMsg);
@@ -53,7 +54,7 @@ client.on('message', message => {
     }
   }
 
-  else if (message.content === '!flac' || message.content === '!FLAC') {
+  else if (message.content.toLowerCase() === '!flac') {
     if (message.member) {
       if(message.member.roles.has(ROLE_HACKER) || message.member.roles.has(ROLE_STATE)) {
         message.channel.sendMessage(prepMsg);
