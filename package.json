@@ -1,6 +1,6 @@
 {
   "name": "holly",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A simple chatbot for the Cyberpunk Social Club.",
   "main": "holly.js",
   "dependencies": {
@@ -10,6 +10,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "destru@protonmail.com",
-  "license": "ISC"
+  "author": "alexander@binaerpilot.no",
+  "license": "ISC",
+  "repository": "https://github.com/Destru/CSC"
 }

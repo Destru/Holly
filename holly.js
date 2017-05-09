@@ -3,10 +3,7 @@ vm.runInThisContext(fs.readFileSync(__dirname + "/source.js"));
 // </safekeeping>
 
 const Discord = require('discord.js');
-const Spotify = require('node-spotify-webhelper');
-
 const client = new Discord.Client({ autoReconnect: true });
-const spotify = new Spotify.SpotifyWebHelper();
 
 client.on('ready', () => {
   console.log('Holly is online!');
@@ -19,19 +16,18 @@ client.on('guildMemberAdd', member => {
 });
 
 client.on('message', message => {
-  var permissionMsg = `Could not verify your identity. Please re-state your request in an official channel.`;
+  var permissionMsg = `Could not verify your identity. Re-state your request in an official channel.`;
+  var playingMsg = `No music player is running right now, ${message.author}.`;
   var prepMsg = `Please check your messages, ${message.author}.`;
-  var spotifyMsg = `Spotify is not running right now, ${message.author}.`;
 
-  if (message.content === '!spotify' || message.content === '!playing') {
-    spotify.getStatus(function(err, res) {
+  if (message.content === '!playing' || message.content === '!spotify') {
+    vm.runInThisContext(fs.readFile('../csc/json/track-info.json', 'utf8', function (err, data) {
+      if (err) throw err;
 
-      if (res.running === true && res.track !== 'undefined') {
-        spotifyMsg = `${res.track.artist_resource.name} — ${res.track.track_resource.name}`;
-      }
-
-      message.channel.sendMessage(spotifyMsg);
-    });
+      var track = JSON.parse(data);
+      playingMsg = `${track.artist}—${track.song}`
+      message.channel.sendMessage(playingMsg);
+    }));
   }
 
   else if (message.content.toLowerCase() === '!torrent' || message.content.toLowerCase() === '!binaerpilot') {
