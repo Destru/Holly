@@ -5,9 +5,13 @@ vm.runInThisContext(fs.readFileSync(__dirname + "/source.js"));
 const Discord = require('discord.js');
 const client = new Discord.Client({ autoReconnect: true });
 
+var games = ['Back to Reality',
+  'Better Than Life',
+  'Gunmen of the Apocalypse',
+  'Play-by-mail Chess'];
+
 client.on('ready', () => {
-  console.log('Holly is online!');
-  client.user.setGame('Gunmen of the Apocalypse');
+  client.user.setGame(games[Math.floor(Math.random() * (0, games.length))]);
 });
 
 client.on('guildMemberAdd', member => {
