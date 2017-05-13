@@ -29,7 +29,9 @@ client.on('message', message => {
       if (err) throw err;
 
       var track = JSON.parse(data);
-      playingMsg = `${track.artist}—${track.song}`
+      if (track.artist && track.song) {
+        playingMsg = `${track.artist}—${track.song}`
+      }
       message.channel.sendMessage(playingMsg);
     }));
   }
