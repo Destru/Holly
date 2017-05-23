@@ -6,9 +6,10 @@ const Discord = require('discord.js');
 const client = new Discord.Client({ autoReconnect: true });
 
 var games = ['Back to Reality',
-  'Better Than Life',
-  'Gunmen of the Apocalypse',
-  'Play-by-mail Chess'];
+    'Better Than Life',
+    'Gunmen of the Apocalypse',
+    'Play-by-mail Chess'
+  ];
 
 client.on('ready', () => {
   client.user.setGame(games[Math.floor(Math.random() * (0, games.length))]);
@@ -24,7 +25,7 @@ client.on('message', message => {
   var playingMsg = `No music player is running right now, ${message.author}.`;
   var prepMsg = `Please check your messages, ${message.author}.`;
 
-  if (message.content === '!playing' || message.content === '!spotify') {
+  if (message.content.toLowerCase() === '!playing' || message.content.toLowerCase() === '!spotify') {
     vm.runInThisContext(fs.readFile('../csc/json/track-info.json', 'utf8', function (err, data) {
       if (err) throw err;
 
