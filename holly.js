@@ -22,7 +22,7 @@ client.on('guildMemberAdd', member => {
 
 client.on('message', message => {
   var permissionMsg = `Could not verify your identity. Re-state your request in an official channel.`;
-  var playingMsg = `No music player is running right now, ${message.author}.`;
+  var playingMsg = `No track information available, ${message.author}.`;
   var prepMsg = `Please check your messages, ${message.author}.`;
 
   if (message.content.toLowerCase() === '!playing' || message.content.toLowerCase() === '!spotify') {
