@@ -26,7 +26,7 @@ client.on('message', message => {
   var prepMsg = `Please check your messages, ${message.author}.`;
 
   if (message.content.toLowerCase() === '!playing' || message.content.toLowerCase() === '!spotify') {
-    vm.runInThisContext(fs.readFile('../csc/json/track-info.json', 'utf8', function (err, data) {
+    vm.runInThisContext(fs.readFile('../CSC/json/track-info.json', 'utf8', function (err, data) {
       if (err) throw err;
 
       var track = JSON.parse(data);
