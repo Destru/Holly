@@ -12,8 +12,9 @@ var games = ['Back to Reality',
   ];
 
 client.on('ready', () => {
-  client.user.setGame(games[Math.floor(Math.random() * (0, games.length))]);
-});
+  const channel = client.channels.get(CHAT_GENERAL);
+  channel.sendMessage(`What's happening, dudes?`);
+  client.user.setGame(games[Math.floor(Math.random() * (0, games.length))])});
 
 client.on('guildMemberAdd', member => {
   const channel = client.channels.get(CHAT_GENERAL);
