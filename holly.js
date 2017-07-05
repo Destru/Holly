@@ -21,7 +21,7 @@ var readyMsgs = [
 
 client.on('ready', () => {
   const channel = client.channels.get(CHAT_GENERAL);
-  channel.sendMessage(readyMsgs[Math.floor(Math.random() * readyMsgs.length)]);
+  channel.sendMessage(readyMsgs[Math.floor(Math.random() * (0, readyMsgs.length))]);
   client.user.setGame(games[Math.floor(Math.random() * (0, games.length))])});
 
 client.on('guildMemberAdd', member => {
