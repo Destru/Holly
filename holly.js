@@ -11,9 +11,17 @@ var games = ['Back to Reality',
     'Play-by-mail Chess'
   ];
 
+var readyMsgs = [
+    "What's happening, dudes?",
+    "Sup bros",
+    "Hey buddies",
+    "Hi friends!",
+    "Yo dawgs"
+];
+
 client.on('ready', () => {
   const channel = client.channels.get(CHAT_GENERAL);
-  channel.sendMessage(`What's happening, dudes?`);
+  channel.sendMessage(readyMsgs[Math.floor(Math.random() * readyMsgs.length)]);
   client.user.setGame(games[Math.floor(Math.random() * (0, games.length))])});
 
 client.on('guildMemberAdd', member => {
