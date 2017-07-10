@@ -43,12 +43,11 @@ client.on('message', message => {
 
   if (message.content.toLowerCase() === '!playing' || message.content.toLowerCase() === '!spotify') {
     vm.runInThisContext(fs.readFile('../CSC/json/track-info.json', 'utf8', function (err, data) {
-      if (!err) {
-        var track = JSON.parse(data);
-        if (track.artist && track.song) {
-          playingMsg = `${track.artist} — ${track.song}`
-        }
+      var track = JSON.parse(data);
+      if (track.artist && track.song) {
+        playingMsg = `${track.artist} — ${track.song}`
       }
+
       message.channel.sendMessage(playingMsg);
     }));
   }
