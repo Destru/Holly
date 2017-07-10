@@ -16,7 +16,11 @@ var login = ["What's happening, dudes?",
     "All right, keep your hair on.",
     "I am Holly, the **Cyberpunk Social Club** bot, with an IQ of 6000; The same IQ as 6000 trance DJ's.",
     "Emergency. There's an emergency going on. It's still going on.",
-    "\"Of all the space bars in all the worlds, you had to re-materialise in mine.\""
+    "\"Of all the space bars in all the worlds, you had to re-materialise in mine.\"",
+    "In the 3 million years we have been away, it is my fond hope that mankind has abolished war, cured all disease, and got rid of those little western saloon doors you get in trendy clothes shops.",
+    "As the days go by, we face the increasing inevitability that we are alone in a godless, uninhabited, hostile and meaningless universe. Still, you've got to laugh, haven't you?",
+    "All right, dudes? Anyone fancy a game of Charades using just your nose or is this a bad time?",
+    "Rude alert! Rude alert! An electrical fire has knocked out my voice recognition unicycle! Many Wurlitzers are missing from my database. Abandon shop! This is not a daffodil. Repeat, this is not a daffodil."
   ];
 
 client.on('ready', () => {
