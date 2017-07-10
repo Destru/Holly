@@ -11,10 +11,20 @@ var games = ['Back to Reality',
     'Play-by-mail Chess'
   ];
 
+var login = ["What's happening, dudes?",
+    "Wait a minute. I've forgotten what I was gonna say.",
+    "All right, keep your hair on.",
+    "I am Holly, the Cyberpunk Social Club bot, with an IQ of 6000; The same IQ as 6000 trance DJ's.",
+    "Emergency. There's an emergency going on. It's still going on.",
+    "\"Of all the space bars in all the worlds, you had to re-materialise in mine.\""
+  ];
+
 client.on('ready', () => {
   const channel = client.channels.get(CHAT_GENERAL);
-  channel.sendMessage(`What's happening, dudes?`);
-  client.user.setGame(games[Math.floor(Math.random() * (0, games.length))])});
+
+  channel.sendMessage(login[Math.floor(Math.random() * (0, login.length))]);
+  client.user.setGame(games[Math.floor(Math.random() * (0, games.length))]);
+});
 
 client.on('guildMemberAdd', member => {
   const channel = client.channels.get(CHAT_GENERAL);
@@ -28,11 +38,11 @@ client.on('message', message => {
 
   if (message.content.toLowerCase() === '!playing' || message.content.toLowerCase() === '!spotify') {
     vm.runInThisContext(fs.readFile('../CSC/json/track-info.json', 'utf8', function (err, data) {
-      if (err) throw err;
-
-      var track = JSON.parse(data);
-      if (track.artist && track.song) {
-        playingMsg = `${track.artist}—${track.song}`
+      if (!err) {
+        var track = JSON.parse(data);
+        if (track.artist && track.song) {
+          playingMsg = `${track.artist} — ${track.song}`
+        }
       }
       message.channel.sendMessage(playingMsg);
     }));
