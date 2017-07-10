@@ -1,9 +1,9 @@
-var fs = require("fs"); var vm = require('vm');
-vm.runInThisContext(fs.readFileSync(__dirname + "/source.js"));
-// </safekeeping>
+var fs = require("fs");
+var vm = require('vm');
 
 const Discord = require('discord.js');
 const client = new Discord.Client({ autoReconnect: true });
+vm.runInThisContext(fs.readFileSync(__dirname + "/source.js"));
 
 var games = ['Back to Reality',
     'Better Than Life',
@@ -14,7 +14,7 @@ var games = ['Back to Reality',
 var login = ["What's happening, dudes?",
     "Wait a minute. I've forgotten what I was gonna say.",
     "All right, keep your hair on.",
-    "I am Holly, the Cyberpunk Social Club bot, with an IQ of 6000; The same IQ as 6000 trance DJ's.",
+    "I am Holly, the **Cyberpunk Social Club** bot, with an IQ of 6000; The same IQ as 6000 trance DJ's.",
     "Emergency. There's an emergency going on. It's still going on.",
     "\"Of all the space bars in all the worlds, you had to re-materialise in mine.\""
   ];
@@ -28,7 +28,8 @@ client.on('ready', () => {
 
 client.on('guildMemberAdd', member => {
   const channel = client.channels.get(CHAT_GENERAL);
-  channel.sendMessage(`Welcome to the Cyberpunk Social Club, ${member}!`);
+
+  channel.sendMessage(`Welcome to the **Cyberpunk Social Club**, ${member}!`);
 });
 
 client.on('message', message => {
