@@ -25,15 +25,17 @@ var login = ["What's happening, dudes?",
 
 client.on('ready', () => {
   const channel = client.channels.get(CHAT_GENERAL);
+  var loginMsg = login[Math.floor(Math.random() * (0, login.length))];
+  var playingMsg = games[Math.floor(Math.random() * (0, games.length))];
 
-  channel.sendMessage(login[Math.floor(Math.random() * (0, login.length))]);
-  client.user.setGame(games[Math.floor(Math.random() * (0, games.length))]);
+  channel.sendMessage(loginMsg);
+  client.user.setGame(playingMsg);
 });
 
 client.on('guildMemberAdd', member => {
   const channel = client.channels.get(CHAT_GENERAL);
 
-  channel.sendMessage(`Welcome to the **Cyberpunk Social Club**, ${member}!`);
+  channel.sendMessage(`:robot: :loudspeaker: Welcome to the **Cyberpunk Social Club**, ${member}!`);
 });
 
 client.on('message', message => {
