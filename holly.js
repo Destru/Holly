@@ -29,7 +29,7 @@ client.on('ready', () => {
   var playingMsg = games[Math.floor(Math.random() * (0, games.length))];
 
   channel.sendMessage(loginMsg);
-  client.user.setGame(playingMsg);
+  client.user.setPresence({game: {name: playingMsg, type: 0 }});
 });
 
 client.on('guildMemberAdd', member => {
