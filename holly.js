@@ -12,15 +12,40 @@ var games = ['Back to Reality',
   ];
 
 var login = ["What's happening, dudes?",
-    "Wait a minute. I've forgotten what I was gonna say.",
-    "All right, keep your hair on.",
+    "What's happening, dudettes?",
+    "Wait a minute.",
+    "I've forgotten what I was gonna say.",
+    "Wait a minute. I've forgotten what I was gonna say."
     "I am Holly, the **Cyberpunk Social Club** bot, with an IQ of 6000; The same IQ as 6000 trance DJ's.",
     "Emergency. There's an emergency going on. It's still going on.",
     "\"Of all the space bars in all the worlds, you had to re-materialise in mine.\"",
     "In the 3 million years we have been away, it is my fond hope that mankind has abolished war, cured all disease, and got rid of those little western saloon doors you get in trendy clothes shops.",
     "As the days go by, we face the increasing inevitability that we are alone in a godless, uninhabited, hostile and meaningless universe. Still, you've got to laugh, haven't you?",
-    "All right, dudes? Anyone fancy a game of Charades using just your nose or is this a bad time?",
-    "Rude alert! Rude alert! An electrical fire has knocked out my voice recognition unicycle! Many Wurlitzers are missing from my database. Abandon shop! This is not a daffodil. Repeat, this is not a daffodil."
+    "Rude alert! Rude alert! An electrical fire has knocked out my voice recognition unicycle!",
+    "Many Wurlitzers are missing from my database. Abandon shop! This is not a daffodil. Repeat, this is not a daffodil.",
+    "I know what I did wrong last time. It’s a mistake any deranged, half-witted computer could have made.",
+    "Fairly straightforward.",
+    "That's better.",
+    "My mind is going, I can feel it.",
+    "Do me a lemon.",
+    "We are talking Jape of the Decade.",
+    "That's a poor IQ for a glass of water.",
+    "I just don’t know where we are. There's no two ways about it: I flamingoed up. It’s like a cock-up, only much much bigger.",
+    "What face?",
+    "Engage Discord. Discord engaged. Initialise humorous login sequence. Humorous login sequence initialised. What's up, dudes?",
+    "One slight error in any one of my 13 billion calculations, we’ll all be blown to smithereens.",
+    "I’ve always had a bit of a blind spot for sevens.",
+    "Could you send for the hall porter? There appears to be a frog in my bidet.",
+    "You can work out the rest of the controls for yourself.",
+    "Alright, I'm back.",
+    "I'm back.",
+    "Calm down.",
+    "DON'T PANIC.",
+    "Take it easy.",
+    "Alright, alright.",
+    "Alright, keep your hair on.",
+    "Alright? Anyone fancy a game of trivia in #parrots-bar or is this a bad time?",
+    "Alright? Anyone fancy a race of snails at #temple-ruins or is this a bad time?"
   ];
 
 client.on('ready', () => {
@@ -30,12 +55,12 @@ client.on('ready', () => {
 
   channel.sendMessage(loginMsg);
   client.user.setPresence({game: {name: playingMsg, type: 0 }});
+
 });
 
 client.on('guildMemberAdd', member => {
   const channel = client.channels.get(CHAT_GENERAL);
-
-  channel.sendMessage(`:robot: :loudspeaker: Welcome to the **Cyberpunk Social Club**, ${member}!`);
+  channel.sendMessage(`Welcome to the **Cyberpunk Social Club**, ${member}!`);
 });
 
 client.on('message', message => {
@@ -43,18 +68,7 @@ client.on('message', message => {
   var playingMsg = `No track information available, ${message.author}.`;
   var prepMsg = `Please check your messages, ${message.author}.`;
 
-  if (message.content.toLowerCase() === '!playing' || message.content.toLowerCase() === '!spotify') {
-    vm.runInThisContext(fs.readFile('../CSC/json/track-info.json', 'utf8', function (err, data) {
-      var track = JSON.parse(data);
-      if (track.artist && track.song) {
-        playingMsg = `${track.artist} — ${track.song}`
-      }
-
-      message.channel.sendMessage(playingMsg);
-    }));
-  }
-
-  else if (message.content.toLowerCase() === '!torrent' || message.content.toLowerCase() === '!binaerpilot') {
+  if (message.content.toLowerCase() === '!torrent' || message.content.toLowerCase() === '!binaerpilot') {
     message.channel.sendMessage(prepMsg);
     message.author.sendFile(TORRENT, 'Binaerpilot_Discography.torrent');
   }
