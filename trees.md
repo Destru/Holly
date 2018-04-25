@@ -1,1 +1,1 @@
-<enajyram> support bacteria, it's the only culture some people have.
+<foolsCAP> how much is an abortion? i want to get my girlfriend a gift certificate for one for valentines day
