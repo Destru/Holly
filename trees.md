@@ -1,1 +1,1 @@
-<foolsCAP> how much is an abortion? i want to get my girlfriend a gift certificate for one for valentines day
+[05:45pm] [+xvize] yea aol's supposed to be harder to trace
