@@ -1,1 +1,1 @@
-[05:45pm] [+xvize] yea aol's supposed to be harder to trace
+Foxers has quit IRC (If idiots could fly,Dalnet would be an airport.)
