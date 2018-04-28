@@ -1,1 +1,1 @@
-Foxers has quit IRC (If idiots could fly,Dalnet would be an airport.)
+'<ILLogik> i was having cybersex with this chick but she wouldn't go all the way so i had to rape her'
