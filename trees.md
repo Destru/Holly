@@ -1,1 +1,1 @@
-'<ILLogik> i was having cybersex with this chick but she wouldn't go all the way so i had to rape her'
+'<jabroni77> ANY FEMALES NOT BLOND 120 POUNDS AND MODEL LIKE??? ON THE NET?'
