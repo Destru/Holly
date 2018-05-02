@@ -1,1 +1,1 @@
-FRAGMENT_DECODED/'(pervert) roy: get off your "would be heterosexual if i had enough options to have a preference" ass and go get some :P'
+FRAGMENT_DECODED/'<DMC[hi]> where just before you go to bed, you put on a suite and shit, and look in the mirror and kinda jerk off a little then, go to sleep?'
