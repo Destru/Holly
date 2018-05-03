@@ -1,1 +1,1 @@
-FRAGMENT_DECODED/'<DMC[hi]> where just before you go to bed, you put on a suite and shit, and look in the mirror and kinda jerk off a little then, go to sleep?'
+FRAGMENT_DECODED/'foop> computers need to burst into flames more often'
