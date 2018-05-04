@@ -1,1 +1,1 @@
-FRAGMENT_DECODED/'foop> computers need to burst into flames more often'
+FRAGMENT_DECODED/'<Joshua> funny how sodomy and clowns are linked in my head... i'd better not investigate that any further...'
