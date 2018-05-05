@@ -1,1 +1,1 @@
-FRAGMENT_DECODED/'<Joshua> funny how sodomy and clowns are linked in my head... i'd better not investigate that any further...'
+FRAGMENT_DECODED/'<L33t_Hax0r> i rev at people at a red light in the galant if im pretty sure thier car is slow'
