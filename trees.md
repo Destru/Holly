@@ -1,1 +1,1 @@
-FRAGMENT_DECODED/'<L33t_Hax0r> i rev at people at a red light in the galant if im pretty sure thier car is slow'
+FRAGMENT_DECODED/'<Ash> We hardly ever do crack. Sometimes barely once a week.'
