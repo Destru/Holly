@@ -1,1 +1,1 @@
-FRAGMENT_DECODED/'<Ash> We hardly ever do crack. Sometimes barely once a week.'
+FRAGMENT_DECODED/'<Zer0sKewl> Haha, I just nuked someone for my first time, Am I elite now?'
