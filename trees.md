@@ -1,1 +1,1 @@
-FRAGMENT_DECODED/'<Zer0sKewl> Haha, I just nuked someone for my first time, Am I elite now?'
+FRAGMENT_DECODED/'<MTrez> ok, about 1 million of my potential children just got introduced to some downy tissue, so im gonna sleep now, im tired'
