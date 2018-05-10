@@ -1,1 +1,1 @@
-FRAGMENT_DECODED/'<[PhReAk]> i have a problem, i have an +++ATH0 modem bomber but when i use it it disconnects me from the internet, what is the problem?'
+FRAGMENT_DECODED/'<cooey> brb going to efnet under the proxy sawgrass.massopac.navy.mil and telling people to join the millitary'
