@@ -1,1 +1,1 @@
-FRAGMENT_DECODED/'<cooey> brb going to efnet under the proxy sawgrass.massopac.navy.mil and telling people to join the millitary'
+FRAGMENT_DECODED/'<Kury^> the other day i found out that my Uni's fire evacuation policy for ppl with wheelchairs is to 'push them into a room, close the door, escape and then give the room number to the firemen''
