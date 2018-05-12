@@ -1,1 +1,1 @@
-FRAGMENT_DECODED/'<Kury^> the other day i found out that my Uni's fire evacuation policy for ppl with wheelchairs is to 'push them into a room, close the door, escape and then give the room number to the firemen''
+FRAGMENT_DECODED/'<CurlyEars> sorry....I am a bit compulsive about spelling an grammar'
