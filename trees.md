@@ -1,1 +1,1 @@
-FRAGMENT_DECODED/'<tress> I almost had a psychic girlfriend but she left me before we met.'
+FRAGMENT_DECODED/'<FreshBrew> if i ever get arrested for something serious, 20/20 and Dateline are going to have a field day with my irc logs.'
