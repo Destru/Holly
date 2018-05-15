@@ -1,1 +1,1 @@
-FRAGMENT_DECODED/'<FreshBrew> if i ever get arrested for something serious, 20/20 and Dateline are going to have a field day with my irc logs.'
+FRAGMENT_DECODED/'<LkTrout1> enex's underwear is big enough to fit over Hatter's ego.'
