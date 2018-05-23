@@ -1,1 +1,1 @@
-FRAGMENT_DECODED/'<DaZE> at my school.. the cop from DARE passed around 3 joints to show everyone... and he said "if i dont get all three of these back this schools getting locked down and everyones getting searched till i find it.." and like 30 minutes later when everyone got to see 'em and they got passed back the cop had 4'
+FRAGMENT_DECODED/'<iln> i haven't stuck anything up my ass before but i've thought about it'
