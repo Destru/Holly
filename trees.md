@@ -1,1 +1,1 @@
-FRAGMENT_DECODED/'(BudhaM0nk) i want hard drives so small i can snort them up like powder and increase my brain capacity'
+FRAGMENT_DECODED/'[deft-:deft@98A9C369.ipt.aol.com] at least i don't go on aol'
