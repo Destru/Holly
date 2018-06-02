@@ -1,1 +1,1 @@
-FRAGMENT_DECODED/'[deft-:deft@98A9C369.ipt.aol.com] at least i don't go on aol'
+FRAGMENT_DECODED/'<Ash> Thank God we got it all out before DigDug could quote us. :|'
