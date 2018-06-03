@@ -1,1 +1,1 @@
-FRAGMENT_DECODED/'<Ash> Thank God we got it all out before DigDug could quote us. :|'
+FRAGMENT_DECODED/'<ScratGOD> dude some guy was fucking me in the ass last night and reached around and grabbed my cock. I got up and said "what the fuck, do you think im gay or something?"'
