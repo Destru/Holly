@@ -1,1 +1,1 @@
-FRAGMENT_DECODED/'<ScratGOD> dude some guy was fucking me in the ass last night and reached around and grabbed my cock. I got up and said "what the fuck, do you think im gay or something?"'
+FRAGMENT_DECODED/'@(ZeuS) my g/f was like "I can be your porn"... I was like "but can I use the zoom feature?"'
