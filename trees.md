@@ -1,1 +1,1 @@
-FRAGMENT_DECODED/'@(ZeuS) my g/f was like "I can be your porn"... I was like "but can I use the zoom feature?"'
+FRAGMENT_DECODED/'<sean> Stop adding 2+2! it has taken me five years to develop 2+2, and you "geeks and hackers" are destroying my work!'
