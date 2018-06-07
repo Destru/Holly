@@ -1,1 +1,1 @@
-FRAGMENT_DECODED/'<hypr> i need jewcases or like paper or plastic things to put cds in :.'
+FRAGMENT_DECODED/'*** overloaded has quit IRC (Quit: i'm outta here like a dyke fleeing dick.)'
