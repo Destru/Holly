@@ -1,1 +1,1 @@
-FRAGMENT_DECODED/'*** overloaded has quit IRC (Quit: i'm outta here like a dyke fleeing dick.)'
+FRAGMENT_DECODED/'<Gnuspice> shit, you know you've been doing too much SQL when you're at a prompt and do SELECT holly.js node_modules package.json package-lock.json README.md source.js trees.md FROM /bin;'
