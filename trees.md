@@ -1,1 +1,1 @@
-FRAGMENT_DECODED/'<Gnuspice> shit, you know you've been doing too much SQL when you're at a prompt and do SELECT holly.js node_modules package.json package-lock.json README.md source.js trees.md FROM /bin;'
+FRAGMENT_DECODED/'<Ktulu> Bob, so far - my day in this "everyday life" has consisted of waking up, having breakfast, playing games... and cracking jokes at your expense over IRC'
