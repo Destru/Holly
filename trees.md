@@ -1,1 +1,1 @@
-FRAGMENT_DECODED/'<Ktulu> Bob, so far - my day in this "everyday life" has consisted of waking up, having breakfast, playing games... and cracking jokes at your expense over IRC'
+FRAGMENT_DECODED/'<`BuM> why is it that, no matter how much you pee into the toilet it never fills up?'
