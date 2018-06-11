@@ -1,1 +1,1 @@
-FRAGMENT_DECODED/'<`BuM> why is it that, no matter how much you pee into the toilet it never fills up?'
+FRAGMENT_DECODED/'<nyckB!Test@202-7-54.ipt.aol.com> I'm stupid? You probably don't even know how to program a DEC or in UNIX. Now that's stupid. I am running UNIX!'
