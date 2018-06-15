@@ -1,1 +1,1 @@
-FRAGMENT_DECODED/'<disconect> Tekken and sex both give my hand a cramp if I do it for too long, though...'
+FRAGMENT_DECODED/'<kalani> Today a young man on acid realized that all matter is merely energy condensed into a slow vibration, that we are all one consciousness experiencing itself subjectively, there is no such thing as death life is only a dream and we're the imagination of ourselves...Here's Tom with the weather.'
