@@ -1,1 +1,1 @@
-FRAGMENT_DECODED/'<ACDCC> Hey, does anyone know when Dance Dance Revolution comes out on GBC?'
+FRAGMENT_DECODED/'<hypr> as im on no your so inslurted me'
