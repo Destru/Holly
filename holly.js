@@ -122,9 +122,9 @@ client.on('ready', () => {
 
 client.on('guildMemberAdd', member => {
   const channel = client.channels.get(CHAT_GENERAL);
-  var gif = welcome[Math.floor(Math.random() * (0, welcome.length))];
+  var welcomeGif = welcome[Math.floor(Math.random() * (0, welcome.length))];
   channel.sendMessage(`Welcome to the **Cyberpunk Social Club**, ${member}`);
-  channel.sendMessage(gif);
+  channel.sendMessage(welcomeGif);
 });
 
 client.on('message', message => {
