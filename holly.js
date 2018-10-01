@@ -123,13 +123,13 @@ client.on('ready', () => {
 client.on('guildMemberAdd', member => {
   const channel = client.channels.get(CHAT_GENERAL);
   var gif = welcome[Math.floor(Math.random() * (0, welcome.length))];
-  channel.sendMessage(`Welcome to the **Cyberpunk Social Club**, ${member}! ${gif}`);
+  channel.sendMessage(`Welcome to the **Cyberpunk Social Club**, ${member}`);
+  channel.sendMessage(gif);
 });
 
 client.on('message', message => {
-  var permissionMsg = `Could not verify your identity. Re-state your request in an official channel.`;
-  var playingMsg = `No track information available, ${message.author}.`;
-  var prepMsg = `Please check your messages, ${message.author}.`;
+  var permissionMsg = `Could not verify your identity, ${message.author}`;
+  var prepMsg = `Please check your messages, ${message.author}`;
 
   if (message.content.toLowerCase() === '!torrent' || message.content.toLowerCase() === '!binaerpilot') {
     message.channel.sendMessage(prepMsg);
@@ -143,7 +143,7 @@ client.on('message', message => {
         message.author.sendFile(TORRENT_BACKSTAGE, 'Binaerpilot_Backstage.torrent', LINK_FLAVOR_TEXT);
       }
       else {
-        message.channel.sendMessage(`You need to be at least a **Scripter** to access Backstage, ${message.author}.`);
+        message.channel.sendMessage(`You need to be at least a **Scripter** to access Backstage, ${message.author}`);
       }
     }
     else {
@@ -158,7 +158,7 @@ client.on('message', message => {
         message.author.sendFile(TORRENT_FLAC, 'Binaerpilot_FLAC.torrent', LINK_FLAVOR_TEXT);
       }
       else {
-        message.channel.sendMessage(`You need to be a **Hacker** to access FLAC, ${message.author}.`);
+        message.channel.sendMessage(`You need to be a **Hacker** to access FLAC, ${message.author}`);
       }
     }
     else {
