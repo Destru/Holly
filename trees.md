@@ -1,1 +1,1 @@
-https://giphy.com/embed/12IHZ4c3dAQvIs
+https://giphy.com/embed/dtRsGsSajaa4ONxSg0
