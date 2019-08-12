@@ -115,7 +115,7 @@ client.on('ready', () => {
   var loginMsg = login[Math.floor(Math.random() * (0, login.length))];
   var playingMsg = games[Math.floor(Math.random() * (0, games.length))];
 
-  if (Math.random() >= 0.5) channel.sendMessage(loginMsg);
+  if (Math.random() >= 0.01) channel.sendMessage(loginMsg);
   client.user.setPresence({game: {name: playingMsg, type: 0 }});
 
 });
