@@ -115,7 +115,7 @@ client.on('ready', () => {
   var loginMsg = login[Math.floor(Math.random() * (0, login.length))];
   var playingMsg = games[Math.floor(Math.random() * (0, games.length))];
 
-  if (Math.random() <= 0.01) channel.send(loginMsg);
+  if (Math.random() <= 0.01) channel.sendMessage(loginMsg);
   client.user.setPresence({game: {name: playingMsg, type: 0 }});
 
 });
@@ -123,8 +123,8 @@ client.on('ready', () => {
 client.on('guildMemberAdd', member => {
   const channel = client.channels.get(CHAT_GENERAL);
   var welcomeGif = welcome[Math.floor(Math.random() * (0, welcome.length))];
-  channel.send(`Welcome to the **Cyberpunk Social Club**, ${member}`);
-  channel.send(welcomeGif);
+  channel.sendMessage(`Welcome to the **Cyberpunk Social Club**, ${member}`);
+  channel.sendMessage(welcomeGif);
 });
 
 client.on('message', message => {
@@ -132,37 +132,37 @@ client.on('message', message => {
   var prepMsg = `Please check your messages, ${message.author}`;
 
   if (message.content.toLowerCase() === '!torrent' || message.content.toLowerCase() === '!binaerpilot') {
-    message.channel.send(prepMsg);
-    message.author.send('Binaerpilot_Discography.torrent', {files: [TORRENT]});
+    message.channel.sendMessage(prepMsg);
+    message.author.sendFile(TORRENT, 'Binaerpilot_Discography.torrent');
   }
 
   else if (message.content.toLowerCase() === '!backstage') {
     if (message.member) {
       if(message.member.roles.has(ROLE_SCRIPTER) || message.member.roles.has(ROLE_HACKER) || message.member.roles.has(ROLE_STATE)) {
-        message.channel.send(prepMsg);
-        message.author.send('Binaerpilot_Backstage.torrent', {files: [TORRENT_BACKSTAGE]});
+        message.channel.sendMessage(prepMsg);
+        message.author.sendFile(TORRENT_BACKSTAGE, 'Binaerpilot_Backstage.torrent', LINK_FLAVOR_TEXT);
       }
       else {
-        message.channel.send(`You need to be at least a **Scripter** to access Backstage, ${message.author}.`);
+        message.channel.sendMessage(`You need to be at least a **Scripter** to access Backstage, ${message.author}`);
       }
     }
     else {
-      message.channel.send(permissionMsg);
+      message.channel.sendMessage(permissionMsg);
     }
   }
 
   else if (message.content.toLowerCase() === '!flac') {
     if (message.member) {
       if(message.member.roles.has(ROLE_HACKER) || message.member.roles.has(ROLE_STATE)) {
-        message.channel.send(prepMsg);
-        message.author.send('Binaerpilot_FLAC.torrent', {files: [TORRENT_FLAC]});
+        message.channel.sendMessage(prepMsg);
+        message.author.sendFile(TORRENT_FLAC, 'Binaerpilot_FLAC.torrent', LINK_FLAVOR_TEXT);
       }
       else {
-        message.channel.send(`You need to be a **Hacker** to access FLAC, ${message.author}.`);
+        message.channel.sendMessage(`You need to be a **Hacker** to access FLAC, ${message.author}`);
       }
     }
     else {
-      message.channel.send(permissionMsg);
+      message.channel.sendMessage(permissionMsg);
     }
   }
 });
