@@ -111,19 +111,18 @@ var welcome = [
 ];
 
 client.on('ready', () => {
-  const channel = client.channels.get(CHAT_GENERAL);
+  const channel = client.channels.get('405503298951446528');
   var loginMsg = login[Math.floor(Math.random() * (0, login.length))];
   var playingMsg = games[Math.floor(Math.random() * (0, games.length))];
 
-  if (Math.random() <= 0.01) channel.sendMessage(loginMsg);
+  channel.sendMessage(loginMsg);
   client.user.setPresence({game: {name: playingMsg, type: 0 }});
 
 });
 
 client.on('guildMemberAdd', member => {
-  const channel = client.channels.get(CHAT_GENERAL);
+  const channel = client.channels.get('828149817502859285');
   var welcomeGif = welcome[Math.floor(Math.random() * (0, welcome.length))];
-  channel.sendMessage(`Welcome to the **Cyberpunk Social Club**, ${member}`);
   channel.sendMessage(welcomeGif);
 });
 
