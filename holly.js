@@ -110,6 +110,8 @@ var welcome = [
   'https://media1.giphy.com/media/dVA9c3Ey7rCr6/giphy.gif'
 ];
 
+var drinks = [':beer:', ':tropical_drink:', ':cocktail:', ':wine_glass:', ':tumbler_glass:'];
+
 client.on('ready', () => {
   const channel = client.channels.get('405503298951446528');
   var loginMsg = login[Math.floor(Math.random() * (0, login.length))];
@@ -164,6 +166,12 @@ client.on('message', message => {
       message.channel.sendMessage(permissionMsg);
     }
   }
+
+  else if (message.content.toLowerCase() === '!drink') {
+    message.channel.sendMessage(`Here you go, ${message.author}!`);
+    message.channel.sendMessage(drinks[Math.floor(Math.random() * (0, drinks.length))]);
+  }
+
 });
 
 client.login(TOKEN);
