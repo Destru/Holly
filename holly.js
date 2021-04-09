@@ -17,7 +17,7 @@ var login = [
   "Wait a minute.",
   "I've forgotten what I was gonna say.",
   "Wait a minute. I've forgotten what I was gonna say.",
-  "I am Holly, the **Cyberpunk Social Club** bot, with an IQ of 6000; The same IQ as 6000 trance DJ's.",
+  "I am Holly, the **Cyberpunk Social Club** bot, with an IQ of 6000; The same IQ as 6000 trance DJs.",
   "Emergency. There's an emergency going on. It's still going on.",
   "\"Of all the space bars in all the worlds, you had to re-materialise in mine.\"",
   "In the 3 million years we have been away, it is my fond hope that mankind has abolished war, cured all disease, and got rid of those little western saloon doors you get in trendy clothes shops.",
