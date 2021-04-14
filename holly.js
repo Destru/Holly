@@ -1,17 +1,17 @@
-var fs = require("fs");
-var vm = require('vm');
+const fs = require("fs");
+const vm = require('vm');
 
 const Discord = require('discord.js');
 const client = new Discord.Client({ autoReconnect: true });
 vm.runInThisContext(fs.readFileSync(__dirname + "/source.js"));
 
-var games = ['Back to Reality',
+const games = ['Back to Reality',
     'Better Than Life',
     'Gunmen of the Apocalypse',
     'Play-by-mail Chess'
   ];
 
-var login = [
+const login = [
   "What's happening, dudes?",
   "What's happening, dudettes?",
   "Wait a minute.",
@@ -65,111 +65,37 @@ var login = [
   "Did you miss me?"
 ];
 
-var welcome = [
-  'https://media2.giphy.com/media/l4JyOCNEfXvVYEqB2/giphy.gif',
-  'https://media1.giphy.com/media/l46Cpz0A0dB1jMxG0/giphy.gif',
-  'https://media0.giphy.com/media/l0MYC0LajbaPoEADu/giphy.gif',
-  'https://media0.giphy.com/media/XYot661SFS62c/giphy.gif',
-  'https://media3.giphy.com/media/ypqHf6pQ5kQEg/giphy.gif',
-  'https://media2.giphy.com/media/VUOMN3AJbxSeY/giphy.gif',
-  'https://media1.giphy.com/media/qQh0DBncuFJwQ/giphy.gif',
-  'https://media2.giphy.com/media/HwePORLAGGJOw/giphy.gif',
-  'https://media1.giphy.com/media/3oEjHQn7PBRvy9A5mE/giphy.gif',
-  'https://media1.giphy.com/media/VeBeB9rR524RW/giphy.gif',
-  'https://media3.giphy.com/media/nx4k3ntt0ChAk/giphy.gif',
-  'https://media2.giphy.com/media/E7KpCs9NhJiRq/giphy.gif',
-  'https://media2.giphy.com/media/dzaUX7CAG0Ihi/giphy.gif',
-  'https://media2.giphy.com/media/3oKIPsx2VAYAgEHC12/giphy.gif',
-  'https://media2.giphy.com/media/mW05nwEyXLP0Y/giphy.gif',
-  'https://media3.giphy.com/media/kW8mnYSNkUYKc/giphy.gif',
-  'https://media1.giphy.com/media/BVStb13YiR5Qs/giphy.gif',
-  'https://media1.giphy.com/media/FBeSx3itXlUQw/giphy.gif',
-  'https://media2.giphy.com/media/12sHg8v0G84V20/giphy.gif',
-  'https://media1.giphy.com/media/6yU7IF9L3950A/giphy.gif',
-  'https://media1.giphy.com/media/3otPongOYeG9iINM8o/giphy.gif',
-  'https://media3.giphy.com/media/3oz8xCg7tmgcAdgOGY/giphy.gif',
-  'https://media0.giphy.com/media/12MWTDpnzvFbSU/giphy.gif',
-  'https://media1.giphy.com/media/zz8PdPqVHdTgs/giphy.gif',
-  'https://media0.giphy.com/media/5xaOcLSiHjl31yG4ZNK/giphy.gif',
-  'https://media2.giphy.com/media/IhLq8fGZw2SEE/giphy.gif',
-  'https://media0.giphy.com/media/euAnOkLGWtdHG/giphy.gif',
-  'https://media0.giphy.com/media/13zdDToM7Hi8eY/giphy.gif',
-  'https://media1.giphy.com/media/1Qhq3p6lc0o6c/giphy.gif',
-  'https://media2.giphy.com/media/3ov9jIMfsR1wRSeO9W/giphy.gif',
-  'https://media0.giphy.com/media/vhneaJCHwmmIg/giphy.gif',
-  'https://media1.giphy.com/media/l0IymL34xhGB6QXAY/giphy.gif',
-  'https://media2.giphy.com/media/9HBduC3ZIgrG8/giphy.gif',
-  'https://media0.giphy.com/media/26ufcVD8jJJiFIY1y/giphy.gif',
-  'https://media3.giphy.com/media/4QkiIdlJXvGPC/giphy.gif',
-  'https://media2.giphy.com/media/l4FsCR2hFJnGh18IM/giphy.gif',
-  'https://media3.giphy.com/media/3otPoSyc3ty37iTKsU/giphy.gif',
-  'https://media0.giphy.com/media/LjZnoNg5UIDuw/giphy.gif',
-  'https://media2.giphy.com/media/qK6ccDxjSmmre/giphy.gif',
-  'https://media2.giphy.com/media/sk2xRIXlXvYWI/giphy.gif',
-  'https://media0.giphy.com/media/3o6ozsFApJ2jboqBP2/giphy.gif',
-  'https://media1.giphy.com/media/dVA9c3Ey7rCr6/giphy.gif'
-];
+const binaerpilot = '<:binaerpilot:832028745560358912>';
 
-var drinks = [':beer:', ':tropical_drink:', ':cocktail:', ':wine_glass:', ':tumbler_glass:'];
+const drinks = [':beer:', ':tropical_drink:', ':cocktail:', ':wine_glass:', ':tumbler_glass:'];
 
 client.on('ready', () => {
   const channel = client.channels.get('405503298951446528');
   var loginMsg = login[Math.floor(Math.random() * (0, login.length))];
   var playingMsg = games[Math.floor(Math.random() * (0, games.length))];
 
-  channel.sendMessage(loginMsg);
+  channel.send(loginMsg);
   client.user.setPresence({game: {name: playingMsg, type: 0 }});
 
 });
 
-client.on('guildMemberAdd', member => {
-  const channel = client.channels.get('828149817502859285');
-  var welcomeGif = welcome[Math.floor(Math.random() * (0, welcome.length))];
-  channel.sendMessage(welcomeGif);
-});
-
 client.on('message', message => {
-  var permissionMsg = `Could not verify your identity, ${message.author}`;
-  var prepMsg = `Please check your messages, ${message.author}`;
 
   if (message.content.toLowerCase() === '!torrent' || message.content.toLowerCase() === '!binaerpilot') {
-    message.channel.sendMessage(prepMsg);
-    message.author.sendFile(TORRENT, 'Binaerpilot_Discography.torrent');
+    message.channel.send(`Discography torrent is pinned in <#831582407496957983> $binaerpilot`);
   }
 
   else if (message.content.toLowerCase() === '!backstage') {
-    if (message.member) {
-      if(message.member.roles.has(ROLE_SCRIPTER) || message.member.roles.has(ROLE_HACKER) || message.member.roles.has(ROLE_STATE)) {
-        message.channel.sendMessage(prepMsg);
-        message.author.sendFile(TORRENT_BACKSTAGE, 'Binaerpilot_Backstage.torrent', LINK_FLAVOR_TEXT);
-      }
-      else {
-        message.channel.sendMessage(`You need to be at least a **Scripter** to access Backstage, ${message.author}`);
-      }
-    }
-    else {
-      message.channel.sendMessage(permissionMsg);
-    }
+    message.channel.send(`Backstage torrent is pinned in the #developer channel :binaerpilot:`);
   }
 
   else if (message.content.toLowerCase() === '!flac') {
-    if (message.member) {
-      if(message.member.roles.has(ROLE_HACKER) || message.member.roles.has(ROLE_STATE)) {
-        message.channel.sendMessage(prepMsg);
-        message.author.sendFile(TORRENT_FLAC, 'Binaerpilot_FLAC.torrent', LINK_FLAVOR_TEXT);
-      }
-      else {
-        message.channel.sendMessage(`You need to be a **Hacker** to access FLAC, ${message.author}`);
-      }
-    }
-    else {
-      message.channel.sendMessage(permissionMsg);
-    }
+    message.channel.send(`FLAC torrent is pinned in the #hacker channel :binaerpilot:`);
   }
 
   else if (message.content.toLowerCase() === '!drink') {
-    message.channel.sendMessage(`Here you go, ${message.author}!`);
-    message.channel.sendMessage(drinks[Math.floor(Math.random() * (0, drinks.length))]);
+    message.channel.send(`Here you go, ${message.author}!`);
+    message.channel.send(drinks[Math.floor(Math.random() * (0, drinks.length))]);
   }
 
 });
