@@ -26,7 +26,7 @@ client.on('message', message => {
   }
 
   else if (command === '!torrent' || command === '!binaerpilot') {
-    message.channel.send(`${binaerpilot} Discography torrent is pinned in the <#831582407496957983> channel, ${message.author}`);
+    message.channel.send(`${binaerpilot} Discography torrent is pinned in the <#462734936177115136> channel, ${message.author}`);
   }
 
   else if (command === '!developer' || command === '!hacker' || command === '!engineer' || command === '!support') {
