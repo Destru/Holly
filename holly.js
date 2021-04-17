@@ -29,7 +29,7 @@ client.on('message', message => {
     message.channel.send(`${binaerpilot} Discography torrent is pinned in the <#462734936177115136> channel, ${message.author}`);
   }
 
-  else if (command === '!developer' || command === '!hacker' || command === '!engineer' || command === '!support') {
+  else if (command === '!patreon' || command === '!support') {
     message.channel.send(`You can support the ***Cyberpunk Social Club*** on Patreon to unlock special roles, ${message.author}`);
     message.channel.send('https://www.patreon.com/destru');
   }
