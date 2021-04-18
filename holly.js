@@ -11,11 +11,8 @@ const games = ['Back to Reality', 'Better Than Life', 'Gunmen of the Apocalypse'
 const limited_access = 'Please note that access is limited (see `!support` for more information)';
 
 client.on('ready', () => {
-  const channel = client.channels.get('832036705766604830');
   let playingMsg = games[Math.floor(Math.random() * (0, games.length))];
-
   client.user.setPresence({game: {name: playingMsg, type: 0 }});
-  channel.send('Reboot detected...');
 });
 
 client.on('message', message => {
