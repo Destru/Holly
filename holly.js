@@ -13,9 +13,8 @@ client.on('ready', () => {
 
 client.on('message', message => {
   let command = message.content.toLowerCase();
-
-  if (command === '!help') {
-    message.channel.send(`Please check pinned messages for help, komrade ${message.author}.`);
+  if (command === '!hello') {
+    message.channel.send(`Hello, komrade ${message.author}.`);
   }
 });
 
