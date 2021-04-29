@@ -15,7 +15,7 @@ client.on('message', message => {
   let command = message.content.toLowerCase();
 
   if (command === '!help') {
-    message.channel.send(`Please check pinned messages for help, ${message.author}`);
+    message.channel.send(`Please check pinned messages for help, komrade ${message.author}.`);
   }
 });
 
