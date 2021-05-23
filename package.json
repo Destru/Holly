@@ -1,16 +1,33 @@
 {
   "name": "holly",
   "version": "1.1.1",
-  "description": "A simple chatbot for the Cyberpunk Social Club.",
-  "main": "holly.js",
-  "dependencies": {
-    "discord.js": "^11.1.0"
+  "description": "Experimental chatbot for the CSC.",
+  "main": "index.js",
+  "engines": {
+    "node": "12.x",
+    "npm": "*"
   },
-  "devDependencies": {},
   "scripts": {
-    "test": "echo \"Tests are for suckers.\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
   },
-  "author": "astoever@gmail.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/destru/holly.git"
+  },
+  "keywords": [
+    "chatbot",
+    "discord.js"
+  ],
+  "author": "Destru",
   "license": "ISC",
-  "repository": "https://github.com/Destru/Holly"
+  "bugs": {
+    "url": "https://github.com/destru/holly/issues"
+  },
+  "homepage": "https://github.com/destru/holly#readme",
+  "dependencies": {
+    "discord.js": "^12.5.3",
+    "dotenv": "^9.0.2"
+  },
+  "devDependencies": {}
 }
