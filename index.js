@@ -18,5 +18,12 @@ cron.schedule('0 */4 * * *', () => {
 
 client.on('ready', () => {
   console.log(`Holly ${process.env.npm_package_version} is online.`);
+  client.user.setPresence({
+    status: 'online',
+    activity: {
+      name: `Destru's OnlyFans`,
+      type: 'WATCHING',
+    }
+  });
 });
 client.login();
