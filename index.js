@@ -26,6 +26,9 @@ client.on('message', message => {
       .then(data => {
         message.channel.send(`${data.insult}, <@${config.insultUser}>`);
       });
+  } else
+  if (message.startsWith('!ping')) {
+    message.channel.send(`${Date.now() - message.createdTimestamp}ms / ${Math.round(client.ws.ping)}ms`);
   }
 });
 
