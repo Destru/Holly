@@ -4,6 +4,9 @@ const fs = require('fs');
 
 const client = new Discord.Client();
 const cron = require('node-cron');
+const fetch = require('node-fetch');
+
+const insultUsers = ['400786664861204481'];
 const status = ['Back to Reality', 'Better Than Life', 'Gunmen of the Apocalypse', 'Play-by-mail Chess'];
 
 cron.schedule('0 */4 * * *', () => {
@@ -16,6 +19,16 @@ cron.schedule('0 */4 * * *', () => {
   });
 });
 
+client.on('message', message => {
+  if (insultUsers.includes(message.author.id) && Math.random() < 0.01) {
+    fetch('https://insult.mattbas.org/api/insult.json')
+      .then(response => response.json())
+      .then(data => {
+        message.channel.send(`${data.insult}, <@${config.insultUser}>`);
+      });
+  }
+});
+
 client.on('ready', () => {
   console.log(`Holly ${process.env.npm_package_version} is online.`);
   client.user.setPresence({
@@ -26,4 +39,5 @@ client.on('ready', () => {
     }
   });
 });
+
 client.login();
