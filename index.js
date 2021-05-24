@@ -6,19 +6,12 @@ const client = new Discord.Client()
 const cron = require('node-cron')
 const fetch = require('node-fetch')
 
+const businessChannels = ['829717667107700746'];
+const complimentChannels = ['836963196916858902'];
 const complimentEmojis = [':heart:', ':heart_eyes:', ':black_heart:', ':blue_heart:', ':brown_heart:', ':green_heart:', ':orange_heart:', ':purple_heart:', ':sparkling_heart:', ':white_heart:', ':yellow_heart:', ':smiling_face_with_3_hearts:', ':kiss:', ':kissing:', ':kissing_heart:', ':kissing_closed_eyes:', ':kissing_smiling_eyes:']
 const insultUsers = ['400786664861204481']
 const randomChance = 0.01
 const status = ['Back to Reality', 'Better Than Life', 'Gunmen of the Apocalypse', 'Play-by-mail Chess']
-
-const findChannels = (client, channels) => {
-  return channels.map(name => {
-    return client.channels.cache.find(channel => channel.name.toLowerCase() === name).id
-  })
-}
-let businessChannels = []
-let complimentChannels = []
-
 
 cron.schedule('0 */4 * * *', () => {
   client.user.setPresence({
@@ -68,9 +61,6 @@ client.on('message', message => {
 
 client.on('ready', () => {
   console.log(`Holly ${process.env.npm_package_version || '(Development)'} is online.`)
-
-  businessChannels = findChannels(client, ['internal-affairs', 'public-relations'])
-  complimentChannels = findChannels(client, ['internal-affairs', 'gay-bar'])
 
   client.user.setPresence({
     status: 'online',
