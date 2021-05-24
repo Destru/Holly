@@ -27,7 +27,7 @@ client.on('message', message => {
     fetch('https://insult.mattbas.org/api/insult.json')
       .then(response => response.json())
       .then(data => {
-        message.channel.send(`${data.insult}, <@${config.insultUser}>`);
+        message.channel.send(`${data.insult}, ${message.author}`);
       });
   }
 
@@ -37,7 +37,10 @@ client.on('message', message => {
     fetch('https://complimentr.com/api')
       .then(response => response.json())
       .then(data => {
-        message.channel.send(`${data.compliment.charAt(0).toUpperCase() + data.compliment.slice(1)}, ${message.author} ${complimentEmoji[Math.floor(Math.random() * status.length)]}`);
+        let compliment = data.compliment.charAt(0).toUpperCase() + data.compliment.slice(1);
+        let emoji = complimentEmojis[Math.floor(Math.random() * status.length)];
+
+        message.channel.send(`${compliment}, ${message.author} ${emoji}`);
       });
   } else
   if (message.content.startsWith('!ping')) {
