@@ -49,6 +49,7 @@ client.on('message', message => {
 });
 
 client.on('ready', () => {
+  console.log(process.env);
   console.log(`Holly ${process.env.npm_package_version || '(nodemon)'} is online.`);
   client.user.setPresence({
     status: 'online',
