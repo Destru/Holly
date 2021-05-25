@@ -10,12 +10,13 @@ const syllable = require('syllable')
 const { days, getRandom, writeHaiku } = require('./helpers')
 
 let csc = 'Cyberpunk Social Club'
-const dailyDeathsChannel = '160320676580818951'
+const dailyDeathsChannel = '832394205422026813'
 const dailyEventsChannel = '160320676580818951'
 const destru = '160320553322807296';
 const insultUsers = ['400786664861204481']
 const randomChance = 0.01
 const status = ['Back to Reality', 'Better Than Life', 'Gunmen of the Apocalypse', 'Play-by-mail Chess']
+const testChannel = '845382463685132288'
 const version = process.env.npm_package_version || '(Development)'
 
 cron.schedule('0 */4 * * *', () => {
@@ -34,7 +35,7 @@ cron.schedule('0 8 * * *', () => {
   fetch(`https://byabbe.se/on-this-day/${now.getMonth()}/${now.getDate()}/deaths.json`)
     .then(response => response.json())
     .then(data => {
-      const deaths = getRandom('byabbe', data.deaths, 15)
+      const deaths = getRandom('byabbe', data.deaths, 24)
       const embed = new Discord.MessageEmbed()
         .setColor('#ffff00')
         .setImage('https://media.giphy.com/media/h5NLPVn3rg0Rq/giphy.gif')
@@ -42,7 +43,7 @@ cron.schedule('0 8 * * *', () => {
         .setFooter(csc.name, csc.iconURL())
 
       deaths.forEach((death, i) => {
-        embed.addField(`:headstone: ${death.year}`, `[${death.wikipedia[0].title}](${death.wikipedia[0].wikipedia})`, true);
+        embed.addField(`:headstone: ${death.year}`, `[${death.description}](${death.wikipedia[0].wikipedia})`, true)
       })
 
       client.channels.cache.get(dailyDeathsChannel).send(embed)
@@ -91,6 +92,33 @@ client.on('message', message => {
   else if (message.content.startsWith('!run')) {
     if (message.author.id === destru) {
       console.log(`Hi, it's me, you!`)
+
+      const now = new Date()
+
+      fetch(`https://byabbe.se/on-this-day/${now.getMonth()}/${now.getDate()}/events.json`)
+      .then(response => response.json())
+      .then(data => {
+        const events = getRandom('byabbe', data.events, 5)
+        const embed = new Discord.MessageEmbed()
+          .setColor('#ffff00')
+          .setTitle(`Today is ${days[now.getDay()]}, ${data.date}.`)
+          .setFooter(csc.name, csc.iconURL())
+
+        events.forEach(event => {
+          let description = event.description
+
+          event.wikipedia.forEach((wiki, i) => {
+            let link = `[${wiki.title}](${wiki.wikipedia})`
+
+            if (i === 0) description += `\n:book: ${link}`
+            else description += `, ${link}`
+          })
+
+          embed.addField(event.year, description)
+        })
+
+        client.channels.cache.get(testChannel).send(embed)
+      })
     }
     else message.channel.send(`You're not <@${destru}>, ${message.author}`)
   }
