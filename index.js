@@ -11,13 +11,15 @@ const destru = '160320553322807296';
 const version = process.env.npm_package_version || '(Development)'
 let csc = 'Cyberpunk Social Club'
 
-const businessChannels = ['829717667107700746']
-const complimentChannels = ['836963196916858902']
+const businessChannels = ['845382463685132288', '829717667107700746']
+const complimentChannels = ['845382463685132288', '836963196916858902']
+const dailyDeathsChannel = '160320676580818951'
+const dailyEventsChannel = '160320676580818951'
 const complimentEmoji = [':heart:', ':heart_eyes:', ':black_heart:', ':blue_heart:', ':brown_heart:', ':green_heart:', ':orange_heart:', ':purple_heart:', ':sparkling_heart:', ':white_heart:', ':yellow_heart:', ':smiling_face_with_3_hearts:', ':kiss:', ':kissing:', ':kissing_heart:', ':kissing_closed_eyes:', ':kissing_smiling_eyes:']
 const insultUsers = ['400786664861204481']
 const randomChance = 0.01
 const status = ['Back to Reality', 'Better Than Life', 'Gunmen of the Apocalypse', 'Play-by-mail Chess']
-const todayChannel = '160320676580818951'
+
 
 cron.schedule('0 */4 * * *', () => {
   client.user.setPresence({
@@ -32,10 +34,27 @@ cron.schedule('0 */4 * * *', () => {
 cron.schedule('0 8 * * *', () => {
   const now = new Date()
 
+  fetch(`https://byabbe.se/on-this-day/${now.getMonth()}/${now.getDate()}/deaths.json`)
+    .then(response => response.json())
+    .then(data => {
+      const deaths = getRandom('byabbe', data.deaths, 15)
+      const embed = new Discord.MessageEmbed()
+        .setColor('#ffff00')
+        .setImage('https://media.giphy.com/media/h5NLPVn3rg0Rq/giphy.gif')
+        .setTitle(`Today is ${days[now.getDay()]}, ${data.date}.`)
+        .setFooter(csc.name, csc.iconURL())
+
+      deaths.forEach((death, i) => {
+        embed.addField(`:headstone: ${death.year}`, `[${death.wikipedia[0].title}](${death.wikipedia[0].wikipedia})`, true);
+      })
+
+      client.channels.cache.get(dailyDeathsChannel).send(embed)
+    })
+
   fetch(`https://byabbe.se/on-this-day/${now.getMonth()}/${now.getDate()}/events.json`)
     .then(response => response.json())
     .then(data => {
-      const events = getRandom('events', data.events, 5)
+      const events = getRandom('byabbe', data.events, 5)
       const embed = new Discord.MessageEmbed()
         .setColor('#ffff00')
         .setTitle(`Today is ${days[now.getDay()]}, ${data.date}.`)
@@ -57,7 +76,7 @@ cron.schedule('0 8 * * *', () => {
         embed.addField(event.year, description)
       })
 
-      client.channels.cache.get(todayChannel).send(embed)
+      client.channels.cache.get(dailyEventsChannel).send(embed)
     })
 })
 
@@ -95,36 +114,12 @@ client.on('message', message => {
   if (message.content.startsWith('!ping')) {
     message.channel.send(`${Date.now() - message.createdTimestamp}ms / ${Math.round(client.ws.ping)}ms`);
   } else
-  if (message.content.startsWith('!run') && message.author.id === destru) {
-    const now = new Date()
-
-    fetch(`https://byabbe.se/on-this-day/${now.getMonth()}/${now.getDate()}/events.json`)
-      .then(response => response.json())
-      .then(data => {
-        const events = getRandom('events', data.events, 5)
-        const embed = new Discord.MessageEmbed()
-          .setColor('#ffff00')
-          .setTitle(`Today is ${days[now.getDay()]}, ${data.date}.`)
-          .setFooter(csc.name, csc.iconURL())
-
-        events.forEach(event => {
-          let description = event.description
-
-          event.wikipedia.forEach((wiki, i) => {
-            let link = `[${wiki.title}](${wiki.wikipedia})`
-
-            if (i === 0) {
-              description += `\n:book: ${link}`
-            } else {
-              description += `, ${link}`
-            }
-          })
-
-          embed.addField(event.year, description)
-        })
-
-        message.channel.send(embed)
-      })
+  if (message.content.startsWith('!run')) {
+    if (message.author.id === destru) {
+      // now what?
+    } else {
+      message.channel.send(`You're not <@${destru}>, ${message.author}`)
+    }
   }
 })
 
