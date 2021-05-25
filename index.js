@@ -17,7 +17,7 @@ const complimentEmoji = [':heart:', ':heart_eyes:', ':black_heart:', ':blue_hear
 const insultUsers = ['400786664861204481']
 const randomChance = 0.01
 const status = ['Back to Reality', 'Better Than Life', 'Gunmen of the Apocalypse', 'Play-by-mail Chess']
-const todayChannel = '845382463685132288'
+const todayChannel = '160320676580818951'
 
 cron.schedule('0 */4 * * *', () => {
   client.user.setPresence({
