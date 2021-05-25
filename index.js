@@ -8,7 +8,7 @@ const fetch = require('node-fetch')
 
 const businessChannels = ['829717667107700746'];
 const complimentChannels = ['836963196916858902'];
-const complimentEmojis = [':heart:', ':heart_eyes:', ':black_heart:', ':blue_heart:', ':brown_heart:', ':green_heart:', ':orange_heart:', ':purple_heart:', ':sparkling_heart:', ':white_heart:', ':yellow_heart:', ':smiling_face_with_3_hearts:', ':kiss:', ':kissing:', ':kissing_heart:', ':kissing_closed_eyes:', ':kissing_smiling_eyes:']
+const complimentEmoji = [':heart:', ':heart_eyes:', ':black_heart:', ':blue_heart:', ':brown_heart:', ':green_heart:', ':orange_heart:', ':purple_heart:', ':sparkling_heart:', ':white_heart:', ':yellow_heart:', ':smiling_face_with_3_hearts:', ':kiss:', ':kissing:', ':kissing_heart:', ':kissing_closed_eyes:', ':kissing_smiling_eyes:']
 const insultUsers = ['400786664861204481']
 const randomChance = 0.01
 const status = ['Back to Reality', 'Better Than Life', 'Gunmen of the Apocalypse', 'Play-by-mail Chess']
@@ -39,7 +39,7 @@ client.on('message', message => {
       .then(response => response.json())
       .then(data => {
         let compliment = data.compliment.charAt(0).toUpperCase() + data.compliment.slice(1);
-        let emoji = complimentEmojis[Math.floor(Math.random() * status.length)];
+        let emoji = complimentEmoji[Math.floor(Math.random() * status.length)];
 
         message.channel.send(`${compliment}, ${message.author} ${emoji}`);
       })
