@@ -106,10 +106,11 @@ module.exports = {
       }
     })
 
-    const formattedHaiku = `${capitalize(fiveSyl1.join(' '))}\n${capitalize(sevenSyl.join(' '))}\n${capitalize(fiveSyl2.join(' '))}\n`
+    const formattedHaiku = `${capitalize(fiveSyl1.join(' '))}\n${capitalize(sevenSyl.join(' '))}\n${capitalize(fiveSyl2.join(' '))}`
+    const formattedTwice = formattedHaiku.replace(/,/g, '') // todo: squash this bug
 
     return {
-      message: `${formattedHaiku}\n`,
+      message: `${formattedTwice}\n`,
       arrays: { fiveSyl1, sevenSyl, fiveSyl2 }
     }
   }
