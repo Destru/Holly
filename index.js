@@ -95,13 +95,7 @@ client.on('message', message => {
     else message.channel.send(`You're not <@${destru}>, ${message.author}`)
   }
   else if(syllable(message.content) === 17) {
-    const embed = new Discord.MessageEmbed()
-      .setColor('#ffff00')
-      .setDescription(`_${writeHaiku(message.content).message}_`)
-      .setFooter(`—${message.author.username}, ${new Date().getFullYear()}`, message.author.displayAvatarURL())
-
-    message.lineReply(embed)
-
+    message.lineReply(`${writeHaiku(message.content).message}—_${message.author.username}_`)
   }
   else {
     const businessChannels = ['845382463685132288', '829717667107700746']
