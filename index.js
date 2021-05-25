@@ -97,9 +97,8 @@ client.on('message', message => {
   else if(syllable(message.content) === 17) {
     const embed = new Discord.MessageEmbed()
       .setColor('#ffff00')
-      .setDescription(`${writeHaiku(message.content).message}\n_—${message.author.username}, ${new Date().getFullYear()}_`)
-      .setFooter(csc.name, csc.iconURL())
-      .setTitle('Haiku')
+      .setDescription(`_${writeHaiku(message.content).message}_`)
+      .setFooter(`—${message.author.username}, ${new Date().getFullYear()}`, message.author.displayAvatarURL())
 
     message.lineReply(embed)
 

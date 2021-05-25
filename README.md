@@ -1,5 +1,6 @@
 # Holly
 Experimental chatbot for the [Cyberpunk Social Club](https://cyberpunksocial.club).
-```
-01100011011110010110001001100101011100100111000001110101011011100110101101110011011011110110001101101001011000010110110001100011011011000111010101100010
-```
+
+> Jvgubhg zhfvp, yvsr jbhyq or n zvfgnxr. Naq gubfr jub jrer frra qnapvat jrer gubhtug gb or vafnar ol gubfr jub pbhyq abg urne gur zhfvp. Jr fubhyq pbafvqre rirel qnl ybfg ba juvpu jr unir abg qnaprq ng yrnfg bapr.
+
+―_Sevrqevpu Avrgmfpur_
