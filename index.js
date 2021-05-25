@@ -1,25 +1,22 @@
 require('dotenv').config()
+require('discord-reply')
 const Discord = require('discord.js')
 const fs = require('fs')
 
 const client = new Discord.Client()
 const cron = require('node-cron')
 const fetch = require('node-fetch')
-const { days, getRandom } = require('./helpers')
+const syllable = require('syllable')
+const { days, getRandom, writeHaiku } = require('./helpers')
 
-const destru = '160320553322807296';
-const version = process.env.npm_package_version || '(Development)'
 let csc = 'Cyberpunk Social Club'
-
-const businessChannels = ['845382463685132288', '829717667107700746']
-const complimentChannels = ['845382463685132288', '836963196916858902']
 const dailyDeathsChannel = '160320676580818951'
 const dailyEventsChannel = '160320676580818951'
-const complimentEmoji = [':heart:', ':heart_eyes:', ':black_heart:', ':blue_heart:', ':brown_heart:', ':green_heart:', ':orange_heart:', ':purple_heart:', ':sparkling_heart:', ':white_heart:', ':yellow_heart:', ':smiling_face_with_3_hearts:', ':kiss:', ':kissing:', ':kissing_heart:', ':kissing_closed_eyes:', ':kissing_smiling_eyes:']
+const destru = '160320553322807296';
 const insultUsers = ['400786664861204481']
 const randomChance = 0.01
 const status = ['Back to Reality', 'Better Than Life', 'Gunmen of the Apocalypse', 'Play-by-mail Chess']
-
+const version = process.env.npm_package_version || '(Development)'
 
 cron.schedule('0 */4 * * *', () => {
   client.user.setPresence({
@@ -66,11 +63,8 @@ cron.schedule('0 8 * * *', () => {
         event.wikipedia.forEach((wiki, i) => {
           let link = `[${wiki.title}](${wiki.wikipedia})`
 
-          if (i === 0) {
-            description += `\n:book: ${link}`
-          } else {
-            description += `, ${link}`
-          }
+          if (i === 0) description += `\n:book: ${link}`
+          else description += `, ${link}`
         })
 
         embed.addField(event.year, description)
@@ -91,34 +85,47 @@ client.on('message', message => {
 
   if (message.author.bot) return
 
-  if (complimentChannels.includes(message.channel.id) && Math.random() < randomChance) {
-    fetch('https://complimentr.com/api')
-      .then(response => response.json())
-      .then(data => {
-        let compliment = data.compliment.charAt(0).toUpperCase() + data.compliment.slice(1);
-        let emoji = complimentEmoji[Math.floor(Math.random() * status.length)];
-
-        message.channel.send(`${compliment}, ${message.author} ${emoji}`);
-      })
-  }
-
-  if (businessChannels.includes(message.channel.id) && Math.random() < randomChance) {
-    fetch('https://corporatebs-generator.sameerkumar.website/')
-      .then(response => response.json())
-      .then(data => {
-        let bullshit = data.phrase.charAt(0).toUpperCase() + data.phrase.toLowerCase().slice(1);
-        message.channel.send(`${bullshit} :man_office_worker:`);
-      })
-  }
-
   if (message.content.startsWith('!ping')) {
     message.channel.send(`${Date.now() - message.createdTimestamp}ms / ${Math.round(client.ws.ping)}ms`);
-  } else
-  if (message.content.startsWith('!run')) {
+  }
+  else if (message.content.startsWith('!run')) {
     if (message.author.id === destru) {
-      // now what?
-    } else {
-      message.channel.send(`You're not <@${destru}>, ${message.author}`)
+      console.log(`Hi, it's me, you!`)
+    }
+    else message.channel.send(`You're not <@${destru}>, ${message.author}`)
+  }
+  else if(syllable(message.content) === 17) {
+    const embed = new Discord.MessageEmbed()
+      .setColor('#ffff00')
+      .setDescription(`${writeHaiku(message.content).message}`)
+      .setTitle('Haiku')
+      .setFooter(`—${message.author.username}, ${csc.name}`, csc.iconURL())
+
+    message.lineReply(embed)
+
+  }
+  else {
+    const businessChannels = ['845382463685132288', '829717667107700746']
+    const complimentChannels = ['845382463685132288', '836963196916858902']
+    const complimentEmoji = [':heart:', ':heart_eyes:', ':black_heart:', ':blue_heart:', ':brown_heart:', ':green_heart:', ':orange_heart:', ':purple_heart:', ':sparkling_heart:', ':white_heart:', ':yellow_heart:', ':smiling_face_with_3_hearts:', ':kiss:', ':kissing:', ':kissing_heart:', ':kissing_closed_eyes:', ':kissing_smiling_eyes:']
+
+    if (complimentChannels.includes(message.channel.id) && Math.random() < randomChance) {
+      fetch('https://complimentr.com/api')
+        .then(response => response.json())
+        .then(data => {
+          let compliment = data.compliment.charAt(0).toUpperCase() + data.compliment.slice(1);
+          let emoji = complimentEmoji[Math.floor(Math.random() * status.length)];
+
+          message.channel.send(`${compliment}, ${message.author} ${emoji}`);
+        })
+    }
+    else if (businessChannels.includes(message.channel.id) && Math.random() < randomChance) {
+      fetch('https://corporatebs-generator.sameerkumar.website/')
+        .then(response => response.json())
+        .then(data => {
+          let bullshit = data.phrase.charAt(0).toUpperCase() + data.phrase.toLowerCase().slice(1);
+          message.channel.send(`${bullshit} :man_office_worker:`);
+        })
     }
   }
 })
@@ -134,7 +141,6 @@ client.on('ready', () => {
       type: 'WATCHING',
     }
   })
-
 })
 
 client.login()
