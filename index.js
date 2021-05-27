@@ -38,7 +38,6 @@ cron.schedule('0 8 * * *', () => {
       const deaths = getRandom('byabbe', data.deaths, 24)
       const embed = new Discord.MessageEmbed()
         .setColor('#ffff00')
-        .setImage('https://media.giphy.com/media/h5NLPVn3rg0Rq/giphy.gif')
         .setTitle(`Today is ${days[now.getDay()]}, ${data.date}.`)
         .setFooter(csc.name, csc.iconURL())
 
