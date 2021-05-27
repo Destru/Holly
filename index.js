@@ -7,11 +7,9 @@ const client = new Discord.Client()
 const cron = require('node-cron')
 const fetch = require('node-fetch')
 const syllable = require('syllable')
-const { days, getRandom, writeHaiku } = require('./helpers')
+const { writeHaiku } = require('./helpers')
 
 let csc = 'Cyberpunk Social Club'
-const dailyDeathsChannel = '832394205422026813'
-const dailyEventsChannel = '160320676580818951'
 const destru = '160320553322807296';
 const insultUsers = ['400786664861204481']
 const randomChance = 0.01
@@ -27,51 +25,6 @@ cron.schedule('0 */4 * * *', () => {
       type: 'PLAYING',
     }
   })
-})
-
-cron.schedule('0 8 * * *', () => {
-  const now = new Date()
-
-  fetch(`https://byabbe.se/on-this-day/${now.getMonth()}/${now.getDate()}/deaths.json`)
-    .then(response => response.json())
-    .then(data => {
-      const deaths = getRandom('byabbe', data.deaths, 24)
-      const embed = new Discord.MessageEmbed()
-        .setColor('#ffff00')
-        .setTitle(`Today is ${days[now.getDay()]}, ${data.date}.`)
-        .setFooter(csc.name, csc.iconURL())
-
-      deaths.forEach((death, i) => {
-        embed.addField(`:headstone: ${death.year}`, `[${death.description}](${death.wikipedia[0].wikipedia})`, true)
-      })
-
-      client.channels.cache.get(dailyDeathsChannel).send(embed)
-    })
-
-  fetch(`https://byabbe.se/on-this-day/${now.getMonth()}/${now.getDate()}/events.json`)
-    .then(response => response.json())
-    .then(data => {
-      const events = getRandom('byabbe', data.events, 5)
-      const embed = new Discord.MessageEmbed()
-        .setColor('#ffff00')
-        .setTitle(`Today is ${days[now.getDay()]}, ${data.date}.`)
-        .setFooter(csc.name, csc.iconURL())
-
-      events.forEach(event => {
-        let description = event.description
-
-        event.wikipedia.forEach((wiki, i) => {
-          let link = `[${wiki.title}](${wiki.wikipedia})`
-
-          if (i === 0) description += `\n:book: ${link}`
-          else description += `, ${link}`
-        })
-
-        embed.addField(event.year, description)
-      })
-
-      client.channels.cache.get(dailyEventsChannel).send(embed)
-    })
 })
 
 client.on('message', message => {
@@ -91,33 +44,6 @@ client.on('message', message => {
   else if (message.content.startsWith('!run')) {
     if (message.author.id === destru) {
       console.log(`Hi, it's me, you!`)
-
-      const now = new Date()
-
-      fetch(`https://byabbe.se/on-this-day/${now.getMonth()}/${now.getDate()}/events.json`)
-      .then(response => response.json())
-      .then(data => {
-        const events = getRandom('byabbe', data.events, 5)
-        const embed = new Discord.MessageEmbed()
-          .setColor('#ffff00')
-          .setTitle(`Today is ${days[now.getDay()]}, ${data.date}.`)
-          .setFooter(csc.name, csc.iconURL())
-
-        events.forEach(event => {
-          let description = event.description
-
-          event.wikipedia.forEach((wiki, i) => {
-            let link = `[${wiki.title}](${wiki.wikipedia})`
-
-            if (i === 0) description += `\n:book: ${link}`
-            else description += `, ${link}`
-          })
-
-          embed.addField(event.year, description)
-        })
-
-        client.channels.cache.get(testChannel).send(embed)
-      })
     }
     else message.channel.send(`You're not <@${destru}>, ${message.author}`)
   }
