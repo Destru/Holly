@@ -48,6 +48,7 @@ client.on('message', message => {
     else message.channel.send(`You're not <@${destru}>, ${message.author}`)
   }
   else if(syllable(message.content) === 17) {
+    if (message.content.match(/(https?|ftp|file):\/\//g)) return
     message.lineReply(`${writeHaiku(message.content).message}—_${message.author.username}_`)
   }
   else {
