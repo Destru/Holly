@@ -73,9 +73,7 @@ client.on('message', (message) => {
 
     message.lineReply(embed)
   } else if (message.content.startsWith('!list-haikus')) {
-    const haikus = Haiku.find()
-      .matches('author', message.author.id + 1)
-      .run()
+    const haikus = Haiku.find().matches('author', message.author.id).run()
     console.log(haikus)
 
     if (haikus.length > 0) {
