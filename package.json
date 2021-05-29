@@ -29,11 +29,9 @@
     "discord-reply": "^0.1.2",
     "discord.js": "^12.5.3",
     "dotenv": "^9.0.2",
-    "hyphenation.en-us": "^0.2.1",
-    "hypher": "^0.2.5",
-    "node-cron": "^3.0.0",
-    "node-fetch": "^2.6.1",
-    "syllable": "^4.1.0"
+    "findahaiku": "^1.1.2",
+    "flat-db": "^4.0.0",
+    "node-fetch": "^2.6.1"
   },
   "devDependencies": {}
 }
