@@ -64,6 +64,7 @@ client.on('message', (message) => {
     const embed = new Discord.MessageEmbed()
       .setColor('#ff00ff')
       .setDescription(`${formattedHaiku}\n—*${message.author.username}*`)
+      .setTitle('Haiku')
 
     Haiku.add({
       author: message.author.id,
@@ -72,12 +73,18 @@ client.on('message', (message) => {
     })
 
     message.lineReply(embed)
-  } else if (message.content.startsWith('!list-haikus')) {
-    const haikus = Haiku.find().matches('author', message.author.id).run()
-    console.log(haikus)
+  } else if (message.content.startsWith('!haikus')) {
+    let author = message.author.id
+    let matches = message.content.match(/<@!(\d+)>/)
+
+    if (matches) author = matches[1]
+
+    const haikus = Haiku.find().matches('author', author).run()
 
     if (haikus.length > 0) {
-      const embed = new Discord.MessageEmbed().setColor('#ff00ff')
+      const embed = new Discord.MessageEmbed()
+        .setColor('#ff00ff')
+        .setTitle('Haikus')
 
       haikus.forEach((haiku) => {
         const timestamp = new Date(haiku._ts_).toLocaleString([], {
@@ -89,8 +96,25 @@ client.on('message', (message) => {
         embed.addField(timestamp, haiku.content)
       })
 
-      message.lineReply(embed)
-    } else message.channel.send(`Oi, you haven't written any haikus yet.`)
+      message.channel.send(embed)
+    } else
+      message.channel.send(
+        `>>> I searched the data\nfor a couple of seconds\nbut there's nothing there.`
+      )
+  }
+
+  // all-caps
+  else if (message.channel.id === '412714197399371788') {
+    const number =
+      ':zero: :one: :two: :three: :four: :five: :six: :seven: :eight: :nine'.split(
+        ' '
+      )
+
+    if (!message.content.match(/^[A-Z.,:;-_!?()"'\/]+$/gm)) {
+      message.delete()
+      message.channel.send(`${message.author.username.toUpperCase()} HAS DIED`)
+      message.member.roles.add('832393909988491304')
+    }
   }
 
   // cute compliments
@@ -127,7 +151,7 @@ client.on('message', (message) => {
   // fuckaneolib
   else if (message.content.startsWith('!bot-info')) {
     message.channel.send(
-      `I am Holly, the ship's computer, with an IQ of 6000; the same IQ as 6000 neoliberals.`
+      `I am Holly, the CSC computer, with an IQ of 6000; the same IQ as 6000 neoliberals.`
     )
   }
 })
