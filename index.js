@@ -105,12 +105,9 @@ client.on('message', (message) => {
 
   // all-caps
   else if (message.channel.id === '412714197399371788') {
-    const number =
-      ':zero: :one: :two: :three: :four: :five: :six: :seven: :eight: :nine'.split(
-        ' '
-      )
+    const allCaps = /^[A-Z0-9\s-_,./?;:'"`~!@#$%^&*()=+|\\<>\[\]{}]+$/gm
 
-    if (!message.content.match(/^[A-Z.,:;-_!?()"'\/]+$/gm)) {
+    if (!message.content.match(allCaps)) {
       message.delete()
       message.channel.send(`${message.author.username.toUpperCase()} HAS DIED`)
       message.member.roles.add('832393909988491304')
