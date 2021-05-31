@@ -5,6 +5,7 @@ const client = new Discord.Client()
 const db = require('flat-db')
 const fetch = require('node-fetch')
 const findahaiku = require('findahaiku')
+const prettyMs = require('pretty-ms')
 
 const businessChannels = ['845382463685132288', '829717667107700746']
 const complimentChannels = ['845382463685132288', '836963196916858902']
@@ -27,6 +28,8 @@ const complimentEmoji = [
   ':kissing_closed_eyes:',
   ':kissing_smiling_eyes:',
 ]
+const embedColor = '#ff00ff'
+const emoji = '<:cscbob:846528128524091422>'
 const insultUsers = ['400786664861204481']
 const randomChance = 0.01
 const status = [
@@ -55,6 +58,41 @@ client.on('message', (message) => {
       .then((data) => {
         message.channel.send(`${data.insult}, ${message.author}`)
       })
+  }
+
+  // rank promotions
+  else if (
+    message.channel.id === '405503298951446528' &&
+    message.author.id === '836661328374267997'
+  ) {
+    const matches = message.content.match(/level (\d+)/)
+    const ranks = {
+      5: 'Dissident',
+      10: 'Activist',
+      15: 'Insurgent',
+      20: 'Revolutionary',
+      25: 'Augmented',
+      30: 'Cyborg',
+      35: 'Android',
+      40: 'Replicant',
+      50: 'Cyberpunk',
+      60: 'Tron',
+    }
+
+    if (matches && ranks[parseInt(matches[1])]) {
+      message.channel.send(
+        `Congratulations, you've been promoted to **${
+          ranks[parseInt(matches[1])]
+        }** ${emoji}`
+      )
+      fetch(
+        `https://api.giphy.com/v1/gifs/random?api_key=${process.env.GIPHY_TOKEN}&tag=applause&rating=pg13`
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          message.channel.send(data.data.embed_url)
+        })
+    }
   } else if (message.author.bot) return
 
   // haiku
@@ -62,9 +100,8 @@ client.on('message', (message) => {
 
   if (isHaiku) {
     const embed = new Discord.MessageEmbed()
-      .setColor('#ff00ff')
+      .setColor(embedColor)
       .setDescription(`${formattedHaiku}\n—*${message.author.username}*`)
-      .setTitle('Haiku')
 
     Haiku.add({
       author: message.author.id,
@@ -83,7 +120,7 @@ client.on('message', (message) => {
 
     if (haikus.length > 0) {
       const embed = new Discord.MessageEmbed()
-        .setColor('#ff00ff')
+        .setColor(embedColor)
         .setTitle('Haikus')
 
       haikus.forEach((haiku) => {
@@ -104,7 +141,7 @@ client.on('message', (message) => {
   }
 
   // all-caps
-  else if (message.channel.id === '412714197399371788') {
+  if (message.channel.id === '412714197399371788') {
     const allCaps = /^[A-Z0-9\s-_,./?;:'"`~!@#$%^&*()=+|\\<>\[\]{}]+$/gm
 
     if (!message.content.match(allCaps)) {
@@ -112,6 +149,21 @@ client.on('message', (message) => {
       message.channel.send(`${message.author.username.toUpperCase()} HAS DIED`)
       message.member.roles.add('832393909988491304')
     }
+  }
+
+  // business talk
+  else if (
+    businessChannels.includes(message.channel.id) &&
+    Math.random() < randomChance
+  ) {
+    fetch('https://corporatebs-generator.sameerkumar.website/')
+      .then((response) => response.json())
+      .then((data) => {
+        let bullshit =
+          data.phrase.charAt(0).toUpperCase() +
+          data.phrase.toLowerCase().slice(1)
+        message.channel.send(`${bullshit} :man_office_worker:`)
+      })
   }
 
   // cute compliments
@@ -130,26 +182,30 @@ client.on('message', (message) => {
       })
   }
 
-  // business talk
-  else if (
-    businessChannels.includes(message.channel.id) &&
-    Math.random() < randomChance
-  ) {
-    fetch('https://corporatebs-generator.sameerkumar.website/')
-      .then((response) => response.json())
-      .then((data) => {
-        let bullshit =
-          data.phrase.charAt(0).toUpperCase() +
-          data.phrase.toLowerCase().slice(1)
-        message.channel.send(`${bullshit} :man_office_worker:`)
-      })
-  }
-
-  // fuckaneolib
-  else if (message.content.startsWith('!bot-info')) {
-    message.channel.send(
-      `I am Holly, the CSC computer, with an IQ of 6000; the same IQ as 6000 neoliberals.`
-    )
+  if (message.content.startsWith('!bot-info')) {
+    const embed = new Discord.MessageEmbed()
+      .setColor(embedColor)
+      .setDescription(
+        `I have an IQ of 6000; the same IQ as 6000 neoliberals.` +
+          `\n[GitHub Repo](https://github.com/destru/holly) :link:`
+      )
+      .setTitle('Holly')
+      .addFields(
+        {
+          name: 'Latency',
+          value:
+            `${Date.now() - message.createdTimestamp}ms /` +
+            `${Math.round(message.client.ws.ping)}ms`,
+          inline: true,
+        },
+        {
+          name: 'Uptime',
+          value: prettyMs(message.client.uptime),
+          inline: true,
+        },
+        { name: 'Version', value: version, inline: true }
+      )
+    message.channel.send(embed)
   }
 })
 
