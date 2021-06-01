@@ -29,9 +29,16 @@ const complimentEmoji = [
   ':kissing_smiling_eyes:',
 ]
 const embedColor = '#ff00ff'
-const emoji = '<:cscbob:846528128524091422>'
 const insultUsers = ['400786664861204481']
 const randomChance = 0.01
+const randomEmoji = () => {
+  const emoji = [
+    '<:cscalt:837251418247004205>',
+    '<:cscbob:846528128524091422>',
+    '<:csc:403256716583632906>',
+  ]
+  return emoji[Math.floor(Math.random() * emoji.length)]
+}
 const status = [
   'Back to Reality',
   'Better Than Life',
@@ -50,8 +57,12 @@ const Haiku = new db.Collection('haikus', {
   content: '',
 })
 
+const Resurrection = new db.Collection('resurrections', {
+  author: '',
+})
+
 client.on('message', (message) => {
-  // bot interactions
+  // trebek
   if (insultUsers.includes(message.author.id) && Math.random() < randomChance) {
     fetch('https://insult.mattbas.org/api/insult.json')
       .then((response) => response.json())
@@ -60,10 +71,11 @@ client.on('message', (message) => {
       })
   }
 
-  // rank promotions
+  // promotions
   else if (
-    message.channel.id === '405503298951446528' &&
-    message.author.id === '836661328374267997'
+    message.content.startsWith('!promoted') ||
+    (message.channel.id === '405503298951446528' &&
+      message.author.id === '836661328374267997')
   ) {
     const matches = message.content.match(/level (\d+)/)
     const ranks = {
@@ -80,13 +92,17 @@ client.on('message', (message) => {
     }
 
     if (matches && ranks[parseInt(matches[1])]) {
+      const token = process.env.GIPHY_TOKEN
+      const tag = encodeURI('applause')
+
       message.channel.send(
-        `Congratulations, you've been promoted to **${
+        `You've been promoted to **${
           ranks[parseInt(matches[1])]
-        }** ${emoji}`
+        }** ${randomEmoji()}`
       )
       fetch(
-        `https://api.giphy.com/v1/gifs/random?api_key=${process.env.GIPHY_TOKEN}&tag=applause&rating=pg13`
+        `https://api.giphy.com/v1/gifs/random?api_key=${token}` +
+          `&tag=${tag}&rating=pg13`
       )
         .then((response) => response.json())
         .then((data) => {
@@ -151,7 +167,23 @@ client.on('message', (message) => {
     }
   }
 
-  // business talk
+  // irc
+  if (message.channel.id === '848998146608594984') {
+    const emoji = /<:.+:\d+>/g
+    const textOnly = /^[a-zA-Z0-9\s-_,./?;:'"`~!@#$%^&*()=+|\\<>\[\]{}]+$/gm
+
+    if (message.content.match(emoji) || !message.content.match(textOnly)) {
+      message.delete()
+      message.channel.send(
+        '```yaml\n' +
+          `*** ${message.author.username} has quit IRC (Killed (Rule violation)).` +
+          '```'
+      )
+      message.member.roles.add('832393909988491304')
+    }
+  }
+
+  // business
   else if (
     businessChannels.includes(message.channel.id) &&
     Math.random() < randomChance
@@ -166,7 +198,7 @@ client.on('message', (message) => {
       })
   }
 
-  // cute compliments
+  // compliments
   else if (
     complimentChannels.includes(message.channel.id) &&
     Math.random() < randomChance
@@ -182,7 +214,44 @@ client.on('message', (message) => {
       })
   }
 
-  if (message.content.startsWith('!bot-info')) {
+  // !resurrect
+  if (message.content.startsWith('!resurrect')) {
+    if (!message.member.roles.cache.has('827915811724460062'))
+      return message.channel.send('You have to `!vote` to access that command.')
+
+    if (!message.member.roles.cache.has('832393909988491304'))
+      return message.channel.send('You look alive to me, mate.')
+
+    const resurrection = Resurrection.find()
+      .matches('author', message.author.id)
+      .limit(1)
+      .run()
+    const hasResurrected = resurrection.length > 2
+    let timeRemaining
+
+    if (hasResurrected) {
+      const expires = resurrection[0]._ts_ + 14 * 24 * 60 * 60 * 1000
+
+      if (Date.now() < expires) timeRemaining = expires - Date.now()
+    }
+
+    if (!timeRemaining) {
+      if (hasResurrected) Resurrection.remove(resurrection[0]._id_)
+      Resurrection.add({ author: message.author.id })
+      message.member.roles.remove('832393909988491304')
+      message.channel.send(
+        `Death could not hold them. ` +
+          `Rejoice in the resurrection of ${message.author} :pray:`
+      )
+    } else {
+      message.channel.send(
+        `You have to wait \`${prettyMs(timeRemaining)}\` to resurrect.`
+      )
+    }
+  }
+
+  // !bot-info
+  else if (message.content.startsWith('!bot-info')) {
     const embed = new Discord.MessageEmbed()
       .setColor(embedColor)
       .setDescription(
