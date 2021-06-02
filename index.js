@@ -47,18 +47,16 @@ const status = [
 ]
 const version = process.env.npm_package_version || '(Development)'
 
-db.configure({
-  dir: './db',
-})
+db.configure({ dir: './db' })
 
 const Haiku = new db.Collection('haikus', {
-  author: '',
+  uid: '',
   channel: '',
   content: '',
 })
 
 const Resurrection = new db.Collection('resurrections', {
-  author: '',
+  uid: '',
 })
 
 client.on('message', (message) => {
@@ -120,7 +118,7 @@ client.on('message', (message) => {
       .setDescription(`${formattedHaiku}\n—*${message.author.username}*`)
 
     Haiku.add({
-      author: message.author.id,
+      uid: message.author.id,
       channel: message.channel.id,
       content: formattedHaiku,
     })
@@ -132,7 +130,7 @@ client.on('message', (message) => {
 
     if (matches) author = matches[1]
 
-    const haikus = Haiku.find().matches('author', author).run()
+    const haikus = Haiku.find().matches('uid', author).run()
 
     if (haikus.length > 0) {
       const embed = new Discord.MessageEmbed()
@@ -158,7 +156,7 @@ client.on('message', (message) => {
 
   // all-caps
   if (message.channel.id === '412714197399371788') {
-    const allCaps = /^[A-Z0-9\s-_,./?;:'"`~!@#$%^&*()=+|\\<>\[\]{}]+$/gm
+    const allCaps = /^[A-Z0-9\s-_,./?;:'"`’~!@#$%^&*()=+|\\<>\[\]{}]+$/gm
 
     if (!message.content.match(allCaps)) {
       message.delete()
@@ -170,14 +168,12 @@ client.on('message', (message) => {
   // irc
   if (message.channel.id === '848998146608594984') {
     const emoji = /<:.+:\d+>/g
-    const textOnly = /^[a-zA-Z0-9\s-_,./?;:'"`~!@#$%^&*()=+|\\<>\[\]{}]+$/gm
+    const textOnly = /^[a-zA-Z0-9\s-_,./?;:'"`’~!@#$%^&*()=+|\\<>\[\]{}]+$/gm
 
     if (message.content.match(emoji) || !message.content.match(textOnly)) {
       message.delete()
       message.channel.send(
-        '```yaml\n' +
-          `*** ${message.author.username} has quit IRC (Killed (Rule violation)).` +
-          '```'
+        `**\*\*\* ${message.author.username} has quit IRC (Killed).**`
       )
       message.member.roles.add('832393909988491304')
     }
@@ -223,7 +219,7 @@ client.on('message', (message) => {
       return message.channel.send('You look alive to me, mate.')
 
     const resurrection = Resurrection.find()
-      .matches('author', message.author.id)
+      .matches('uid', message.author.id)
       .limit(1)
       .run()
     const hasResurrected = resurrection.length > 2
@@ -237,7 +233,7 @@ client.on('message', (message) => {
 
     if (!timeRemaining) {
       if (hasResurrected) Resurrection.remove(resurrection[0]._id_)
-      Resurrection.add({ author: message.author.id })
+      Resurrection.add({ uid: message.author.id })
       message.member.roles.remove('832393909988491304')
       message.channel.send(
         `Death could not hold them. ` +
