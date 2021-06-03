@@ -169,13 +169,18 @@ client.on('message', (message) => {
   if (message.channel.id === '848998146608594984') {
     const emoji = /<:.+:\d+>/g
     const textOnly = /^[a-zA-Z0-9\s-_,./?;:'"`’~!@#$%^&*()=+|\\<>\[\]{}]+$/gm
+    let kill = false
 
-    if (message.content.match(emoji) || !message.content.match(textOnly)) {
+    if (message.content.match(emoji) || !message.content.match(textOnly))
+      kill = true
+    else if (message.type === 'REPLY') kill = true
+
+    if (kill) {
+      message.member.roles.add('832393909988491304')
       message.delete()
       message.channel.send(
-        `**\*\*\* ${message.author.username} has quit IRC (Killed).**`
+        `\*\*\* ${message.author.username} has quit IRC (Killed).`
       )
-      message.member.roles.add('832393909988491304')
     }
   }
 
@@ -271,6 +276,16 @@ client.on('message', (message) => {
         { name: 'Version', value: version, inline: true }
       )
     message.channel.send(embed)
+  }
+})
+
+client.on('messageUpdate', (message) => {
+  if (message.channel.id === '848998146608594984') {
+    message.member.roles.add('832393909988491304')
+    message.delete()
+    message.channel.send(
+      `\*\*\* ${message.author.username} has quit IRC (Killed).`
+    )
   }
 })
 
