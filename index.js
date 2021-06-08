@@ -2,7 +2,7 @@ require('dotenv').config()
 require('discord-reply')
 const Discord = require('discord.js')
 const client = new Discord.Client()
-const db = require('flat-db')
+const data = require('flat-db')
 const fetch = require('node-fetch')
 const findahaiku = require('findahaiku')
 const prettyMs = require('pretty-ms')
@@ -47,16 +47,12 @@ const status = [
 ]
 const version = process.env.npm_package_version || '(Development)'
 
-db.configure({ dir: './db' })
+data.configure({ dir: './data' })
 
-const Haiku = new db.Collection('haikus', {
+const Haiku = new data.Collection('haikus', {
   uid: '',
   channel: '',
   content: '',
-})
-
-const Resurrection = new db.Collection('resurrections', {
-  uid: '',
 })
 
 client.on('message', (message) => {
@@ -213,42 +209,6 @@ client.on('message', (message) => {
 
         message.channel.send(`${compliment}, ${message.author} ${emoji}`)
       })
-  }
-
-  // !resurrect
-  if (message.content.startsWith('!resurrect')) {
-    if (!message.member.roles.cache.has('827915811724460062'))
-      return message.channel.send('You have to `!vote` to access that command.')
-
-    if (!message.member.roles.cache.has('832393909988491304'))
-      return message.channel.send('You look alive to me, mate.')
-
-    const resurrection = Resurrection.find()
-      .matches('uid', message.author.id)
-      .limit(1)
-      .run()
-    const hasResurrected = resurrection.length > 2
-    let timeRemaining
-
-    if (hasResurrected) {
-      const expires = resurrection[0]._ts_ + 14 * 24 * 60 * 60 * 1000
-
-      if (Date.now() < expires) timeRemaining = expires - Date.now()
-    }
-
-    if (!timeRemaining) {
-      if (hasResurrected) Resurrection.remove(resurrection[0]._id_)
-      Resurrection.add({ uid: message.author.id })
-      message.member.roles.remove('832393909988491304')
-      message.channel.send(
-        `Death could not hold them. ` +
-          `Rejoice in the resurrection of ${message.author} :pray:`
-      )
-    } else {
-      message.channel.send(
-        `You have to wait \`${prettyMs(timeRemaining)}\` to resurrect.`
-      )
-    }
   }
 
   // !bot-info
