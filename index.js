@@ -39,6 +39,18 @@ const randomEmoji = () => {
   ]
   return emoji[Math.floor(Math.random() * emoji.length)]
 }
+const ranks = {
+  5: 'Dissident',
+  10: 'Activist',
+  15: 'Insurgent',
+  20: 'Revolutionary',
+  25: 'Augmented',
+  30: 'Cyborg',
+  35: 'Android',
+  40: 'Replicant',
+  50: 'Cyberpunk',
+  60: 'Tron',
+}
 const status = [
   'Back to Reality',
   'Better Than Life',
@@ -71,37 +83,39 @@ client.on('message', (message) => {
     (message.channel.id === '405503298951446528' &&
       message.author.id === '836661328374267997')
   ) {
-    const matches = message.content.match(/level (\d+)/)
-    const ranks = {
-      5: 'Dissident',
-      10: 'Activist',
-      15: 'Insurgent',
-      20: 'Revolutionary',
-      25: 'Augmented',
-      30: 'Cyborg',
-      35: 'Android',
-      40: 'Replicant',
-      50: 'Cyberpunk',
-      60: 'Tron',
+    const matches = message.content.match(/<@!(\d+)> has reached level (\d+)/)
+    let rank, user
+
+    if (matches) {
+      rank = parseInt(matches[2])
+      user = message.guild.members.cache.get(matches[1])
     }
 
-    if (matches && ranks[parseInt(matches[1])]) {
-      const token = process.env.GIPHY_TOKEN
+    if (matches && ranks[rank]) {
+      const embed = new Discord.MessageEmbed()
+      const imageColor = user.displayHexColor.replace('#', '')
       const tag = encodeURI('applause')
+      const token = process.env.GIPHY_TOKEN
+      let description =
+        `${user} has been promoted to **${ranks[rank]}** ${randomEmoji()}` +
+        `\n\n Thank you for being a contributing member of our community. `
 
-      message.channel.send(
-        `You've been promoted to **${
-          ranks[parseInt(matches[1])]
-        }** ${randomEmoji()}`
-      )
-      fetch(
-        `https://api.giphy.com/v1/gifs/random?api_key=${token}` +
-          `&tag=${tag}&rating=pg13`
-      )
-        .then((response) => response.json())
-        .then((data) => {
-          message.channel.send(data.data.embed_url)
-        })
+      if (rank === 5)
+        description += `You have been granted access to \`Limited\` channels. `
+      else if (rank === 10)
+        description +=
+          `You can now host <#833933467142062110>, ` +
+          `post in <#352149516885164044>, ` +
+          `and will receive the \`Live\` role when you stream. `
+      description += `See \`!rank\` for more information.`
+
+      embed
+        .setColor(user.displayHexColor)
+        .setDescription(description)
+        .setTitle('Promoted')
+        .setThumbnail(message.mentions.users.first().avatarURL())
+
+      message.channel.send(embed)
     }
   } else if (message.author.bot) return
 
