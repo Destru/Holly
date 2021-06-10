@@ -93,7 +93,6 @@ client.on('message', (message) => {
 
     if (matches && ranks[level]) {
       const embed = new Discord.MessageEmbed()
-      const imageColor = user.displayHexColor.replace('#', '')
       const promotionChannel =
         message.client.channels.cache.get('160320676580818951')
 
