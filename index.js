@@ -79,43 +79,77 @@ client.on('message', (message) => {
 
   // promotions
   else if (
-    message.content.startsWith('!promoted') ||
+    message.content.startsWith('!p') ||
     (message.channel.id === '405503298951446528' &&
       message.author.id === '836661328374267997')
   ) {
     const matches = message.content.match(/<@!(\d+)> has reached level (\d+)/)
-    let rank, user
+    let level, user
 
     if (matches) {
-      rank = parseInt(matches[2])
+      level = parseInt(matches[2])
       user = message.guild.members.cache.get(matches[1])
     }
 
-    if (matches && ranks[rank]) {
+    if (matches && ranks[level]) {
       const embed = new Discord.MessageEmbed()
       const imageColor = user.displayHexColor.replace('#', '')
-      const tag = encodeURI('applause')
-      const token = process.env.GIPHY_TOKEN
-      let description =
-        `${user} has been promoted to **${ranks[rank]}** ${randomEmoji()}` +
-        `\n\n Thank you for being a contributing member of our community. `
+      const promotionChannel =
+        message.client.channels.cache.get('160320676580818951')
 
-      if (rank === 5)
-        description += `You have been granted access to \`Limited\` channels. `
-      else if (rank === 10)
-        description +=
-          `You can now host <#833933467142062110>, ` +
-          `post in <#352149516885164044>, ` +
-          `and will receive the \`Live\` role when you stream. `
-      description += `See \`!rank\` for more information.`
+      let adjective = `a contributing`
+
+      if (level >= 50) adjective = `a *godlike*`
+      else if (level >= 40) adjective = `an inspiring`
+      else if (level >= 30) adjective = `a prolific`
+      else if (level >= 20) adjective = `an important`
+
+      let description =
+        `${user} has been promoted to **${ranks[level]}** ${randomEmoji()}` +
+        `\n\nThank you for being ${adjective} member of this community. `
+
+      switch (level) {
+        case 5:
+          description +=
+            `You're now considered a comrade, ` +
+            `and have been granted access to the \`Limited\` channels. `
+          break
+        case 10:
+          description +=
+            `You can now post in <#352149516885164044> (syndicated), ` +
+            `host in <#833933467142062110>, ` +
+            `and will receive the \`Live\` role when you stream. `
+          break
+        case 50:
+          description +=
+            `You have joined the *Hacker's Club*; ` +
+            `backdoor access has been granted. `
+          break
+        case 60:
+          description +=
+            `You have unlocked the *Master Control Program*, ` +
+            `and may change your color at will. `
+          break
+        default:
+          description += `Enjoy your new color, comrade.`
+      }
 
       embed
         .setColor(user.displayHexColor)
         .setDescription(description)
-        .setTitle('Promoted')
+        .setTitle('Promotion')
         .setThumbnail(message.mentions.users.first().avatarURL())
 
-      message.channel.send(embed)
+      promotionChannel.send(embed)
+      // message.channel.send(embed)
+
+      fetch(
+        `https://api.giphy.com/v1/gifs/random?api_key=${process.env.GIPHY_TOKEN}&tag=applause&rating=pg13`
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          message.channel.send(data.data.embed_url)
+        })
     }
   } else if (message.author.bot) return
 
