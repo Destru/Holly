@@ -89,6 +89,14 @@ client.on('message', (message) => {
     if (matches) {
       level = parseInt(matches[2])
       user = message.guild.members.cache.get(matches[1])
+
+      fetch(
+        `https://api.giphy.com/v1/gifs/random?api_key=${process.env.GIPHY_TOKEN}&tag=applause&rating=pg13`
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          message.channel.send(data.data.embed_url)
+        })
     }
 
     if (matches && ranks[level]) {
@@ -141,14 +149,6 @@ client.on('message', (message) => {
 
       promotionChannel.send(embed)
       // message.channel.send(embed)
-
-      fetch(
-        `https://api.giphy.com/v1/gifs/random?api_key=${process.env.GIPHY_TOKEN}&tag=applause&rating=pg13`
-      )
-        .then((response) => response.json())
-        .then((data) => {
-          message.channel.send(data.data.embed_url)
-        })
     }
   } else if (message.author.bot) return
 
