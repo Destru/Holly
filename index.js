@@ -2,7 +2,7 @@ require('dotenv').config()
 require('discord-reply')
 const Discord = require('discord.js')
 const client = new Discord.Client()
-const data = require('flat-db')
+const db = require('flat-db')
 const fetch = require('node-fetch')
 const findahaiku = require('findahaiku')
 const prettyMs = require('pretty-ms')
@@ -59,9 +59,9 @@ const status = [
 ]
 const version = process.env.npm_package_version || '(Development)'
 
-data.configure({ dir: './data' })
+db.configure({ dir: './db' })
 
-const Haiku = new data.Collection('haikus', {
+const Haiku = new db.Collection('haikus', {
   uid: '',
   channel: '',
   content: '',
