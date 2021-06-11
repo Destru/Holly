@@ -26,7 +26,6 @@
   },
   "homepage": "https://github.com/destru/holly#readme",
   "dependencies": {
-    "discord-reply": "^0.1.2",
     "discord.js": "^12.5.3",
     "dotenv": "^9.0.2",
     "findahaiku": "^1.1.2",
@@ -34,5 +33,7 @@
     "node-fetch": "^2.6.1",
     "pretty-ms": "^7.0.1"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "prettier": "2.3.0"
+  }
 }
