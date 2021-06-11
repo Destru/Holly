@@ -2,14 +2,14 @@
   "name": "holly",
   "version": "2.12.5",
   "description": "Experimental chatbot for the CSC.",
-  "main": "index.js",
+  "main": "holly.js",
   "engines": {
     "node": "12.x",
     "npm": "*"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "start": "node holly.js"
   },
   "repository": {
     "type": "git",
