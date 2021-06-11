@@ -79,11 +79,13 @@ client.on('message', (message) => {
 
   // promotions
   else if (
-    message.content.startsWith('!p') ||
-    (message.channel.id === '405503298951446528' &&
-      message.author.id === '836661328374267997')
+    message.channel.id === '405503298951446528' &&
+    message.author.id === '836661328374267997'
   ) {
-    const matches = message.content.match(/<@!(\d+)> has reached level (\d+)/)
+    const matches = message.content.match(/<@(\d+)> has reached level (\d+)/)
+    const promotionChannel =
+      message.client.channels.cache.get('160320676580818951')
+
     let level, user
 
     if (matches) {
@@ -101,8 +103,6 @@ client.on('message', (message) => {
 
     if (matches && ranks[level]) {
       const embed = new Discord.MessageEmbed()
-      const promotionChannel =
-        message.client.channels.cache.get('160320676580818951')
 
       let adjective = `a contributing`
 
@@ -148,9 +148,11 @@ client.on('message', (message) => {
         .setThumbnail(message.mentions.users.first().avatarURL())
 
       promotionChannel.send(embed)
-      // message.channel.send(embed)
     }
-  } else if (message.author.bot) return
+  }
+
+  // </bots>
+  else if (message.author.bot) return
 
   // haiku
   const { isHaiku, formattedHaiku } = findahaiku.analyzeText(message.content)
