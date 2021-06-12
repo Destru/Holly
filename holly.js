@@ -147,7 +147,9 @@ client.on('message', (message) => {
         .setTitle('Promotion')
         .setThumbnail(message.mentions.users.first().avatarURL())
 
-      promotionChannel.send(embed)
+      setTimeout(() => {
+        promotionChannel.send(embed)
+      }, 5000)
     }
   }
 
