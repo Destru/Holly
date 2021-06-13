@@ -319,6 +319,11 @@ client.on('message', (message) => {
       )
     message.channel.send(embed)
   }
+
+  // !version
+  else if (message.content.startsWith('!version')) {
+    message.channel.send(version)
+  }
 })
 
 client.on('messageUpdate', (message) => {
