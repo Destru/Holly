@@ -7,6 +7,19 @@ const fetch = require('node-fetch')
 const findahaiku = require('findahaiku')
 const prettyMs = require('pretty-ms')
 
+const binary = (input) => {
+  var characters = input.split('')
+
+  return characters
+    .map((char) => {
+      let binary = char.charCodeAt(0).toString(2)
+      while (binary.length < 8) binary = '0' + binary
+      if (binary.length === 8) return binary
+      else return '00000000'
+    })
+    .join(' ')
+}
+
 const businessChannels = ['845382463685132288', '829717667107700746']
 const complimentChannels = ['845382463685132288', '836963196916858902']
 const complimentEmoji = [
@@ -51,6 +64,7 @@ const ranks = {
   50: 'Cyberpunk',
   60: 'Tron',
 }
+const roleGhost = '832393909988491304'
 const status = [
   'Back to Reality',
   'Better Than Life',
@@ -60,7 +74,6 @@ const status = [
 const version = process.env.npm_package_version || '(Development)'
 
 db.configure({ dir: './db' })
-
 const Haiku = new db.Collection('haikus', {
   uid: '',
   channel: '',
@@ -151,10 +164,7 @@ client.on('message', (message) => {
         promotionChannel.send(embed)
       }, 5000)
     }
-  }
-
-  // </bots>
-  else if (message.author.bot) return
+  } else if (message.author.bot) return
 
   // haiku
   const { isHaiku, formattedHaiku } = findahaiku.analyzeText(message.content)
@@ -207,8 +217,29 @@ client.on('message', (message) => {
 
     if (!message.content.match(allCaps)) {
       message.delete()
+      message.member.roles.add(roleGhost)
       message.channel.send(`${message.author.username.toUpperCase()} HAS DIED`)
-      message.member.roles.add('832393909988491304')
+    }
+  }
+
+  // holodeck
+  if (message.channel.id === '848997740767346699') {
+    message.delete()
+    const description = binary(message.content)
+    const textOnly = /^[a-zA-Z0-9\s-_,./?;:'"`’~!@#$%^&*()=+|\\<>\[\]{}]+$/gm
+
+    if (!message.content.match(textOnly) && description.length > 2048) {
+      message.member.roles.add(roleGhost)
+      message.channel.send(`_${message.author.id}`)
+    } else {
+      const embed = new Discord.MessageEmbed()
+        .setColor(message.member.displayHexColor)
+        .setDescription(`\`\`\`${description}\`\`\``)
+        .setThumbnail(`https://robohash.org/${message.author.id}`)
+        .setTitle(`#${message.id}`)
+        .setFooter(`@${message.createdTimestamp}`)
+
+      message.channel.send(embed)
     }
   }
 
@@ -223,8 +254,8 @@ client.on('message', (message) => {
     else if (message.type === 'REPLY') kill = true
 
     if (kill) {
-      message.member.roles.add('832393909988491304')
       message.delete()
+      message.member.roles.add(roleGhost)
       message.channel.send(
         `\*\*\* ${message.author.username} has quit IRC (Killed).`
       )
@@ -292,7 +323,7 @@ client.on('message', (message) => {
 
 client.on('messageUpdate', (message) => {
   if (message.channel.id === '848998146608594984') {
-    message.member.roles.add('832393909988491304')
+    message.member.roles.add(roleGhost)
     message.delete()
     message.channel.send(
       `\*\*\* ${message.author.username} has quit IRC (Killed).`
