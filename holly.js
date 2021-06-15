@@ -210,7 +210,6 @@ client.on('message', (message) => {
   // all-caps
   if (message.channel.id === '412714197399371788') {
     const allCaps = /^[A-Z0-9\s-_,./?;:'"`’~!@#$%^&*()=+|\\<>\[\]{}]+$/gm
-    const textOnly = /^[a-zA-Z0-9\s-_,./?;:'"`’~!@#$%^&*()=+|\\<>\[\]{}]+$/gm
 
     if (!message.content.match(allCaps)) {
       message.delete()
@@ -238,6 +237,7 @@ client.on('message', (message) => {
         append: '.png?set=set4',
       },
     }
+    const textOnly = /^[a-zA-Z0-9\s-_,./?;:'"`’~!@#$%^&*()=+|\\<>\[\]{}]+$/gm
 
     const customAvatar = (avatar, message) => {
       const api = avatar.style ? apis[avatar.style] : apis.robot
@@ -255,17 +255,16 @@ client.on('message', (message) => {
       return avatar.name ? avatar.name : 'Anonymous'
     }
 
-    const matches = Avatar.find().matches('uid', message.author.id).run()
+    let matches = Avatar.find().matches('uid', message.author.id).run()
     let avatar
 
     if (matches.length > 0) {
       avatar = { ...matches[0] }
     } else {
-      avatar = {
-        ...Avatar.add({
-          uid: message.author.id,
-        }),
-      }
+      const key = Avatar.add({
+        uid: message.author.id,
+      })
+      avatar = Avatar.get(key)
     }
 
     message.delete()
