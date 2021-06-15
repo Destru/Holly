@@ -240,6 +240,7 @@ client.on('message', (message) => {
         append: '.png?set=set3',
       },
     }
+    const embedColorVR = '#2F3136'
     const textOnly = /^[a-zA-Z0-9\s-_,./?;:'"‘’“”`~!@#$%^&*()=+|\\<>\[\]{}]+$/gm
     const customAvatar = (avatar, message) => {
       const api = avatar.style ? apis[avatar.style] : apis.robot
@@ -268,13 +269,12 @@ client.on('message', (message) => {
     }
 
     if (message.content.startsWith('!') && message.content.match(textOnly)) {
-      if (message.content.startsWith('!seed')) {
-        const random = Math.random().toString().slice(2, 11)
-
-        Avatar.update(avatar._id_, {
-          seed: random,
-        })
-        message.channel.send('User `seed` was updated.')
+      if (message.content.startsWith('!avatar')) {
+        const embed = new Discord.MessageEmbed()
+          .setColor(embedColorVR)
+          .setImage(customAvatar(avatar, message))
+          .setTitle(customName(avatar))
+        message.channel.send(embed)
       } else if (message.content.startsWith('!name')) {
         let name = message.content.replace('!name', '').trim()
 
@@ -282,6 +282,13 @@ client.on('message', (message) => {
           name: name,
         })
         message.channel.send('User `name` was updated.')
+      } else if (message.content.startsWith('!seed')) {
+        const random = Math.random().toString().slice(2, 11)
+
+        Avatar.update(avatar._id_, {
+          seed: random,
+        })
+        message.channel.send('User `seed` was updated.')
       } else if (message.content.startsWith('!style')) {
         const styles = `\`${Object.keys(apis).join('`, `')}\``
         let style = message.content.replace('!style', '').trim()
@@ -310,7 +317,7 @@ client.on('message', (message) => {
       } else {
         const embed = new Discord.MessageEmbed()
           .setAuthor(customName(avatar), customAvatar(avatar, message))
-          .setColor('#2F3136')
+          .setColor(embedColorVR)
           .setDescription(message.content)
 
         message.channel.send(embed)
