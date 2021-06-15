@@ -219,8 +219,8 @@ client.on('message', (message) => {
   }
 
   // vr-chat
-  if (message.channel.id === '845382463685132288') {
-    // if (message.channel.id === '848997740767346699') {
+  // if (message.channel.id === '845382463685132288') {
+  if (message.channel.id === '848997740767346699') {
     message.delete()
 
     const apis = {
