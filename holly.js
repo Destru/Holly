@@ -274,7 +274,7 @@ client.on('message', (message) => {
         Avatar.update(avatar._id_, {
           seed: random,
         })
-        message.member.send(`VYour seed has been randomized.`)
+        message.channel.send('User `seed` was updated.')
       } else if (message.content.startsWith('!name')) {
         let name = message.content.replace('!name', '').trim()
 
