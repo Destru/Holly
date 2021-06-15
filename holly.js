@@ -62,14 +62,12 @@ const status = [
 const version = process.env.npm_package_version || '(Development)'
 
 db.configure({ dir: './db' })
-
 const Avatar = new db.Collection('avatars', {
   uid: '',
   name: '',
   seed: '',
   style: '',
 })
-
 const Haiku = new db.Collection('haikus', {
   uid: '',
   channel: '',
@@ -77,7 +75,7 @@ const Haiku = new db.Collection('haikus', {
 })
 
 client.on('message', (message) => {
-  // trebek
+  // fuck you, trebek
   if (insultUsers.includes(message.author.id) && Math.random() < randomChance) {
     fetch('https://insult.mattbas.org/api/insult.json')
       .then((response) => response.json())
@@ -94,7 +92,7 @@ client.on('message', (message) => {
     const matches = message.content.match(/<@(\d+)> has reached level (\d+)/)
     const promotionChannel =
       message.client.channels.cache.get('160320676580818951')
-
+    const tag = encodeURI('crowd applause')
     let level, user
 
     if (matches) {
@@ -102,7 +100,7 @@ client.on('message', (message) => {
       user = message.guild.members.cache.get(matches[1])
 
       fetch(
-        `https://api.giphy.com/v1/gifs/random?api_key=${process.env.GIPHY_TOKEN}&tag=applause&rating=pg13`
+        `https://api.giphy.com/v1/gifs/random?api_key=${process.env.GIPHY_TOKEN}&tag=${tag}&rating=pg13`
       )
         .then((response) => response.json())
         .then((data) => {
@@ -164,7 +162,6 @@ client.on('message', (message) => {
 
   // haiku
   const { isHaiku, formattedHaiku } = findahaiku.analyzeText(message.content)
-
   if (isHaiku) {
     const embed = new Discord.MessageEmbed()
       .setColor(embedColor)
@@ -209,36 +206,41 @@ client.on('message', (message) => {
 
   // all-caps
   if (message.channel.id === '412714197399371788') {
-    const allCaps = /^[A-Z0-9\s-_,./?;:'"`’~!@#$%^&*()=+|\\<>\[\]{}]+$/gm
+    const allCaps = /^[A-Z0-9\s-_,./?;:'"‘’“”`~!@#$%^&*()=+|\\<>\[\]{}]+$/gm
 
     if (!message.content.match(allCaps)) {
       message.delete()
       message.member.roles.add(roleGhost)
-      message.channel.send(`${message.author.username.toUpperCase()} HAS DIED`)
+      message.channel.send(
+        `${message.author.username.toUpperCase()} HAS DIED\n` +
+          `REMEMBER TO READ THE FUCKING PINNED MESSAGES`
+      )
     }
   }
 
   // vr-chat
-  if (message.channel.id === '848997740767346699') {
+  if (message.channel.id === '845382463685132288') {
+    // if (message.channel.id === '848997740767346699') {
+    message.delete()
+
     const apis = {
-      robot: {
+      kitten: {
         url: 'https://robohash.org/',
+        append: '.png?set=set4',
       },
       monster: {
         url: 'https://robohash.org/',
         append: '.png?set=set2',
       },
+      robot: {
+        url: 'https://robohash.org/',
+      },
       robot2: {
         url: 'https://robohash.org/',
         append: '.png?set=set3',
       },
-      kitten: {
-        url: 'https://robohash.org/',
-        append: '.png?set=set4',
-      },
     }
-    const textOnly = /^[a-zA-Z0-9\s-_,./?;:'"`’~!@#$%^&*()=+|\\<>\[\]{}]+$/gm
-
+    const textOnly = /^[a-zA-Z0-9\s-_,./?;:'"‘’“”`~!@#$%^&*()=+|\\<>\[\]{}]+$/gm
     const customAvatar = (avatar, message) => {
       const api = avatar.style ? apis[avatar.style] : apis.robot
       const seed = avatar.seed ? avatar.seed : message.author.id
@@ -250,11 +252,9 @@ client.on('message', (message) => {
 
       return api.url + seed + append
     }
-
     const customName = (avatar) => {
       return avatar.name ? avatar.name : 'Anonymous'
     }
-
     let matches = Avatar.find().matches('uid', message.author.id).run()
     let avatar
 
@@ -267,8 +267,6 @@ client.on('message', (message) => {
       avatar = Avatar.get(key)
     }
 
-    message.delete()
-
     if (message.content.startsWith('!') && message.content.match(textOnly)) {
       if (message.content.startsWith('!seed')) {
         const random = Math.random().toString().slice(2, 11)
@@ -276,19 +274,29 @@ client.on('message', (message) => {
         Avatar.update(avatar._id_, {
           seed: random,
         })
+        message.member.send(`VYour seed has been randomized.`)
       } else if (message.content.startsWith('!name')) {
         let name = message.content.replace('!name', '').trim()
 
         Avatar.update(avatar._id_, {
           name: name,
         })
+        message.channel.send('User `name` was updated.')
       } else if (message.content.startsWith('!style')) {
+        const styles = `\`${Object.keys(apis).join('`, `')}\``
         let style = message.content.replace('!style', '').trim()
 
-        if (style in apis) {
-          Avatar.update(avatar._id_, {
-            style: style,
-          })
+        if (message.member.roles.cache.has('827915811724460062')) {
+          if (style in apis) {
+            Avatar.update(avatar._id_, {
+              style: style,
+            })
+            message.channel.send('User `style` was updated.')
+          } else {
+            message.member.send(`Styles: ${styles}`)
+          }
+        } else {
+          message.channel.send('You must `!vote` to access this command.')
         }
       } else if (message.author.id === admin) {
         if (message.content.startsWith('!reset')) Avatar.reset()
@@ -296,14 +304,13 @@ client.on('message', (message) => {
     } else {
       if (!message.content.match(textOnly) || message.content.length > 2048) {
         message.member.roles.add(roleGhost)
+        message.channel.send(
+          'Someone has died. Remember to read *pinned messages* for more information.'
+        )
       } else {
         const embed = new Discord.MessageEmbed()
-          .setAuthor(
-            customName(avatar),
-            customAvatar(avatar, message),
-            'https://cyberpunksocial.club'
-          )
-          .setColor(message.member.displayHexColor)
+          .setAuthor(customName(avatar), customAvatar(avatar, message))
+          .setColor('#2F3136')
           .setDescription(message.content)
 
         message.channel.send(embed)
@@ -311,7 +318,7 @@ client.on('message', (message) => {
     }
   }
 
-  // business
+  // random messages
   else if (
     businessChannels.includes(message.channel.id) &&
     Math.random() < randomChance
@@ -324,10 +331,7 @@ client.on('message', (message) => {
           data.phrase.toLowerCase().slice(1)
         message.channel.send(`${bullshit} :man_office_worker:`)
       })
-  }
-
-  // compliments
-  else if (
+  } else if (
     complimentChannels.includes(message.channel.id) &&
     Math.random() < randomChance
   ) {
@@ -342,7 +346,7 @@ client.on('message', (message) => {
       })
   }
 
-  // !bot-info
+  // commands
   else if (message.content.startsWith('!bot-info')) {
     const embed = new Discord.MessageEmbed()
       .setColor(embedColor)
@@ -367,21 +371,8 @@ client.on('message', (message) => {
         { name: 'Version', value: version, inline: true }
       )
     message.channel.send(embed)
-  }
-
-  // !version
-  else if (message.content.startsWith('!version')) {
+  } else if (message.content.startsWith('!version')) {
     message.channel.send(version)
-  }
-})
-
-client.on('messageUpdate', (message) => {
-  if (message.channel.id === '848998146608594984') {
-    message.member.roles.add(roleGhost)
-    message.delete()
-    message.channel.send(
-      `\*\*\* ${message.author.username} has quit IRC (Killed).`
-    )
   }
 })
 
