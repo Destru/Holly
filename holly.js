@@ -254,9 +254,6 @@ client.on('message', (message) => {
       return avatar.name ? avatar.name : 'Anonymous'
     }
 
-    const matches = Avatar.find().matches('uid', message.author.id).run()
-    const textOnly = /^[a-zA-Z0-9\s-_,./?;:'"`’~!@#$%^&*()=+|\\<>\[\]{}]+$/gm
-
     let avatar
 
     if (matches.length > 0) {
@@ -266,6 +263,9 @@ client.on('message', (message) => {
         uid: message.author.id,
       })
     }
+
+    const matches = Avatar.find().matches('uid', message.author.id).run()
+    const textOnly = /^[a-zA-Z0-9\s-_,./?;:'"`’~!@#$%^&*()=+|\\<>\[\]{}]+$/gm
 
     message.delete()
 
