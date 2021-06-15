@@ -296,7 +296,6 @@ client.on('message', (message) => {
     } else {
       if (!message.content.match(textOnly) && description.length > 2048) {
         message.member.roles.add(roleGhost)
-        message.channel.send(`${message.author.id} has died.`)
       } else {
         const embed = new Discord.MessageEmbed()
           .setAuthor(
