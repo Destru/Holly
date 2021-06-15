@@ -269,7 +269,7 @@ client.on('message', (message) => {
 
     message.delete()
 
-    if (message.content.startsWith('!')) {
+    if (message.content.startsWith('!') && message.content.match(textOnly)) {
       if (message.content.startsWith('!seed')) {
         const random = Math.random().toString().slice(2, 11)
 
@@ -294,7 +294,7 @@ client.on('message', (message) => {
         if (message.content.startsWith('!reset')) Avatar.reset()
       }
     } else {
-      if (!message.content.match(textOnly) && description.length > 2048) {
+      if (!message.content.match(textOnly) || message.content.length > 2048) {
         message.member.roles.add(roleGhost)
       } else {
         const embed = new Discord.MessageEmbed()
