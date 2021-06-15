@@ -7,19 +7,7 @@ const fetch = require('node-fetch')
 const findahaiku = require('findahaiku')
 const prettyMs = require('pretty-ms')
 
-const binary = (input) => {
-  var characters = input.split('')
-
-  return characters
-    .map((char) => {
-      let binary = char.charCodeAt(0).toString(2)
-      while (binary.length < 8) binary = '0' + binary
-      if (binary.length === 8) return binary
-      else return '00000000'
-    })
-    .join(' ')
-}
-
+const admin = '160320553322807296'
 const businessChannels = ['845382463685132288', '829717667107700746']
 const complimentChannels = ['845382463685132288', '836963196916858902']
 const complimentEmoji = [
@@ -74,6 +62,14 @@ const status = [
 const version = process.env.npm_package_version || '(Development)'
 
 db.configure({ dir: './db' })
+
+const Avatar = new db.Collection('avatars', {
+  uid: '',
+  name: '',
+  seed: '',
+  style: '',
+})
+
 const Haiku = new db.Collection('haikus', {
   uid: '',
   channel: '',
@@ -162,7 +158,7 @@ client.on('message', (message) => {
 
       setTimeout(() => {
         promotionChannel.send(embed)
-      }, 5000)
+      }, 15000)
     }
   } else if (message.author.bot) return
 
@@ -222,43 +218,97 @@ client.on('message', (message) => {
     }
   }
 
-  // holodeck
+  // vr-chat
   if (message.channel.id === '848997740767346699') {
-    message.delete()
-    const description = binary(message.content)
-    const textOnly = /^[a-zA-Z0-9\s-_,./?;:'"`’~!@#$%^&*()=+|\\<>\[\]{}]+$/gm
-
-    if (!message.content.match(textOnly) && description.length > 2048) {
-      message.member.roles.add(roleGhost)
-      message.channel.send(`_${message.author.id}`)
-    } else {
-      const embed = new Discord.MessageEmbed()
-        .setColor(message.member.displayHexColor)
-        .setDescription(`\`\`\`${description}\`\`\``)
-        .setThumbnail(`https://robohash.org/${message.author.id}`)
-        .setTitle(`#${message.id}`)
-        .setFooter(`@${message.createdTimestamp}`)
-
-      message.channel.send(embed)
+    const apis = {
+      robot: {
+        url: 'https://robohash.org/',
+      },
+      monster: {
+        url: 'https://robohash.org/',
+        append: '.png?set=set2',
+      },
+      robot2: {
+        url: 'https://robohash.org/',
+        append: '.png?set=set3',
+      },
+      kitten: {
+        url: 'https://robohash.org/',
+        append: '.png?set=set4',
+      },
     }
-  }
 
-  // irc
-  if (message.channel.id === '848998146608594984') {
-    const emoji = /<:.+:\d+>/g
+    const customAvatar = (avatar, message) => {
+      const api = avatar.style ? apis[avatar.style] : apis.robot
+      const seed = avatar.seed ? avatar.seed : message.author.id
+      let append
+
+      if (avatar.style && 'append' in apis[avatar.style]) {
+        append = apis[avatar.style].append
+      } else append = ''
+
+      return api.url + seed + append
+    }
+
+    const customName = (avatar) => {
+      return avatar.name ? avatar.name : 'Anonymous'
+    }
+
+    const matches = Avatar.find().matches('uid', message.author.id).run()
     const textOnly = /^[a-zA-Z0-9\s-_,./?;:'"`’~!@#$%^&*()=+|\\<>\[\]{}]+$/gm
-    let kill = false
 
-    if (message.content.match(emoji) || !message.content.match(textOnly))
-      kill = true
-    else if (message.type === 'REPLY') kill = true
+    let avatar
 
-    if (kill) {
-      message.delete()
-      message.member.roles.add(roleGhost)
-      message.channel.send(
-        `\*\*\* ${message.author.username} has quit IRC (Killed).`
-      )
+    if (matches.length > 0) {
+      avatar = { ...matches[0] }
+    } else {
+      avatar = Avatar.add({
+        uid: message.author.id,
+      })
+    }
+
+    message.delete()
+
+    if (message.content.startsWith('!')) {
+      if (message.content.startsWith('!seed')) {
+        const random = Math.random().toString().slice(2, 11)
+
+        Avatar.update(avatar._id_, {
+          seed: random,
+        })
+      } else if (message.content.startsWith('!name')) {
+        let name = message.content.replace('!name', '').trim()
+
+        Avatar.update(avatar._id_, {
+          name: name,
+        })
+      } else if (message.content.startsWith('!style')) {
+        let style = message.content.replace('!style', '').trim()
+
+        if (style in apis) {
+          Avatar.update(avatar._id_, {
+            style: style,
+          })
+        }
+      } else if (message.author.id === admin) {
+        if (message.content.startsWith('!reset')) Avatar.reset()
+      }
+    } else {
+      if (!message.content.match(textOnly) && description.length > 2048) {
+        message.member.roles.add(roleGhost)
+        message.channel.send(`${message.author.id} has died.`)
+      } else {
+        const embed = new Discord.MessageEmbed()
+          .setAuthor(
+            customName(avatar),
+            customAvatar(avatar, message),
+            'https://cyberpunksocial.club'
+          )
+          .setColor(message.member.displayHexColor)
+          .setDescription(message.content)
+
+        message.channel.send(embed)
+      }
     }
   }
 
