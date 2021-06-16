@@ -242,7 +242,7 @@ client.on('message', (message) => {
     }
     const embedColorVR = '#2F3136'
     const textOnly = /^[a-zA-Z0-9\s-_,./?;:'"‘’“”`~!@#$%^&*()=+|\\<>\[\]{}]+$/gm
-    const vrChat = `VRChat:`
+    const vrChat = `\`VRChat\``
 
     const customAvatar = (avatar, message) => {
       const api = avatar.style ? apis[avatar.style] : apis.robot
@@ -303,7 +303,7 @@ client.on('message', (message) => {
             })
             message.member.send(`${vrChat} style updated.`)
           } else {
-            message.member.send(`Styles: ${styles}`)
+            message.member.send(`${vrChat} styles: ${styles}`)
           }
         } else {
           message.member.send('You must `!vote` to access this command.')
