@@ -314,8 +314,9 @@ client.on('message', (message) => {
     } else {
       if (!message.content.match(textOnly) || message.content.length > 2048) {
         message.member.roles.add(roleGhost)
-        message.channel.send(
-          'Someone has died. Remember to read *pinned messages* for more information.'
+        message.member.send(
+          `${vrChat} you died.\n` +
+            `Remember to read *pinned messages* in channels for more information.`
         )
       } else {
         const embed = new Discord.MessageEmbed()
