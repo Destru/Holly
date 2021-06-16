@@ -29,6 +29,7 @@ const complimentEmoji = [
   ':kissing_closed_eyes:',
   ':kissing_smiling_eyes:',
 ]
+const devChannel = '845382463685132288'
 const embedColor = '#ff00ff'
 const insultUsers = ['400786664861204481']
 const randomChance = 0.01
@@ -306,7 +307,9 @@ client.on('message', (message) => {
             message.member.send(`${vrChat} styles: ${styles}`)
           }
         } else {
-          message.member.send('You must `!vote` to access this command.')
+          message.member.send(
+            `${vrChat} You must \`!vote\` to access this command.`
+          )
         }
       } else if (message.author.id === admin) {
         if (message.content.startsWith('!reset')) Avatar.reset()
