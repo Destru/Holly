@@ -242,6 +242,8 @@ client.on('message', (message) => {
     }
     const embedColorVR = '#2F3136'
     const textOnly = /^[a-zA-Z0-9\s-_,./?;:'"‘’“”`~!@#$%^&*()=+|\\<>\[\]{}]+$/gm
+    const vrChat = `VRChat:`
+
     const customAvatar = (avatar, message) => {
       const api = avatar.style ? apis[avatar.style] : apis.robot
       const seed = avatar.seed ? avatar.seed : message.author.id
@@ -253,6 +255,7 @@ client.on('message', (message) => {
 
       return api.url + seed + append
     }
+
     const customName = (avatar) => {
       return avatar.name ? avatar.name : 'Anonymous'
     }
@@ -274,21 +277,21 @@ client.on('message', (message) => {
           .setColor(embedColorVR)
           .setImage(customAvatar(avatar, message))
           .setTitle(customName(avatar))
-        message.channel.send(embed)
+        message.member.send(embed)
       } else if (message.content.startsWith('!name')) {
         let name = message.content.replace('!name', '').trim()
 
         Avatar.update(avatar._id_, {
           name: name,
         })
-        message.channel.send('User `name` was updated.')
+        message.member.send(`${vrChat} name updated.`)
       } else if (message.content.startsWith('!seed')) {
         const random = Math.random().toString().slice(2, 11)
 
         Avatar.update(avatar._id_, {
           seed: random,
         })
-        message.channel.send('User `seed` was updated.')
+        message.member.send(`${vrChat} seed updated.`)
       } else if (message.content.startsWith('!style')) {
         const styles = `\`${Object.keys(apis).join('`, `')}\``
         let style = message.content.replace('!style', '').trim()
@@ -298,12 +301,12 @@ client.on('message', (message) => {
             Avatar.update(avatar._id_, {
               style: style,
             })
-            message.channel.send('User `style` was updated.')
+            message.member.send(`${vrChat} style updated.`)
           } else {
             message.member.send(`Styles: ${styles}`)
           }
         } else {
-          message.channel.send('You must `!vote` to access this command.')
+          message.member.send('You must `!vote` to access this command.')
         }
       } else if (message.author.id === admin) {
         if (message.content.startsWith('!reset')) Avatar.reset()
