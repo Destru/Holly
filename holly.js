@@ -93,7 +93,7 @@ client.on('message', (message) => {
     const matches = message.content.match(/<@(\d+)> has reached level (\d+)/)
     const promotionChannel =
       message.client.channels.cache.get('160320676580818951')
-    const tag = encodeURI('crowd applause')
+    const tag = encodeURI('"audience applause"')
     let level, user
 
     if (matches) {
@@ -150,12 +150,12 @@ client.on('message', (message) => {
       }
 
       embed
-        .setColor(user.displayHexColor)
         .setDescription(description)
         .setTitle('Promotion')
         .setThumbnail(message.mentions.users.first().avatarURL())
 
       setTimeout(() => {
+        embed.setColor(user.displayHexColor)
         promotionChannel.send(embed)
       }, 15000)
     }
