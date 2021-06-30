@@ -6,15 +6,7 @@ clones.forEach((token, i) => {
   const client = new Discord.Client()
 
   client.on('ready', () => {
-    console.log(`Skynet #${i + 1} is online.`)
-
-    client.user.setPresence({
-      status: 'online',
-      activity: {
-        name: `Binärpilot`,
-        type: 'LISTENING',
-      },
-    })
+    console.log(`Skynet Clone #${i + 1} is online.`)
   })
 
   client.on('typingStart', (channel) => {

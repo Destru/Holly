@@ -131,7 +131,7 @@ client.on('message', (message) => {
           break
         case 10:
           description +=
-            `You can now post in <#352149516885164044> (syndicated), ` +
+            `You can now post in <#352149516885164044>, ` +
             `host in <#833933467142062110>, ` +
             `and will receive the \`Live\` role when you stream. `
           break
@@ -157,7 +157,7 @@ client.on('message', (message) => {
       setTimeout(() => {
         embed.setColor(user.displayHexColor)
         promotionChannel.send(embed)
-      }, 15000)
+      }, 30 * 1000)
     }
   } else if (message.author.bot) return
 
@@ -212,15 +212,12 @@ client.on('message', (message) => {
     if (!message.content.match(allCaps)) {
       message.delete()
       message.member.roles.add(roleGhost)
-      message.channel.send(
-        `${message.author.username.toUpperCase()} HAS DIED\n` +
-          `REMEMBER TO READ THE FUCKING PINNED MESSAGES`
-      )
+      message.channel.send(`${message.author.username.toUpperCase()} HAS DIED`)
     }
   }
 
   // vr-chat
-  // if (message.channel.id === '845382463685132288') {
+  // if (message.channel.id === devChannel) {
   if (message.channel.id === '848997740767346699') {
     message.delete()
 
@@ -241,9 +238,6 @@ client.on('message', (message) => {
         append: '.png?set=set3',
       },
     }
-    const embedColorVR = '#2F3136'
-    const textOnly = /^[a-zA-Z0-9\s-_,./?;:'"‘’“”`~!@#$%^&*()=+|\\<>\[\]{}]+$/gm
-    const vrChat = `\`VRChat\``
 
     const customAvatar = (avatar, message) => {
       const api = avatar.style ? apis[avatar.style] : apis.robot
@@ -260,8 +254,13 @@ client.on('message', (message) => {
     const customName = (avatar) => {
       return avatar.name ? avatar.name : 'Anonymous'
     }
+
+    const emojiVR = `<:anonymous:837247849145303080>`
+    const embedColorVR = '#2F3136'
+    const textOnly = /^[a-zA-Z0-9\s-_,./?;:'"‘’“”`~!@#$%^&*()=+|\\<>\[\]{}]+$/gm
+
     let matches = Avatar.find().matches('uid', message.author.id).run()
-    let avatar
+    let avatar, updateVR
 
     if (matches.length > 0) {
       avatar = { ...matches[0] }
@@ -281,18 +280,16 @@ client.on('message', (message) => {
         message.member.send(embed)
       } else if (message.content.startsWith('!name')) {
         let name = message.content.replace('!name', '').trim()
-
         Avatar.update(avatar._id_, {
           name: name,
         })
-        message.member.send(`${vrChat} name updated.`)
+        updateVR = `User name updated ${emojiVR}`
       } else if (message.content.startsWith('!seed')) {
         const random = Math.random().toString().slice(2, 11)
-
         Avatar.update(avatar._id_, {
           seed: random,
         })
-        message.member.send(`${vrChat} seed updated.`)
+        updateVR = `User seed has been randomized ${emojiVR}`
       } else if (message.content.startsWith('!style')) {
         const styles = `\`${Object.keys(apis).join('`, `')}\``
         let style = message.content.replace('!style', '').trim()
@@ -302,30 +299,32 @@ client.on('message', (message) => {
             Avatar.update(avatar._id_, {
               style: style,
             })
-            message.member.send(`${vrChat} style updated.`)
+            updateVR = `User style updated ${emojiVR}`
           } else {
-            message.member.send(`${vrChat} styles: ${styles}`)
+            message.member.send(`Styles ${emojiVR} ${styles}`)
           }
         } else {
-          message.member.send(
-            `${vrChat} You must \`!vote\` to access this command.`
-          )
+          updateVR = `User must \`!vote\` to access this command ${emojiVR}`
         }
-      } else if (message.author.id === admin) {
-        if (message.content.startsWith('!reset')) Avatar.reset()
+      } else if (message.content.startsWith('!reset')) {
+        Avatar.remove(avatar._id_)
+        updateVR = `User reset ${emojiVR}`
       }
+      if (updateVR)
+        message.channel.send(updateVR).then((message) => {
+          setTimeout(() => {
+            if (message) message.delete()
+          }, 5 * 1000)
+        })
     } else {
       if (!message.content.match(textOnly) || message.content.length > 2048) {
         message.member.roles.add(roleGhost)
-        message.member.send(
-          `${vrChat} you died.\n` +
-            `Remember to read *pinned messages* in channels for more information.`
-        )
+        message.member.send(`You died ${emojiVR}`)
       } else {
         const embed = new Discord.MessageEmbed()
-          .setAuthor(customName(avatar), customAvatar(avatar, message))
           .setColor(embedColorVR)
-          .setDescription(message.content)
+          .setDescription(`**${customName(avatar)}**\n${message.content}`)
+          .setThumbnail(customAvatar(avatar, message))
 
         message.channel.send(embed)
       }
