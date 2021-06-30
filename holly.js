@@ -283,13 +283,13 @@ client.on('message', (message) => {
         Avatar.update(avatar._id_, {
           name: name,
         })
-        updateVR = `User name updated ${emojiVR}`
+        updateVR = `Name updated ${emojiVR}`
       } else if (message.content.startsWith('!seed')) {
         const random = Math.random().toString().slice(2, 11)
         Avatar.update(avatar._id_, {
           seed: random,
         })
-        updateVR = `User seed has been randomized ${emojiVR}`
+        updateVR = `Seed randomized ${emojiVR}`
       } else if (message.content.startsWith('!style')) {
         const styles = `\`${Object.keys(apis).join('`, `')}\``
         let style = message.content.replace('!style', '').trim()
@@ -299,12 +299,12 @@ client.on('message', (message) => {
             Avatar.update(avatar._id_, {
               style: style,
             })
-            updateVR = `User style updated ${emojiVR}`
+            updateVR = `Style updated ${emojiVR}`
           } else {
             message.member.send(`Styles ${emojiVR} ${styles}`)
           }
         } else {
-          updateVR = `User must \`!vote\` to access this command ${emojiVR}`
+          updateVR = `You must \`!vote\` to access this command ${emojiVR}`
         }
       } else if (message.content.startsWith('!reset')) {
         Avatar.remove(avatar._id_)
