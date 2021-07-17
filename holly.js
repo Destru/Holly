@@ -130,8 +130,8 @@ client.on('message', (message) => {
       switch (level) {
         case 5:
           description +=
-            `As a <#865757944552488960>, ` +
-            `you have been granted access to \`Limited\` channels. `
+            `You're now considered a comrade, ` +
+            `and have been granted access to \`Limited\` channels. `
           break
         case 10:
           description +=
