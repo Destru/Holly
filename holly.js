@@ -42,7 +42,7 @@ const randomEmoji = () => {
   return emoji[Math.floor(Math.random() * emoji.length)]
 }
 const ranks = {
-  5: 'Dissident',
+  5: 'Comrade',
   10: 'Activist',
   15: 'Insurgent',
   20: 'Revolutionary',
@@ -73,6 +73,10 @@ const Haiku = new db.Collection('haikus', {
   uid: '',
   channel: '',
   content: '',
+})
+const Bio = new db.Collection('bios', {
+  uid: '',
+  url: '',
 })
 
 client.on('message', (message) => {
@@ -126,8 +130,8 @@ client.on('message', (message) => {
       switch (level) {
         case 5:
           description +=
-            `You're now considered a comrade, ` +
-            `and have been granted access to the \`Limited\` channels. `
+            `As a <#865757944552488960>, ` +
+            `you have been granted access to \`Limited\` channels. `
           break
         case 10:
           description +=
@@ -216,9 +220,29 @@ client.on('message', (message) => {
     }
   }
 
+  // bios
+  if (message.channel.id === '865757944552488960') {
+    const matches = Bio.find().matches('uid', message.author.id).run()
+    if (matches.length > 0) {
+      if (message) message.delete()
+      message.channel
+        .send(`You already have a post. ${matches[0].url}`)
+        .then((message) => {
+          setTimeout(() => {
+            if (message) message.delete()
+          }, 5 * 1000)
+        })
+    } else {
+      Bio.add({
+        uid: message.author.id,
+        url: message.url,
+      })
+    }
+  }
+
   // vr-chat
-  // if (message.channel.id === devChannel) {
   if (message.channel.id === '848997740767346699') {
+    // if (message.channel.id === devChannel) {
     message.delete()
 
     const apis = {
