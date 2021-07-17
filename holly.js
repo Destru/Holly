@@ -139,6 +139,11 @@ client.on('message', (message) => {
             `host in <#833933467142062110>, ` +
             `and will receive the \`Live\` role when you stream. `
           break
+        case 15:
+          description +=
+            `You've unlocked an even <#830131461000658994> ` +
+            `with anonynomous confessions. `
+          break
         case 50:
           description +=
             `You have joined the *Hacker's Club*; ` +
