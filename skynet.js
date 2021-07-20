@@ -1,7 +1,6 @@
 require('dotenv').config()
 const Discord = require('discord.js')
 const clones = [process.env.CLONE, process.env.CLONE2, process.env.CLONE3]
-const version = '0.0.2'
 
 clones.forEach((token, i) => {
   const client = new Discord.Client()
@@ -9,7 +8,7 @@ clones.forEach((token, i) => {
   client.on('message', (message) => {
     if (message.author.id !== '160320553322807296') return
 
-    if (message.content === '!version') message.channel.send(version)
+    if (message.content === '!say') message.channel.send(message.content)
   })
 
   client.on('ready', () => {
