@@ -69,17 +69,27 @@ const Avatar = new db.Collection('avatars', {
   seed: '',
   style: '',
 })
-const Haiku = new db.Collection('haikus', {
-  uid: '',
-  channel: '',
-  content: '',
-})
+
 const Bio = new db.Collection('bios', {
   uid: '',
   url: '',
 })
 
+const Haiku = new db.Collection('haikus', {
+  uid: '',
+  channel: '',
+  content: '',
+})
+
+const Score = new db.Collection('scores', {
+  uid: '',
+  channel: '',
+  points: '',
+})
+
 client.on('message', (message) => {
+  const channelGraveyard = client.channels.cache.get('832394205422026813')
+
   // fuck you, trebek
   if (insultUsers.includes(message.author.id) && Math.random() < randomChance) {
     fetch('https://insult.mattbas.org/api/insult.json')
@@ -170,7 +180,7 @@ client.on('message', (message) => {
     }
   } else if (message.author.bot) return
 
-  // haiku
+  // haikus
   const { isHaiku, formattedHaiku } = findahaiku.analyzeText(message.content)
   if (isHaiku) {
     const embed = new Discord.MessageEmbed()
@@ -214,40 +224,39 @@ client.on('message', (message) => {
       )
   }
 
-  // all-caps
+  // permadeath
+  const death = () => {
+    const obituary = new Discord.MessageEmbed()
+      .setColor(embedColor)
+      .setThumbnail(message.author.avatarURL)
+      .setTitle(`RIP, ${message.author.username}. :headstone:`)
+      .setDescription(
+        `Here lies ${message.author}. Last seen in ${message.channel} just now.`
+      )
+
+    message.react('💀')
+    message.member.roles.add(roleGhost)
+    channelGraveyard.send(obituary)
+  }
+
+  // #acronyms
+  if (message.channel.id === '866967261092773918') {
+    const acronym = /^C.+S.+C\S+$/i
+
+    if (message.content.match(acronym)) {
+      message.react('👍')
+    } else death()
+  }
+
+  // #all-caps
   if (message.channel.id === '412714197399371788') {
     const allCaps = /^[A-Z0-9\s-_,./?;:'"‘’“”`~!@#$%^&*()=+|\\<>\[\]{}]+$/gm
 
-    if (!message.content.match(allCaps)) {
-      message.delete()
-      message.member.roles.add(roleGhost)
-      message.channel.send(`${message.author.username.toUpperCase()} HAS DIED`)
-    }
+    if (!message.content.match(allCaps)) death()
   }
 
-  // bios
-  if (message.channel.id === '865757944552488960') {
-    const matches = Bio.find().matches('uid', message.author.id).run()
-    if (matches.length > 0) {
-      if (message) message.delete()
-      message.channel
-        .send(`You already have a post. ${matches[0].url}`)
-        .then((message) => {
-          setTimeout(() => {
-            if (message) message.delete()
-          }, 5 * 1000)
-        })
-    } else {
-      Bio.add({
-        uid: message.author.id,
-        url: message.url,
-      })
-    }
-  }
-
-  // vr-chat
+  // #anonymous
   if (message.channel.id === '848997740767346699') {
-    // if (message.channel.id === devChannel) {
     message.delete()
 
     const apis = {
@@ -360,7 +369,27 @@ client.on('message', (message) => {
     }
   }
 
-  // random messages
+  // #comrades
+  if (message.channel.id === '865757944552488960') {
+    const matches = Bio.find().matches('uid', message.author.id).run()
+    if (matches.length > 0) {
+      if (message) message.delete()
+      message.channel
+        .send(`You already have a bio: ${matches[0].url}`)
+        .then((message) => {
+          setTimeout(() => {
+            if (message) message.delete()
+          }, 5 * 1000)
+        })
+    } else {
+      Bio.add({
+        uid: message.author.id,
+        url: message.url,
+      })
+    }
+  }
+
+  // random
   else if (
     businessChannels.includes(message.channel.id) &&
     Math.random() < randomChance
