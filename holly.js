@@ -88,6 +88,7 @@ const Score = new db.Collection('scores', {
 })
 
 client.on('message', (message) => {
+  let botCommand = false
   const channelGraveyard = client.channels.cache.get('832394205422026813')
 
   // fuck you, trebek
@@ -180,6 +181,8 @@ client.on('message', (message) => {
     }
   } else if (message.author.bot) return
 
+  if (message.content.startsWith('!')) botCommand = true
+
   // haikus
   const { isHaiku, formattedHaiku } = findahaiku.analyzeText(message.content)
   if (isHaiku) {
@@ -240,7 +243,7 @@ client.on('message', (message) => {
   }
 
   // #acronyms
-  if (message.channel.id === '866967261092773918') {
+  if (message.channel.id === '866967261092773918' && !botCommand) {
     const acronym = /^C.+S.+C\S+$/i
 
     if (message.content.match(acronym)) {
@@ -252,7 +255,7 @@ client.on('message', (message) => {
   if (message.channel.id === '412714197399371788') {
     const allCaps = /^[A-Z0-9\s-_,./?;:'"‘’“”`~!@#$%^&*()=+|\\<>\[\]{}]+$/gm
 
-    if (!message.content.match(allCaps)) death()
+    if (!message.content.match(allCaps) || botCommand) death()
   }
 
   // #anonymous
@@ -367,6 +370,12 @@ client.on('message', (message) => {
         message.channel.send(embed)
       }
     }
+  }
+
+  // #band-names
+  if (message.channel.id === '867179976444870696' && !botCommand) {
+    message.react('462126280704262144')
+    message.react('462126761098870784')
   }
 
   // #comrades
