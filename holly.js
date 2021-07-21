@@ -88,13 +88,7 @@ const Haiku = new db.Collection('haikus', {
   content: '',
 })
 
-const Score = new db.Collection('scores', {
-  uid: '',
-  points: '',
-})
-
 client.on('message', (message) => {
-  let botCommand = false
   const channelGraveyard = client.channels.cache.get('832394205422026813')
 
   // fuck you, trebek
@@ -187,8 +181,6 @@ client.on('message', (message) => {
     }
   } else if (message.author.bot) return
 
-  if (message.content.startsWith('!')) botCommand = true
-
   // haikus
   const { isHaiku, formattedHaiku } = findahaiku.analyzeText(message.content)
   if (isHaiku) {
@@ -246,27 +238,6 @@ client.on('message', (message) => {
     message.react('💀')
     message.member.roles.add(roleGhost)
     channelGraveyard.send(obituary)
-    score(true)
-  }
-
-  const score = (reset=false) => {
-    let score = Score.find().matches('uid', message.author.id).limit(1).run()
-
-    if (reset) {
-      if (score.length > 0) Score.remove(score[0]._id_)
-    }
-    else if (score.length > 0) {
-      let pointsUpdated = parseInt(score[0].points)++
-
-      Score.update(score[0]._id_, {
-        points: pointsUpdated,
-      })
-    } else {
-      Score.add({
-        uid: message.author.id,
-        points: 1,
-      })
-    }
   }
 
   // #acronyms
@@ -275,7 +246,6 @@ client.on('message', (message) => {
 
     if (message.content.match(acronym)) {
       message.react('👍')
-      score()
     } else death()
   }
 
@@ -401,7 +371,7 @@ client.on('message', (message) => {
   }
 
   // #band-names
-  if (message.channel.id === '867179976444870696' && !botCommand) {
+  if (message.channel.id === '867179976444870696') {
     message.react('462126280704262144')
     message.react('462126761098870784')
   }
@@ -446,7 +416,6 @@ client.on('message', (message) => {
       message.content.startsWith(firstLetter)
     ) {
       message.react('✅')
-      score()
 
       Data.update(letter[0]._id_, {
         content: message.content.toString().slice(-1),
