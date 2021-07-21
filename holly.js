@@ -402,10 +402,7 @@ client.on('message', (message) => {
       letter = Data.find('name', 'word-war').limit(1).run()
 
     if (letter.length === 0) {
-      Data.add({
-        name: 'word-war',
-        content: 'a',
-      })
+      Data.add({ name: 'word-war', content: 'a' })
       firstLetter = 'a'
     } else {
       firstLetter = letter[0].content
@@ -416,11 +413,9 @@ client.on('message', (message) => {
       message.content.toLowerCase().startsWith(firstLetter)
     ) {
       const newLetter = message.content.toLowerCase().slice(-1)
-      message.react('✅')
 
-      Data.update(letter[0]._id_, {
-        content: newLetter,
-      })
+      message.react('✅')
+      Data.update(letter[0]._id_, { content: newLetter })
     } else death()
   }
 
