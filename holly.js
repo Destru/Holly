@@ -241,7 +241,7 @@ client.on('message', (message) => {
   }
 
   // #acronyms
-  if (message.channel.id === '866967261092773918' && !botCommand) {
+  if (message.channel.id === '866967261092773918') {
     const acronym = /^C.+S.+C\S+$/i
 
     if (message.content.match(acronym)) {
@@ -253,7 +253,7 @@ client.on('message', (message) => {
   if (message.channel.id === '412714197399371788') {
     const allCaps = /^[A-Z0-9\s-_,./?;:'"‘’“”`~!@#$%^&*()=+|\\<>\[\]{}]+$/gm
 
-    if (!message.content.match(allCaps) || botCommand) death()
+    if (!message.content.match(allCaps)) death()
   }
 
   // #anonymous
@@ -397,7 +397,7 @@ client.on('message', (message) => {
   }
 
   // #word-war
-  if (message.channel.id === '866967592622489640' && !botCommand) {
+  if (message.channel.id === '866967592622489640') {
     let letter = Data.find('name', 'word-war').limit(1).run()
 
     if (letter.length === 0) {
