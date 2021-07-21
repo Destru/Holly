@@ -6,8 +6,8 @@ const db = require('flat-db')
 const fetch = require('node-fetch')
 const findahaiku = require('findahaiku')
 const prettyMs = require('pretty-ms')
-const isWord = require('is-word')
-const englishWords = isWord('american-english')
+const checkWord = require('check-word')
+const dictionary = checkWord('en')
 
 const admin = '160320553322807296'
 const businessChannels = ['845382463685132288', '829717667107700746']
@@ -413,7 +413,7 @@ client.on('message', (message) => {
 
     if (
       message.content.length >= 2 &&
-      englishWords.check(message.content) &&
+      dictionary.check(message.content) &&
       message.content.toLocaleLowerCase().startsWith(firstLetter)
     ) {
       message.react('✅')
