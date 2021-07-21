@@ -412,14 +412,14 @@ client.on('message', (message) => {
     }
 
     if (
-      message.content.length >= 2 &&
-      dictionary.check(message.content) &&
-      message.content.toLocaleLowerCase().startsWith(firstLetter)
+      dictionary.check(message.content.toLowerCase()) &&
+      message.content.toLowerCase().startsWith(firstLetter)
     ) {
+      const newLetter = message.content.toLowerCase().slice(-1)
       message.react('✅')
 
       Data.update(letter[0]._id_, {
-        content: message.content.toString().toLocaleLowerCase().slice(-1),
+        content: newLetter,
       })
     } else death()
   }
