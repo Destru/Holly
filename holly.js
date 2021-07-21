@@ -6,6 +6,8 @@ const db = require('flat-db')
 const fetch = require('node-fetch')
 const findahaiku = require('findahaiku')
 const prettyMs = require('pretty-ms')
+const isWord = require('is-word')
+const englishWords = isWord('american-english')
 
 const admin = '160320553322807296'
 const businessChannels = ['845382463685132288', '829717667107700746']
@@ -75,6 +77,11 @@ const Bio = new db.Collection('bios', {
   url: '',
 })
 
+const Data = new db.Collection('data', {
+  name: '',
+  content: '',
+})
+
 const Haiku = new db.Collection('haikus', {
   uid: '',
   channel: '',
@@ -83,7 +90,6 @@ const Haiku = new db.Collection('haikus', {
 
 const Score = new db.Collection('scores', {
   uid: '',
-  channel: '',
   points: '',
 })
 
@@ -242,12 +248,30 @@ client.on('message', (message) => {
     channelGraveyard.send(obituary)
   }
 
+  const score = () => {
+    let score = Score.find().matches('uid', message.author.id).limit(1).run()
+
+    if (score.length > 0) {
+      let pointsUpdated = parseInt(score[0].points)++
+
+      Score.update(score[0]._id_, {
+        points: pointsUpdated,
+      })
+    } else {
+      Score.add({
+        uid: message.author.id,
+        points: 1,
+      })
+    }
+  }
+
   // #acronyms
   if (message.channel.id === '866967261092773918' && !botCommand) {
     const acronym = /^C.+S.+C\S+$/i
 
     if (message.content.match(acronym)) {
       message.react('👍')
+      score()
     } else death()
   }
 
@@ -396,6 +420,34 @@ client.on('message', (message) => {
         url: message.url,
       })
     }
+  }
+
+  // #word-war
+  if (message.channel.id === '866967592622489640' && !botCommand) {
+    let letter = Data.find('name', 'word-war').limit(1).run()
+
+    if (letter.length === 0) {
+      Data.add({
+        name: 'word-war',
+        content: 'a',
+      })
+      firstLetter = 'a'
+    } else {
+      firstLetter = letter[0].content
+    }
+
+    if (
+      message.content.length >= 2 &&
+      englishWords.check(message.content) &&
+      message.content.startsWith(firstLetter)
+    ) {
+      message.react('✅')
+      score()
+
+      Data.update(letter[0]._id_, {
+        content: message.content.toString().slice(-1),
+      })
+    } else death()
   }
 
   // random
