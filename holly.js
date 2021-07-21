@@ -246,18 +246,22 @@ client.on('message', (message) => {
     message.react('💀')
     message.member.roles.add(roleGhost)
     channelGraveyard.send(obituary)
+    score(true)
   }
 
-  const score = () => {
+  const score = (reset=false) => {
     let score = Score.find().matches('uid', message.author.id).limit(1).run()
 
-    if (score.length > 0) {
+    if (reset && score.length > 0) {
+      Score.remove(score[0]._id_)
+    }
+    else if (score.length > 0) {
       let pointsUpdated = parseInt(score[0].points)++
 
       Score.update(score[0]._id_, {
         points: pointsUpdated,
       })
-    } else {
+    } else if (!reset) {
       Score.add({
         uid: message.author.id,
         points: 1,
