@@ -413,12 +413,12 @@ client.on('message', (message) => {
     if (
       message.content.length >= 2 &&
       englishWords.check(message.content) &&
-      message.content.startsWith(firstLetter)
+      message.content.toLocaleLowerCase().startsWith(firstLetter)
     ) {
       message.react('✅')
 
       Data.update(letter[0]._id_, {
-        content: message.content.toString().slice(-1),
+        content: message.content.toString().toLocaleLowerCase().slice(-1),
       })
     } else death()
   }
