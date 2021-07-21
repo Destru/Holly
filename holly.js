@@ -404,9 +404,7 @@ client.on('message', (message) => {
     if (letter.length === 0) {
       Data.add({ name: 'word-war', content: 'a' })
       firstLetter = 'a'
-    } else {
-      firstLetter = letter[0].content
-    }
+    } else firstLetter = letter[0].content
 
     if (
       dictionary.check(message.content.toLowerCase()) &&
