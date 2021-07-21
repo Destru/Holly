@@ -252,8 +252,8 @@ client.on('message', (message) => {
   const score = (reset=false) => {
     let score = Score.find().matches('uid', message.author.id).limit(1).run()
 
-    if (reset && score.length > 0) {
-      Score.remove(score[0]._id_)
+    if (reset) {
+      if (score.length > 0) Score.remove(score[0]._id_)
     }
     else if (score.length > 0) {
       let pointsUpdated = parseInt(score[0].points)++
@@ -261,7 +261,7 @@ client.on('message', (message) => {
       Score.update(score[0]._id_, {
         points: pointsUpdated,
       })
-    } else if (!reset) {
+    } else {
       Score.add({
         uid: message.author.id,
         points: 1,
