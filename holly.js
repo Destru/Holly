@@ -91,6 +91,18 @@ const Haiku = new db.Collection('haikus', {
 client.on('message', (message) => {
   const channelGraveyard = client.channels.cache.get('832394205422026813')
 
+  const death = () => {
+    const obituary = new Discord.MessageEmbed()
+      .setColor(embedColor)
+      .setThumbnail(message.author.avatarURL)
+      .setTitle(`RIP, ${message.author.username}. :headstone:`)
+      .setDescription(`${message.author} died in ${message.channel} just now.`)
+
+    message.react('💀')
+    message.member.roles.add(roleGhost)
+    channelGraveyard.send(obituary)
+  }
+
   // fuck you, trebek
   if (insultUsers.includes(message.author.id) && Math.random() < randomChance) {
     fetch('https://insult.mattbas.org/api/insult.json')
@@ -223,21 +235,6 @@ client.on('message', (message) => {
       message.channel.send(
         `>>> I searched the data\nfor a couple of seconds\nbut there's nothing there.`
       )
-  }
-
-  // permadeath
-  const death = () => {
-    const obituary = new Discord.MessageEmbed()
-      .setColor(embedColor)
-      .setThumbnail(message.author.avatarURL)
-      .setTitle(`RIP, ${message.author.username}. :headstone:`)
-      .setDescription(
-        `Here lies ${message.author}. Last seen in ${message.channel} just now.`
-      )
-
-    message.react('💀')
-    message.member.roles.add(roleGhost)
-    channelGraveyard.send(obituary)
   }
 
   // #acronyms
