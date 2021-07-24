@@ -236,7 +236,6 @@ client.on('message', (message) => {
 
       const user = client.users.cache.get(immortals[0].uid)
       embed
-        .setThumbnail(user.displayAvatarURL)
         .setDescription(`${user} with \`${immortals[0].score}\` soul orbs.`)
         .setTitle('Immortal :skull:')
 
