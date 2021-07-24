@@ -79,6 +79,10 @@ const Haiku = new db.Collection('haikus', {
   channel: '',
   content: '',
 })
+const Immortal = new db.Collection('immortals', {
+  uid: '',
+  score: '',
+})
 const Meta = new db.Collection('meta', {
   name: '',
   value: '',
@@ -219,6 +223,33 @@ client.on('message', (message) => {
       )
   }
 
+  // permadeath
+  if (
+    message.content.startsWith('!leaderboard') ||
+    message.content.startsWith('!immortal')
+  ) {
+    const embed = new Discord.MessageEmbed().setColor(embedColorBlack)
+    const immortals = Immortal.find().run()
+
+    if (immortals.length > 0) {
+      immortals.sort((a, b) => {
+        if (a.score > b.score) return 1
+        if (a.score < b.score) return -1
+        return 0
+      })
+
+      const user = client.users.cache.find(
+        (user) => user.id === immortals[0].uid
+      )
+      embed
+        .setDescription(`${user} with \`${immortals[0].score}\` soul orbs.`)
+        .setTitle('Immortal :skull:')
+
+      message.channel.send(embed)
+    }
+    return
+  }
+
   const permaDeath = () => {
     const channelGraveyard = client.channels.cache.get('832394205422026813')
     const obituary = new Discord.MessageEmbed()
@@ -233,6 +264,35 @@ client.on('message', (message) => {
     message.react('💀')
     message.member.roles.add(roleGhost)
     channelGraveyard.send(obituary)
+    score(true)
+  }
+
+  const score = (reset = false) => {
+    const matches = Immortal.find()
+      .matches('uid', message.author.id)
+      .limit(1)
+      .run()
+
+    let immortal
+
+    if (matches.length > 0) {
+      immortal = matches[0]
+    } else {
+      let immortalKey = Immortal.add({
+        uid: message.author.id,
+        score: '0',
+      })
+
+      immortal = Immortal.get(immortalKey)
+    }
+
+    if (reset) {
+      Immortal.remove(immortal._id_)
+    } else {
+      Immortal.update(immortal._id_, {
+        score: `${parseInt(immortal.score) + 1}`,
+      })
+    }
   }
 
   // #acronyms
@@ -241,6 +301,7 @@ client.on('message', (message) => {
 
     if (message.content.match(acronym)) {
       message.react('✅')
+      score()
     } else {
       message.react('❌')
       permaDeath()
@@ -252,6 +313,7 @@ client.on('message', (message) => {
     const allCaps = /^[A-Z0-9\s-_,./?;:'"‘’“”`~!@#$%^&*()=+|\\<>\[\]{}]+$/gm
 
     if (!message.content.match(allCaps)) permaDeath()
+    else score()
   }
 
   // #anonymous
@@ -364,6 +426,7 @@ client.on('message', (message) => {
           .setThumbnail(customAvatar(avatar, message))
 
         message.channel.send(embed)
+        score()
       }
     }
   }
@@ -428,6 +491,7 @@ client.on('message', (message) => {
           value: `${messageCount}|${highscore}`,
         })
       }
+      score()
     } else {
       message.react('❌')
       Meta.update(meta._id_, { value: `0|${highscore}` })
@@ -454,9 +518,21 @@ client.on('message', (message) => {
 
       message.react('✅')
       Meta.update(matches[0]._id_, { value: newLetter })
+      score()
     } else {
       message.react('❌')
       permaDeath()
+    }
+  }
+
+  // #skynet
+  if (message.channel.id === '845382463685132288') {
+    if (message.content.startsWith('yes')) {
+      message.react('✅')
+      score()
+    } else {
+      message.react('❌')
+      score(true)
     }
   }
 
