@@ -404,29 +404,33 @@ client.on('message', (message) => {
     if (matches.length > 0) {
       meta = { ...matches[0] }
     } else {
-      meta = { name: 'permadeath', value: { count: '0', highscore: '10' } }
-      Meta.add(meta)
+      metaKey = Meta.add({
+        name: 'permadeath',
+        value: '0|10',
+      })
+
+      meta = Meta.get(metaKey)
     }
 
-    desiredCount = parseInt(meta.value.count) + 1
-    highscore = parseInt(meta.value.highscore) || 1
+    desiredCount = parseInt(meta.value.split('|')[0]) + 1
+    highscore = parseInt(meta.value.split('|')[1])
     messageCount = parseInt(message.content)
 
     if (message.content.match(numOnly) && messageCount === desiredCount) {
       if (messageCount > highscore) {
         message.react('☑️')
         Meta.update(meta._id_, {
-          value: { count: messageCount, highscore: messageCount },
+          value: `${messageCount}|${messageCount}`,
         })
       } else {
         message.react('✅')
         Meta.update(meta._id_, {
-          value: { count: messageCount, highscore: highscore },
+          value: `${messageCount}|${highscore}`,
         })
       }
     } else {
       message.react('❌')
-      Meta.update(meta._id_, { value: { count: '0', highscore: highscore } })
+      Meta.update(meta._id_, { value: `0|${highscore}` })
       permaDeath()
     }
   }
