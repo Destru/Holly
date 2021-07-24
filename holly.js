@@ -232,16 +232,11 @@ client.on('message', (message) => {
     const immortals = Immortal.find().run()
 
     if (immortals.length > 0) {
-      immortals.sort((a, b) => {
-        if (a.score > b.score) return 1
-        if (a.score < b.score) return -1
-        return 0
-      })
+      immortals.sort((a, b) => a.score - b.score)
 
-      const user = client.users.cache.find(
-        (user) => user.id === immortals[0].uid
-      )
+      const user = client.users.cache.get(immortals[0].uid)
       embed
+        .setThumbnail(user.di)
         .setDescription(`${user} with \`${immortals[0].score}\` soul orbs.`)
         .setTitle('Immortal :skull:')
 
