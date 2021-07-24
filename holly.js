@@ -433,8 +433,9 @@ client.on('message', (message) => {
 
   // #word-war
   if (message.channel.id === '866967592622489640') {
-    let firstLetter,
-      matches = Meta.find('name', 'word-war').limit(1).run()
+    const matches = Meta.find('name', 'word-war').limit(1).run()
+
+    let firstLetter
 
     if (matches.length === 0) {
       Meta.add({ name: 'word-war', value: 'a' })
@@ -449,7 +450,10 @@ client.on('message', (message) => {
 
       message.react('✅')
       Meta.update(letter[0]._id_, { value: newLetter })
-    } else permaDeath()
+    } else {
+      message.react('❌')
+      permaDeath()
+    }
   }
 
   // random
