@@ -246,8 +246,7 @@ client.on('message', (message) => {
         .setTitle('Immortal :skull:')
 
       message.channel.send(embed)
-    }
-    return
+    } else message.channel.send(`There is currently no immortal being present.`)
   }
 
   const permaDeath = () => {
@@ -522,17 +521,6 @@ client.on('message', (message) => {
     } else {
       message.react('❌')
       permaDeath()
-    }
-  }
-
-  // #skynet
-  if (message.channel.id === '845382463685132288') {
-    if (message.content.startsWith('yes')) {
-      message.react('✅')
-      score()
-    } else {
-      message.react('❌')
-      score(true)
     }
   }
 
