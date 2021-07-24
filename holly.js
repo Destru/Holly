@@ -405,7 +405,7 @@ client.on('message', (message) => {
       meta = { ...matches[0] }
     } else {
       meta = { name: 'permadeath', value: { count: '0', highscore: '10' } }
-      Meta.add(meta)
+      Meta.add({ meta })
     }
 
     desiredCount = parseInt(meta.value.count) + 1
@@ -434,12 +434,12 @@ client.on('message', (message) => {
   // #word-war
   if (message.channel.id === '866967592622489640') {
     let firstLetter,
-      letter = Data.find('name', 'word-war').limit(1).run()
+      matches = Meta.find('name', 'word-war').limit(1).run()
 
-    if (letter.length === 0) {
-      Data.add({ name: 'word-war', value: 'a' })
+    if (matches.length === 0) {
+      Meta.add({ name: 'word-war', value: 'a' })
       firstLetter = 'a'
-    } else firstLetter = letter[0].value
+    } else firstLetter = matches[0].value
 
     if (
       dictionary.check(message.content.toLowerCase()) &&
@@ -448,7 +448,7 @@ client.on('message', (message) => {
       const newLetter = message.content.toLowerCase().slice(-1)
 
       message.react('✅')
-      Data.update(letter[0]._id_, { value: newLetter })
+      Meta.update(letter[0]._id_, { value: newLetter })
     } else permaDeath()
   }
 
