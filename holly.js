@@ -395,7 +395,7 @@ client.on('message', (message) => {
   }
 
   // #counting
-  if (message.channel.id === '845382463685132288') {
+  if (message.channel.id === '827487959241457694') {
     const matches = Meta.find().matches('name', 'permadeath').limit(1).run()
     const numOnly = /^\d+$/
 
@@ -432,7 +432,7 @@ client.on('message', (message) => {
   }
 
   // #word-war
-  if (message.channel.id === '827487959241457694') {
+  if (message.channel.id === '866967592622489640') {
     let firstLetter,
       letter = Data.find('name', 'word-war').limit(1).run()
 
