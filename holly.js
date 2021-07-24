@@ -437,7 +437,7 @@ client.on('message', (message) => {
 
   // #word-war
   if (message.channel.id === '866967592622489640') {
-    const matches = Meta.find('name', 'word-war').limit(1).run()
+    const matches = Meta.find().matches('name', 'word-war').limit(1).run()
 
     let firstLetter
 
