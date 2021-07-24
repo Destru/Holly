@@ -453,7 +453,7 @@ client.on('message', (message) => {
       const newLetter = message.content.toLowerCase().slice(-1)
 
       message.react('✅')
-      Meta.update(letter[0]._id_, { value: newLetter })
+      Meta.update(matches[0]._id_, { value: newLetter })
     } else {
       message.react('❌')
       permaDeath()
