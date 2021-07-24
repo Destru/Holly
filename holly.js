@@ -405,7 +405,7 @@ client.on('message', (message) => {
       meta = { ...matches[0] }
     } else {
       meta = { name: 'permadeath', value: { count: '0', highscore: '10' } }
-      Meta.add({ meta })
+      Meta.add(meta)
     }
 
     desiredCount = parseInt(meta.value.count) + 1
