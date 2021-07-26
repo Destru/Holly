@@ -224,23 +224,27 @@ client.on('message', (message) => {
   }
 
   // permadeath
-  if (
-    message.content.startsWith('!leaderboard') ||
-    message.content.startsWith('!immortal')
-  ) {
+  if (message.content.startsWith('!immortal')) {
     const embed = new Discord.MessageEmbed().setColor(embedColorBlack)
     const immortals = Immortal.find().run()
 
     if (immortals.length > 0) {
-      immortals.sort((a, b) => a.score - b.score)
+      immortals.sort((a, b) => {
+        a.score - b.score
+      })
+
+      console.log(immortals)
 
       const user = client.users.cache.get(immortals[0].uid)
       embed
-        .setDescription(`${user} with \`${immortals[0].score}\` soul orbs.`)
-        .setTitle('Immortal :skull:')
+        .setDescription(`${user} with \`${immortals[0].score}\` points.`)
+        .setTitle('Immortal Being :skull:')
 
       message.channel.send(embed)
-    } else message.channel.send(`There is currently no immortal being present.`)
+    } else
+      message.channel.send(
+        `There is currently no immortal being present on the server ${randomEmoji()}`
+      )
   }
 
   const permaDeath = () => {
@@ -248,10 +252,11 @@ client.on('message', (message) => {
     const obituary = new Discord.MessageEmbed()
       .setColor(embedColor)
       .setThumbnail(message.author.displayAvatarURL)
-      .setTitle(`RIP, ${message.author.username}. :headstone:`)
+      .setTitle(`RIP ${message.author.username} :headstone:`)
       .setDescription(
-        `${message.author} died in ${message.channel} just now.` +
-          `Voters can \`!resurrect\` to rise from the dead.`
+        `Here lies ${message.author}, who died in ${message.channel} just now.` +
+          `Your score has been reset. ` +
+          `May you \`!resurrect\` promptly and return.`
       )
 
     message.react('💀')
