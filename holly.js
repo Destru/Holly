@@ -229,15 +229,16 @@ client.on('message', (message) => {
     const immortals = Immortal.find().run()
 
     if (immortals.length > 0) {
-      immortals.sort((a, b) => {
-        a.score - b.score
-      })
+      const immortal = immortals.sort((a, b) => a.score - b.score).pop()
 
-      console.log(immortals)
-
-      const user = client.users.cache.get(immortals[0].uid)
+      const user = client.users.cache.get(immortal.uid)
       embed
-        .setDescription(`${user} with \`${immortals[0].score}\` points.`)
+        .setDescription(
+          `${user} with \`${immortal.score}\` soul orbs.\n\n` +
+            `There can be only one **Cyberpunk Social Club** ${randomEmoji()} ` +
+            `Our immortal is fearless, plus rad plus awesome, and also like *super* hot.`
+        )
+        .setThumbnail(user.avatarURL())
         .setTitle('Immortal Being :skull:')
 
       message.channel.send(embed)
@@ -251,10 +252,10 @@ client.on('message', (message) => {
     const channelGraveyard = client.channels.cache.get('832394205422026813')
     const obituary = new Discord.MessageEmbed()
       .setColor(embedColor)
-      .setThumbnail(message.author.displayAvatarURL)
+      .setThumbnail(message.author.avatarURL())
       .setTitle(`RIP ${message.author.username} :headstone:`)
       .setDescription(
-        `Here lies ${message.author}, who died in ${message.channel} just now.` +
+        `Here lies ${message.author}, who died in ${message.channel} uh, just now.\n\n` +
           `Your score has been reset. ` +
           `May you \`!resurrect\` promptly and return.`
       )
