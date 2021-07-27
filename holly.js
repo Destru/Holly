@@ -244,8 +244,8 @@ client.on('message', (message) => {
           )
           .setTitle('Immortal :skull:')
 
-        const user = csc.members.cache.get(immortal.uid).user
-        if (user) embed.setThumbnail(user.avatarURL())
+        const member = csc.members.cache.get(immortal.uid)
+        if (member) embed.setThumbnail(member.user.avatarURL())
 
         message.channel.send(embed)
       } else {
