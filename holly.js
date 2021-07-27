@@ -232,8 +232,8 @@ client.on('message', (message) => {
     const immortals = Immortal.find().run()
 
     if (immortals.length > 0) {
-      const immortals = immortals.sort((a, b) => a.score - b.score)
-      const immortal = immortals.pop()
+      const immortalsSorted = immortals.sort((a, b) => a.score - b.score)
+      const immortal = immortalsSorted.pop()
 
       if (immortal && immortal.uid && immortal.score) {
         embed
