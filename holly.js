@@ -34,6 +34,14 @@ const complimentEmoji = [
 const embedColor = '#FF00FF'
 const embedColorBlack = '#2F3136'
 const insultUsers = ['400786664861204481']
+const isImmortal = (id) => {
+  const immortal = Immortal.find()
+    .run()
+    .sort((a, b) => a.score - b.score)
+    .pop()
+  if (immortal.uid === id) return true
+  else return false
+}
 const randomChance = 0.01
 const randomEmoji = () => {
   const emoji = [
@@ -92,7 +100,6 @@ const Meta = new db.Collection('meta', {
 })
 
 client.on('message', (message) => {
-  // fuck you, trebek
   if (insultUsers.includes(message.author.id) && Math.random() < randomChance) {
     fetch('https://insult.mattbas.org/api/insult.json')
       .then((response) => response.json())
@@ -178,7 +185,7 @@ client.on('message', (message) => {
       setTimeout(() => {
         embed.setColor(user.displayHexColor)
         promotionChannel.send(embed)
-      }, 30 * 1000)
+      }, 20 * 1000)
     }
   } else if (message.author.bot) return
 
@@ -263,19 +270,22 @@ client.on('message', (message) => {
     const obituary = new Discord.MessageEmbed()
       .setColor(embedColor)
       .setThumbnail(message.author.avatarURL())
-      .setTitle(`RIP ${message.author.username} :headstone:`)
+      .setTitle(`RIP ${message.author.username}`)
       .setDescription(
-        `Here lies ${message.author}, who died in ${message.channel} just now.` +
-          `May they \`!resurrect\` promptly and return to us.`
+        `Here lies ${message.author} :headstone:\n` +
+          `Died in ${message.channel} just now. ` +
+          `May they \`!resurrect\` in \`3\` days just like *Jesus*. `
       )
 
-    message.react('💀')
-    message.member.roles.add(roleGhost)
-    channelGraveyard.send(obituary)
-    score(true)
+    if (!isImmortal(message.author.id)) {
+      message.react('💀')
+      message.member.roles.add(roleGhost)
+      channelGraveyard.send(obituary)
+      permaDeathScore(true)
+    }
   }
 
-  const score = (reset = false) => {
+  const permaDeathScore = (reset = false) => {
     const matches = Immortal.find()
       .matches('uid', message.author.id)
       .limit(1)
@@ -309,7 +319,7 @@ client.on('message', (message) => {
 
     if (message.content.match(acronym)) {
       message.react('✅')
-      score()
+      permaDeathScore()
     } else {
       message.react('❌')
       permaDeath()
@@ -317,15 +327,15 @@ client.on('message', (message) => {
   }
 
   // #all-caps
-  if (message.channel.id === '412714197399371788') {
+  else if (message.channel.id === '412714197399371788') {
     const allCaps = /^[A-Z0-9\s-_,./?;:'"‘’“”`~!@#$%^&*()=+|\\<>\[\]{}]+$/gm
 
     if (!message.content.match(allCaps)) permaDeath()
-    else score()
+    else permaDeathScore()
   }
 
   // #anonymous
-  if (message.channel.id === '848997740767346699') {
+  else if (message.channel.id === '848997740767346699') {
     message.delete()
 
     const apis = {
@@ -425,8 +435,7 @@ client.on('message', (message) => {
         })
     } else {
       if (!message.content.match(textOnly) || message.content.length > 2048) {
-        message.member.roles.add(roleGhost)
-        message.member.send(`You died ${emojiVR}`)
+        permaDeath()
       } else {
         const embed = new Discord.MessageEmbed()
           .setColor(embedColorVR)
@@ -434,24 +443,24 @@ client.on('message', (message) => {
           .setThumbnail(customAvatar(avatar, message))
 
         message.channel.send(embed)
-        score()
+        permaDeathScore()
       }
     }
   }
 
   // #band-names
-  if (message.channel.id === '867179976444870696') {
+  else if (message.channel.id === '867179976444870696') {
     message.react('462126280704262144')
     message.react('462126761098870784')
   }
 
   // #comrades
-  if (message.channel.id === '865757944552488960') {
+  else if (message.channel.id === '865757944552488960') {
     const matches = Bio.find().matches('uid', message.author.id).limit(1).run()
     if (matches.length > 0) {
       if (message) message.delete()
       message.channel
-        .send(`You have a bio: ${matches[0].url}`)
+        .send(`Please edit your existing bio: ${matches[0].url}`)
         .then((message) => {
           setTimeout(() => {
             if (message) message.delete()
@@ -466,8 +475,8 @@ client.on('message', (message) => {
   }
 
   // #counting
-  if (message.channel.id === '827487959241457694') {
-    const matches = Meta.find().matches('name', 'permadeath').limit(1).run()
+  else if (message.channel.id === '827487959241457694') {
+    const matches = Meta.find().matches('name', 'counting').limit(1).run()
     const numOnly = /^\d+$/
 
     let desiredCount, highscore, meta, messageCount
@@ -476,7 +485,7 @@ client.on('message', (message) => {
       meta = { ...matches[0] }
     } else {
       metaKey = Meta.add({
-        name: 'permadeath',
+        name: 'counting',
         value: '0|10',
       })
 
@@ -499,7 +508,7 @@ client.on('message', (message) => {
           value: `${messageCount}|${highscore}`,
         })
       }
-      score()
+      permaDeathScore()
     } else {
       message.react('❌')
       Meta.update(meta._id_, { value: `0|${highscore}` })
@@ -508,7 +517,7 @@ client.on('message', (message) => {
   }
 
   // #word-war
-  if (message.channel.id === '866967592622489640') {
+  else if (message.channel.id === '866967592622489640') {
     const matches = Meta.find().matches('name', 'word-war').limit(1).run()
 
     let firstLetter
@@ -524,9 +533,9 @@ client.on('message', (message) => {
     ) {
       const newLetter = message.content.toLowerCase().slice(-1)
 
-      message.react('✅')
       Meta.update(matches[0]._id_, { value: newLetter })
-      score()
+      message.react('✅')
+      permaDeathScore()
     } else {
       message.react('❌')
       permaDeath()
@@ -534,7 +543,7 @@ client.on('message', (message) => {
   }
 
   // random
-  if (
+  else if (
     businessChannels.includes(message.channel.id) &&
     Math.random() < randomChance
   ) {
@@ -562,7 +571,7 @@ client.on('message', (message) => {
   }
 
   // commands
-  if (message.content.startsWith('!bot-info')) {
+  else if (message.content.startsWith('!bot-info')) {
     const embed = new Discord.MessageEmbed()
       .setColor(embedColor)
       .setDescription(
