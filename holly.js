@@ -231,15 +231,16 @@ client.on('message', (message) => {
     if (immortals.length > 0) {
       const immortal = immortals.sort((a, b) => a.score - b.score).pop()
 
-      const user = client.users.cache.get(immortal.uid)
       embed
         .setDescription(
-          `${user} with \`${immortal.score}\` soul orbs.\n\n` +
+          `<@${immortal.uid}> with \`${immortal.score}\` soul orbs.\n\n` +
             `There can be only one **Cyberpunk Social Club** ${randomEmoji()} ` +
-            `Our immortal is fearless, plus rad plus awesome, and also like *super* hot.`
+            `Our immortal is *fearless*, plus rad and awesome, and also like *super* hot.`
         )
-        .setThumbnail(user.avatarURL())
-        .setTitle('Immortal Being :skull:')
+        .setTitle('Immortal :skull:')
+
+      const user = client.users.cache.get(immortal.uid)
+      if (user) embed.setThumbnail(user.avatarURL())
 
       message.channel.send(embed)
     } else
