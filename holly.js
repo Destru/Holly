@@ -231,7 +231,7 @@ client.on('message', (message) => {
     if (immortals.length > 0) {
       const immortal = immortals.sort((a, b) => a.score - b.score).pop()
 
-      if (immortal)
+      if (immortal) {
         embed
           .setDescription(
             `<@${immortal.uid}> with \`${immortal.score}\` soul orbs.\n\n` +
@@ -247,11 +247,11 @@ client.on('message', (message) => {
       } else {
         message.channel.send(`No immortals found.`)
       }
-
-    } else
+    } else {
       message.channel.send(
         `There is currently no immortal being present on the server ${randomEmoji()}`
       )
+    }
   }
 
   const permaDeath = () => {
