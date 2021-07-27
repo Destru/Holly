@@ -30,6 +30,7 @@ const complimentEmoji = [
   ':kissing_closed_eyes:',
   ':kissing_smiling_eyes:',
 ]
+const csc = client.guilds.cache.get('160320676580818951')
 const embedColor = '#FF00FF'
 const embedColorBlack = '#2F3136'
 const insultUsers = ['400786664861204481']
@@ -240,7 +241,7 @@ client.on('message', (message) => {
           )
           .setTitle('Immortal :skull:')
 
-        const user = guild.members.cache.get(immortal.uid)
+        const user = csc.members.cache.get(immortal.uid)
         if (user) embed.setThumbnail(user.avatarURL())
 
         message.channel.send(embed)
