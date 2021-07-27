@@ -30,9 +30,9 @@ const complimentEmoji = [
   ':kissing_closed_eyes:',
   ':kissing_smiling_eyes:',
 ]
-
 const embedColor = '#FF00FF'
 const embedColorBlack = '#2F3136'
+const immortalChannel = '405503298951446528'
 const insultUsers = ['400786664861204481']
 const isImmortal = (id) => {
   const immortal = Immortal.find()
@@ -245,9 +245,8 @@ client.on('message', (message) => {
       if (immortal && immortal.uid && immortal.score) {
         embed
           .setDescription(
-            `<@${immortal.uid}> with \`${immortal.score}\` points.\n\n` +
-              `There can be only one **Cyberpunk Social Club** ${randomEmoji()} immortal. ` +
-              `Ours is *fearless*, plus rad and awesome, and also like *super* hot.`
+            `<@${immortal.uid}> with \`${immortal.score}\` points. \n` +
+              `There can be only *one* **Cyberpunk Social Club** ${randomEmoji()} `
           )
           .setTitle('Immortal :skull:')
 
@@ -255,8 +254,6 @@ client.on('message', (message) => {
         if (member) embed.setThumbnail(member.user.avatarURL())
 
         message.channel.send(embed)
-      } else {
-        message.channel.send(`No immortal records found.`)
       }
     } else {
       message.channel.send(
@@ -628,6 +625,30 @@ client.on('ready', () => {
       type: 'PLAYING',
     },
   })
+
+  setTimeout(() => {
+    const embed = new Discord.MessageEmbed().setColor(embedColorBlack)
+    const immortals = Immortal.find().run()
+
+    if (immortals.length > 0) {
+      const immortalsSorted = immortals.sort((a, b) => a.score - b.score)
+      const immortal = immortalsSorted.pop()
+
+      if (immortal && immortal.uid && immortal.score) {
+        embed
+          .setDescription(
+            `<@${immortal.uid}> with \`${immortal.score}\` points. \n` +
+              `There can be only *one* **Cyberpunk Social Club** ${randomEmoji()} `
+          )
+          .setTitle('Immortal :skull:')
+
+        const member = csc.members.cache.get(immortal.uid)
+        if (member) embed.setThumbnail(member.user.avatarURL())
+
+        client.channels.cache.get(immortalChannel).send(embed)
+      }
+    }
+  }, 24 * 60 * 60 * 1000)
 })
 
 client.login()
