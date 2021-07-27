@@ -30,7 +30,7 @@ const complimentEmoji = [
   ':kissing_closed_eyes:',
   ':kissing_smiling_eyes:',
 ]
-const csc = client.guilds.cache.get('160320676580818951')
+
 const embedColor = '#FF00FF'
 const embedColorBlack = '#2F3136'
 const insultUsers = ['400786664861204481']
@@ -63,6 +63,8 @@ const status = [
   'Play-by-mail Chess',
 ]
 const version = process.env.npm_package_version || '(Development)'
+
+let csc
 
 db.configure({ dir: './db' })
 const Avatar = new db.Collection('avatars', {
@@ -236,12 +238,12 @@ client.on('message', (message) => {
         embed
           .setDescription(
             `<@${immortal.uid}> with \`${immortal.score}\` soul orbs.\n\n` +
-              `There can be only one **Cyberpunk Social Club** ${randomEmoji()} Immortal.` +
+              `There can be only one **Cyberpunk Social Club** ${randomEmoji()} immortal. ` +
               `Ours is *fearless*, plus rad and awesome, and also like *super* hot.`
           )
           .setTitle('Immortal :skull:')
 
-        const user = csc.members.cache.get(immortal.uid)
+        const user = csc.members.cache.get(immortal.uid).user
         if (user) embed.setThumbnail(user.avatarURL())
 
         message.channel.send(embed)
@@ -590,6 +592,8 @@ client.on('message', (message) => {
 
 client.on('ready', () => {
   console.log(`Holly ${version} is online.`)
+
+  csc = client.guilds.cache.get('160320676580818951')
 
   client.user.setPresence({
     status: 'online',
