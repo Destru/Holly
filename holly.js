@@ -239,7 +239,7 @@ client.on('message', (message) => {
         )
         .setTitle('Immortal :skull:')
 
-      const user = client.users.cache.get(immortal.uid)
+      const user = message.guild.members.get(immortal.uid)
       if (user) embed.setThumbnail(user.avatarURL())
 
       message.channel.send(embed)
