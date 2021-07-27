@@ -285,11 +285,10 @@ client.on('message', (message) => {
     const obituary = new Discord.MessageEmbed()
       .setColor(embedColor)
       .setThumbnail(message.author.avatarURL())
-      .setTitle(`RIP ${message.author.username}`)
+      .setTitle(`${message.author.username} :headstone:`)
       .setDescription(
-        `Here lies ${message.author} :headstone:\n` +
-          `Died in ${message.channel} just now. ` +
-          `May they \`!resurrect\` in \`3\` days just like *Jesus*. `
+        `Here lies ${message.author}, who died in ${message.channel} just now. ` +
+          `May they \`!resurrect\` in peace.`
       )
 
     if (!isImmortal(message.author.id)) {
@@ -345,8 +344,10 @@ client.on('message', (message) => {
   else if (message.channel.id === '412714197399371788') {
     const allCaps = /^[A-Z0-9\s-_,./?;:'"‘’“”`~!@#$%^&*()=+|\\<>\[\]{}]+$/gm
 
-    if (!message.content.match(allCaps)) permaDeath()
-    else permaDeathScore()
+    if (!message.content.match(allCaps)) {
+      message.react('❌')
+      permaDeath()
+    } else permaDeathScore()
   }
 
   // #anonymous
