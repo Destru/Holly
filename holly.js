@@ -231,21 +231,21 @@ client.on('message', (message) => {
     if (immortals.length > 0) {
       const immortal = immortals.sort((a, b) => a.score - b.score).pop()
 
-      if (immortal) {
+      if (immortal && immortal.uid && immortal.score) {
         embed
           .setDescription(
             `<@${immortal.uid}> with \`${immortal.score}\` soul orbs.\n\n` +
-              `There can be only one **Cyberpunk Social Club** ${randomEmoji()} ` +
-              `Our immortal is *fearless*, plus rad and awesome, and also like *super* hot.`
+              `There can be only one **Cyberpunk Social Club** ${randomEmoji()} Immortal.` +
+              `Ours is *fearless*, plus rad and awesome, and also like *super* hot.`
           )
           .setTitle('Immortal :skull:')
 
-        const user = message.guild.members.get(immortal.uid)
+        const user = guild.members.cache.get(immortal.uid)
         if (user) embed.setThumbnail(user.avatarURL())
 
         message.channel.send(embed)
       } else {
-        message.channel.send(`No immortals found.`)
+        message.channel.send(`No immortal records found.`)
       }
     } else {
       message.channel.send(
