@@ -245,8 +245,8 @@ client.on('message', (message) => {
       if (immortal && immortal.uid && immortal.score) {
         embed
           .setDescription(
-            `<@${immortal.uid}> with \`${immortal.score}\` points. \n` +
-              `There can be only *one* **Cyberpunk Social Club** ${randomEmoji()} `
+            `<@${immortal.uid}> with \`${immortal.score}\` points. \n\n` +
+              `Bow before the **Cyberpunk Social Club** ${randomEmoji()} immortal being.`
           )
           .setTitle('Immortal :skull:')
 
@@ -638,7 +638,7 @@ client.on('ready', () => {
         embed
           .setDescription(
             `<@${immortal.uid}> with \`${immortal.score}\` points. \n\n` +
-              `Bow before the beauty of the **Cyberpunk Social Club** ${randomEmoji()} immortal being.`
+              `Bow before the **Cyberpunk Social Club** ${randomEmoji()} immortal being.`
           )
           .setTitle('Immortal :skull:')
 
