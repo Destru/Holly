@@ -256,9 +256,8 @@ client.on('message', (message) => {
       .setThumbnail(message.author.avatarURL())
       .setTitle(`RIP ${message.author.username} :headstone:`)
       .setDescription(
-        `Here lies ${message.author}, who died in ${message.channel} uh, just now.\n\n` +
-          `Your score has been reset. ` +
-          `May you \`!resurrect\` promptly and return.`
+        `Here lies ${message.author}, who died in ${message.channel} just now.` +
+          `May they \`!resurrect\` promptly and return to us.`
       )
 
     message.react('💀')
