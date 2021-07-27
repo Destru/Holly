@@ -292,7 +292,7 @@ client.on('message', (message) => {
       )
 
     if (!isImmortal(message.author.id)) {
-      message.react('💀')
+      if (message) message.react('💀')
       message.member.roles.add(roleGhost)
       channelGraveyard.send(obituary)
       permaDeathScore(true)
