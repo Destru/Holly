@@ -245,7 +245,7 @@ client.on('message', (message) => {
       if (immortal && immortal.uid && immortal.score) {
         embed
           .setDescription(
-            `<@${immortal.uid}> with \`${immortal.score}\` soul orbs.\n\n` +
+            `<@${immortal.uid}> with \`${immortal.score}\` points.\n\n` +
               `There can be only one **Cyberpunk Social Club** ${randomEmoji()} immortal. ` +
               `Ours is *fearless*, plus rad and awesome, and also like *super* hot.`
           )
@@ -263,6 +263,21 @@ client.on('message', (message) => {
         `There is currently no immortal being present on the server ${randomEmoji()}`
       )
     }
+  } else if (
+    message.content.startsWith('!points') ||
+    message.content.startsWith('!score')
+  ) {
+    const matches = Immortal.find()
+      .matches('uid', message.author.id)
+      .limit(1)
+      .run()
+
+    if (matches.length > 0)
+      message.channel.send(`You have \`${matches[0].score}\` points.`)
+    else
+      message.channel.send(
+        `You have not taken any succesful action in a permadeath channel.`
+      )
   }
 
   const permaDeath = () => {
