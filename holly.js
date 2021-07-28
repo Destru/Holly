@@ -98,6 +98,7 @@ const Immortal = new db.Collection('immortals', {
   score: '',
 })
 const Meta = new db.Collection('meta', {
+  uid: '',
   name: '',
   value: '',
 })
