@@ -252,10 +252,12 @@ client.on('message', (message) => {
       if (immortal && immortal.uid && immortal.score) {
         embed
           .setDescription(
-            `<@${immortal.uid}> with \`${immortal.score}\` points. \n\n` +
-              `**Cyberpunk Social Club** ${randomEmoji()}`
+            `<@${immortal.uid}> with \`${immortal.score}\` points.\n\n` +
+              `Bow before our ruler; an immortal being.` +
+              `Behold their glory and unfathomable beauty. ` +
+              `Bathe in their light and accept their judgements. `
           )
-          .setTitle('Immortal Being :skull:')
+          .setTitle('Immortal')
 
         const member = csc.members.cache.get(immortal.uid)
         if (member) embed.setThumbnail(member.user.avatarURL())
@@ -299,7 +301,7 @@ client.on('message', (message) => {
     }
 
     if (!timeRemaining) {
-      message.member.roles.remove(role.ghost)
+      message.member.roles.remove(roleGhost)
       if (hasResurrected) Resurrection.remove(matches[0]._id_)
       Resurrection.add({ uid: message.author.id })
       embed.setDescription(`You have been resurrected 🙏`)
