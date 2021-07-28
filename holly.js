@@ -315,9 +315,10 @@ client.on('message', (message) => {
     message.content.startsWith('!permadeath') &&
     message.author.id === '160320553322807296'
   ) {
-    Immortal.reset()
     Deaths.reset()
-    message.channel.send(`Permadeath has been reset 💀`)
+    Immortal.reset()
+    Meta.reset()
+    message.channel.send(`Permadeath has been `reset` 💀`)
   }
 
   const permaDeath = () => {
