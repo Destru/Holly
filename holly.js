@@ -253,9 +253,9 @@ client.on('message', (message) => {
         embed
           .setDescription(
             `<@${immortal.uid}> with \`${immortal.score}\` points.\n\n` +
-              `Bow before our ruler; an immortal being.` +
+              `Bow before our ruler; an immortal being. ` +
               `Behold their glory and unfathomable beauty. ` +
-              `Bathe in their light and accept their judgements. `
+              `Bathe in their light and accept their judgement 💀 `
           )
           .setTitle('Immortal')
 
