@@ -38,7 +38,7 @@ const isImmortal = (id) => {
     .run()
     .sort((a, b) => a.score - b.score)
     .pop()
-  if (immortal.uid === id) return true
+  if (immortal && immortal.uid === id) return true
   else return false
 }
 const randomChance = 0.01
