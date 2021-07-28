@@ -254,7 +254,7 @@ client.on('message', (message) => {
             `<@${immortal.uid}> with \`${immortal.score}\` points.\n\n` +
               `Bow before our ruler; an immortal being. ` +
               `Bathe in their light and unfathomable beauty, ` +
-              `and accept their judgement 💀 `
+              `and accept their judgement 💀`
           )
           .setTitle('Immortal')
 
@@ -316,6 +316,7 @@ client.on('message', (message) => {
   ) {
     Immortal.reset()
     Deaths.reset()
+    message.channel.send(`Permadeath has been reset 💀`)
   }
 
   const permaDeath = () => {
