@@ -102,6 +102,9 @@ const Meta = new db.Collection('meta', {
   name: '',
   value: '',
 })
+const Resurrection = new db.Collection('resurrections', {
+  uid: '',
+})
 
 client.on('message', (message) => {
   if (insultUsers.includes(message.author.id) && Math.random() < randomChance) {
