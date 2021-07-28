@@ -250,9 +250,9 @@ client.on('message', (message) => {
         embed
           .setDescription(
             `<@${immortal.uid}> with \`${immortal.score}\` points. \n\n` +
-              `Bow before the **Cyberpunk Social Club** ${randomEmoji()} immortal being.`
+              `**Cyberpunk Social Club** ${randomEmoji()}`
           )
-          .setTitle('Immortal :skull:')
+          .setTitle('Immortal Being :skull:')
 
         const member = csc.members.cache.get(immortal.uid)
         if (member) embed.setThumbnail(member.user.avatarURL())
