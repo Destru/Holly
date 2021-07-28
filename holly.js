@@ -318,7 +318,7 @@ client.on('message', (message) => {
     Deaths.reset()
     Immortal.reset()
     Meta.reset()
-    message.channel.send(`Permadeath has been `reset` 💀`)
+    message.channel.send(`Permadeath has been \`reset\` 💀`)
   }
 
   const permaDeath = () => {
