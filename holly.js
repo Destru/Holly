@@ -32,7 +32,6 @@ const complimentEmoji = [
 ]
 const embedColor = '#FF00FF'
 const embedColorBlack = '#2F3136'
-const immortalChannel = '405503298951446528'
 const insultUsers = ['400786664861204481']
 const isImmortal = (id) => {
   const immortal = Immortal.find()
@@ -311,6 +310,12 @@ client.on('message', (message) => {
       )
     }
     return message.channel.send(embed)
+  } else if (
+    message.content.startsWith('!permadeath') &&
+    message.author.id === '160320553322807296'
+  ) {
+    Immortal.reset()
+    Deaths.reset()
   }
 
   const permaDeath = () => {
@@ -548,7 +553,8 @@ client.on('message', (message) => {
     } else {
       metaKey = Meta.add({
         name: 'counting',
-        value: '0|10',
+        uid: message.author.id,
+        value: '0|1',
       })
 
       meta = Meta.get(metaKey)
@@ -558,22 +564,31 @@ client.on('message', (message) => {
     highscore = parseInt(meta.value.split('|')[1])
     messageCount = parseInt(message.content)
 
-    if (message.content.match(numOnly) && messageCount === desiredCount) {
+    if (
+      message.author.id !== meta.uid &&
+      message.content.match(numOnly) &&
+      messageCount === desiredCount
+    ) {
       if (messageCount > highscore) {
         message.react('☑️')
         Meta.update(meta._id_, {
+          uid: message.author.id,
           value: `${messageCount}|${messageCount}`,
         })
       } else {
         message.react('✅')
         Meta.update(meta._id_, {
+          uid: message.author.id,
           value: `${messageCount}|${highscore}`,
         })
       }
       permaDeathScore()
     } else {
       message.react('❌')
-      Meta.update(meta._id_, { value: `0|${highscore}` })
+      Meta.update(meta._id_, {
+        uid: message.author.id,
+        value: `0|${highscore}`,
+      })
       permaDeath()
     }
   }
@@ -582,20 +597,29 @@ client.on('message', (message) => {
   else if (message.channel.id === '866967592622489640') {
     const matches = Meta.find().matches('name', 'word-war').limit(1).run()
 
-    let firstLetter
+    let lastLetter, uid
 
     if (matches.length === 0) {
-      Meta.add({ name: 'word-war', value: 'a' })
-      firstLetter = 'a'
-    } else firstLetter = matches[0].value
+      lastLetter = message.content.toLowerCase().slice(-1)
+
+      Meta.add({
+        name: 'word-war',
+        uid: message.author.id,
+        value: lastLetter,
+      })
+    } else {
+      lastLetter = matches[0].value
+      uid = matches[0].uid
+    }
 
     if (
+      message.author.id !== uid &&
       dictionary.check(message.content.toLowerCase()) &&
-      message.content.toLowerCase().startsWith(firstLetter)
+      message.content.toLowerCase().startsWith(lastLetter)
     ) {
       const newLetter = message.content.toLowerCase().slice(-1)
 
-      Meta.update(matches[0]._id_, { value: newLetter })
+      Meta.update(matches[0]._id_, { uid: message.author.id, value: newLetter })
       message.react('✅')
       permaDeathScore()
     } else {
