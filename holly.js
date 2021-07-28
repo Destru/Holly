@@ -85,6 +85,10 @@ const Bio = new db.Collection('bios', {
   uid: '',
   url: '',
 })
+const Deaths = new db.Collection('deaths', {
+  uid: '',
+  deaths: '',
+})
 const Haiku = new db.Collection('haikus', {
   uid: '',
   channel: '',
@@ -296,7 +300,7 @@ client.on('message', (message) => {
     }
   }
 
-  const permaDeathScore = (reset = false) => {
+  const permaDeathScore = (death = false) => {
     const matches = Immortal.find()
       .matches('uid', message.author.id)
       .limit(1)
@@ -315,7 +319,20 @@ client.on('message', (message) => {
       immortal = Immortal.get(immortalKey)
     }
 
-    if (reset) {
+    if (death) {
+      const deaths = Deaths.find().matches('uid', message.author.id).run()
+
+      if (deaths.length > 0) {
+        Deaths.update(deaths[0]._id_, {
+          deaths: `${parseInt(deaths[0].deaths) + 1}`,
+        })
+      } else {
+        Deaths.add({
+          uid: message.author.id,
+          deaths: '1',
+        })
+      }
+
       Immortal.remove(immortal._id_)
     } else {
       Immortal.update(immortal._id_, {
