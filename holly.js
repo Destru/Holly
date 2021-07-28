@@ -254,8 +254,8 @@ client.on('message', (message) => {
           .setDescription(
             `<@${immortal.uid}> with \`${immortal.score}\` points.\n\n` +
               `Bow before our ruler; an immortal being. ` +
-              `Behold their glory and unfathomable beauty. ` +
-              `Bathe in their light and accept their judgement 💀 `
+              `Bathe in their light and unfathomable beauty, ` +
+              `and accept their judgement 💀 `
           )
           .setTitle('Immortal')
 
