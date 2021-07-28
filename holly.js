@@ -257,10 +257,10 @@ client.on('message', (message) => {
         const member = csc.members.cache.get(immortal.uid)
         if (member) embed.setThumbnail(member.user.avatarURL())
 
-        message.channel.send(embed)
+        return message.channel.send(embed)
       }
     } else {
-      message.channel.send(
+      return message.channel.send(
         `There is currently no immortal being present on the server ${randomEmoji()}`
       )
     }
@@ -274,17 +274,47 @@ client.on('message', (message) => {
       .run()
 
     if (matches.length > 0)
-      message.channel.send(`You have \`${matches[0].score}\` points.`)
+      return message.channel.send(`You have \`${matches[0].score}\` points.`)
     else
-      message.channel.send(
+      return message.channel.send(
         `You have not taken any succesful action in a permadeath channel.`
       )
+  } else if (message.content.startsWith('!resurrect')) {
+    if (!message.member.roles.cache.has(roleGhost))
+      return message.channel.send(`You're not dead.`)
+
+    const embed = new Discord.MessageEmbed()
+      .setColor(embedColorBlack)
+      .setTitle(`Ressurection`)
+    const matches = Resurrection.find().matches('uid', message.author.id).run()
+    const hasResurrected = matches.length > 0
+    let timeRemaining
+
+    if (hasResurrected) {
+      const expires = matches[0]._ts_ + 3 * 24 * 60 * 60 * 1000
+      if (Date.now() < expires) timeRemaining = expires - Date.now()
+    }
+
+    if (!timeRemaining) {
+      message.member.roles.remove(role.ghost)
+      if (hasResurrected)
+        matches.forEach((match) => {
+          Resurrection.remove(match._id_)
+        })
+      Resurrection.add({ uid: message.author.id })
+      embed.setDescription(`You have been resurrected 🙏`)
+    } else {
+      embed.setDescription(
+        `You have to wait \`${prettyMs(timeRemaining)}\` to resurrect.`
+      )
+    }
+    return message.channel.send(embed)
   }
 
   const permaDeath = () => {
     const channelGraveyard = client.channels.cache.get('832394205422026813')
     const obituary = new Discord.MessageEmbed()
-      .setColor(embedColor)
+      .setColor(embedColorBlack)
       .setThumbnail(message.author.avatarURL())
       .setTitle(`${message.author.username} :headstone:`)
       .setDescription(
@@ -642,30 +672,6 @@ client.on('ready', () => {
       type: 'PLAYING',
     },
   })
-
-  setTimeout(() => {
-    const embed = new Discord.MessageEmbed().setColor(embedColorBlack)
-    const immortals = Immortal.find().run()
-
-    if (immortals.length > 0) {
-      const immortalsSorted = immortals.sort((a, b) => a.score - b.score)
-      const immortal = immortalsSorted.pop()
-
-      if (immortal && immortal.uid && immortal.score) {
-        embed
-          .setDescription(
-            `<@${immortal.uid}> with \`${immortal.score}\` points. \n\n` +
-              `Bow before the **Cyberpunk Social Club** ${randomEmoji()} immortal being.`
-          )
-          .setTitle('Immortal :skull:')
-
-        const member = csc.members.cache.get(immortal.uid)
-        if (member) embed.setThumbnail(member.user.avatarURL())
-
-        client.channels.cache.get(immortalChannel).send(embed)
-      }
-    }
-  }, 24 * 60 * 60 * 1000)
 })
 
 client.login()
