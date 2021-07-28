@@ -326,11 +326,8 @@ client.on('message', (message) => {
     const obituary = new Discord.MessageEmbed()
       .setColor(embedColorBlack)
       .setThumbnail(message.author.avatarURL())
-      .setTitle(`${message.author.username} :headstone:`)
-      .setDescription(
-        `Here lies ${message.author}, who died in ${message.channel} just now. ` +
-          `May they \`!resurrect\` in peace.`
-      )
+      .setTitle(`:headstone: ${message.author.username}`)
+      .setDescription(`${message.author} died in ${message.channel} just now.`)
 
     if (!isImmortal(message.author.id)) {
       if (message) message.react('💀')
