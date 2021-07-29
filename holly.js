@@ -252,10 +252,10 @@ client.on('message', (message) => {
       if (immortal && immortal.uid && immortal.score) {
         embed
           .setDescription(
-            `<@${immortal.uid}> with \`${immortal.score}\` points.\n\n` +
+            `<@${immortal.uid}> with \`${immortal.score}\` 💀\n\n` +
               `Bow before our ruler; an immortal being. ` +
               `Bathe in their light and unfathomable beauty, ` +
-              `and accept their judgement 💀`
+              `and accept their judgement.`
           )
           .setTitle('Immortal')
 
@@ -271,7 +271,7 @@ client.on('message', (message) => {
     }
   } else if (
     message.content.startsWith('!points') ||
-    message.content.startsWith('!score')
+    message.content.startsWith('!skulls')
   ) {
     const matches = Immortal.find()
       .matches('uid', message.author.id)
@@ -279,7 +279,7 @@ client.on('message', (message) => {
       .run()
 
     if (matches.length > 0)
-      return message.channel.send(`You have \`${matches[0].score}\` points.`)
+      return message.channel.send(`You have \`${matches[0].score}\` 💀`)
     else
       return message.channel.send(
         `You have not taken any succesful action in a permadeath channel.`
