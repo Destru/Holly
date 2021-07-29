@@ -703,7 +703,7 @@ client.on('message', (message) => {
 
     const description =
       `Bios \`${countBios}\` :pencil:` +
-      `\nCounting Highscore \`${countHighscore}\` :1234:` +
+      `\n<#827487959241457694> Highscore \`${countHighscore}\` :1234:` +
       `\nDeaths \`${countDeaths}\` :skull:` +
       `\nHaikus: \`${countHaikus}\` :butterfly:`
 
