@@ -10,6 +10,7 @@ const checkWord = require('check-word')
 const dictionary = checkWord('en')
 
 const businessChannels = ['845382463685132288', '829717667107700746']
+const channelTerminal = '405503298951446528'
 const complimentChannels = ['845382463685132288', '836963196916858902']
 const complimentEmoji = [
   ':heart:',
@@ -115,86 +116,95 @@ client.on('message', (message) => {
       })
   }
 
-  // promotions
-  else if (
-    message.channel.id === '405503298951446528' &&
-    message.author.id === '836661328374267997'
-  ) {
-    const matches = message.content.match(/<@(\d+)> has reached level (\d+)/)
-    const promotionChannel =
-      message.client.channels.cache.get('160320676580818951')
-    const tag = encodeURI('"audience applause"')
-    let level, user
-
-    if (matches) {
-      level = parseInt(matches[2])
-      user = message.guild.members.cache.get(matches[1])
-
-      fetch(
-        `https://api.giphy.com/v1/gifs/random?api_key=${process.env.GIPHY_TOKEN}&tag=${tag}&rating=pg13`
-      )
-        .then((response) => response.json())
-        .then((data) => {
-          message.channel.send(data.data.embed_url)
-        })
+  // terminal
+  else if (message.channel.id === channelTerminal) {
+    // queeg
+    if (message.author.id === '844980040579678259') {
+      const matches = message.content.includes('Running daily tasks.')
+      if (matches) {
+      }
     }
+    // hal9000
+    else if (message.author.id === '836661328374267997') {
+      const matches = message.content.match(/<@(\d+)> has reached level (\d+)/)
+      const promotionChannel =
+        message.client.channels.cache.get('160320676580818951')
+      const tag = encodeURI('"audience applause"')
+      let level, user
 
-    if (matches && ranks[level]) {
-      const embed = new Discord.MessageEmbed()
+      if (matches) {
+        level = parseInt(matches[2])
+        user = message.guild.members.cache.get(matches[1])
 
-      let adjective = `a contributing`
-
-      if (level >= 50) adjective = `a *godlike*`
-      else if (level >= 40) adjective = `an inspiring`
-      else if (level >= 30) adjective = `a prolific`
-      else if (level >= 20) adjective = `an important`
-
-      let description =
-        `${user} has been promoted to **${ranks[level]}** ${randomEmoji()}` +
-        `\n\nThank you for being ${adjective} member of this community. `
-
-      switch (level) {
-        case 5:
-          description +=
-            `You're now considered a comrade, ` +
-            `and have been granted access to \`Limited\` channels. `
-          break
-        case 10:
-          description +=
-            `You can now post in <#352149516885164044>, ` +
-            `host in <#833933467142062110>, ` +
-            `and will receive the \`Live\` role when you stream. `
-          break
-        case 15:
-          description +=
-            `You've unlocked an even <#830131461000658994> ` +
-            `with anonynomous confessions. `
-          break
-        case 50:
-          description +=
-            `You have joined the *Hacker's Club*; ` +
-            `backdoor access has been granted. `
-          break
-        case 60:
-          description +=
-            `You have unlocked the *Master Control Program*, ` +
-            `and may change your color at will. `
-          break
-        default:
-          description += `Enjoy your new color, comrade.`
+        fetch(
+          `https://api.giphy.com/v1/gifs/random?api_key=${process.env.GIPHY_TOKEN}&tag=${tag}&rating=pg13`
+        )
+          .then((response) => response.json())
+          .then((data) => {
+            message.channel.send(data.data.embed_url)
+          })
       }
 
-      embed
-        .setDescription(description)
-        .setTitle('Promotion')
-        .setThumbnail(message.mentions.users.first().avatarURL())
+      if (matches && ranks[level]) {
+        const embed = new Discord.MessageEmbed()
 
-      setTimeout(() => {
-        embed.setColor(user.displayHexColor)
-        promotionChannel.send(embed)
-      }, 20 * 1000)
+        let adjective = `a contributing`
+
+        if (level >= 50) adjective = `a *godlike*`
+        else if (level >= 40) adjective = `an inspiring`
+        else if (level >= 30) adjective = `a prolific`
+        else if (level >= 20) adjective = `an important`
+
+        let description =
+          `${user} has been promoted to **${ranks[level]}** ${randomEmoji()}` +
+          `\n\nThank you for being ${adjective} member of this community. `
+
+        switch (level) {
+          case 5:
+            description +=
+              `You're now considered a comrade, ` +
+              `and have been granted access to \`Limited\` channels. `
+            break
+          case 10:
+            description +=
+              `You can now post in <#352149516885164044>, ` +
+              `host in <#833933467142062110>, ` +
+              `and will receive the \`Live\` role when you stream. `
+            break
+          case 15:
+            description +=
+              `You've unlocked an even <#830131461000658994> ` +
+              `with anonynomous confessions. `
+            break
+          case 50:
+            description +=
+              `You have joined the *Hacker's Club*; ` +
+              `backdoor access has been granted. `
+            break
+          case 60:
+            description +=
+              `You have unlocked the *Master Control Program*, ` +
+              `and may change your color at will. `
+            break
+          default:
+            description += `Enjoy your new color, comrade.`
+        }
+
+        embed
+          .setDescription(description)
+          .setTitle('Promotion')
+          .setThumbnail(message.mentions.users.first().avatarURL())
+
+        setTimeout(() => {
+          embed.setColor(user.displayHexColor)
+          promotionChannel.send(embed)
+        }, 20 * 1000)
+      }
     }
-  } else if (message.author.bot) return
+  }
+
+  // </bots>
+  else if (message.author.bot) return
 
   // haikus
   const { isHaiku, formattedHaiku } = findahaiku.analyzeText(message.content)
@@ -680,6 +690,29 @@ client.on('message', (message) => {
     message.channel.send(embed)
   } else if (message.content.startsWith('!version')) {
     message.channel.send(version)
+  } else if (message.content.startsWith('!stats')) {
+    const countBios = Bio.find().run().length
+    const deaths = Deaths.find().run()
+    let countDeaths = 0
+    deaths.forEach((death) => {
+      countDeaths = countDeaths + parseInt(death.deaths)
+    })
+    const countHaikus = Haiku.find().run().length
+    const highscore = Meta.find().matches('name', 'counting').limit(1).run()
+    const countHighscore = highscore[0].value.split('|')[1]
+
+    const description =
+      `Bios \`${countBios}\` :pencil:` +
+      `\nCounting Highscore \`${countHighscore}\` :1234:` +
+      `\nDeaths \`${countDeaths}\` :skull:` +
+      `\nHaikus: \`${countHaikus}\` :butterfly:`
+
+    const embed = new Discord.MessageEmbed()
+      .setColor(embedColorBlack)
+      .setDescription(description)
+      .setTitle('Statistics')
+
+    message.channel.send(embed)
   }
 })
 
