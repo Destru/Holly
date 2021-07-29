@@ -702,15 +702,15 @@ client.on('message', (message) => {
     const countHighscore = highscore[0].value.split('|')[1]
 
     const description =
-      `Bios \`${countBios}\` :pencil: <#865757944552488960>` +
+      `Accidental Haikus \`${countHaikus}\` :butterfly:` +
+      `\nBios \`${countBios}\` :pencil: <#865757944552488960>` +
       `\nDeaths \`${countDeaths}\` :skull:` +
-      `\nHaikus \`${countHaikus}\` :butterfly:` +
       `\nHighscore \`${countHighscore}\` :1234: <#827487959241457694>`
 
     const embed = new Discord.MessageEmbed()
       .setColor(embedColorBlack)
       .setDescription(description)
-      .setTitle('Statistics')
+      .setTitle('Stats')
 
     message.channel.send(embed)
   }
