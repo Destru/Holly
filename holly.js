@@ -269,17 +269,14 @@ client.on('message', (message) => {
         `There is currently no immortal being present on the server ${randomEmoji()}`
       )
     }
-  } else if (
-    message.content.startsWith('!points') ||
-    message.content.startsWith('!skulls')
-  ) {
+  } else if (message.content.startsWith('!points')) {
     const matches = Immortal.find()
       .matches('uid', message.author.id)
       .limit(1)
       .run()
 
     if (matches.length > 0)
-      return message.channel.send(`You have \`${matches[0].score}\` 💀`)
+      return message.channel.send(`You have \`${matches[0].score}\` points 💀`)
     else
       return message.channel.send(
         `You have not taken any succesful action in a permadeath channel.`
