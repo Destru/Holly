@@ -252,7 +252,7 @@ client.on('message', (message) => {
       if (immortal && immortal.uid && immortal.score) {
         embed
           .setDescription(
-            `<@${immortal.uid}> with \`${immortal.score}\` 💀\n\n` +
+            `<@${immortal.uid}> with \`${immortal.score}\` points 💀\n\n` +
               `Bow before our ruler; an immortal being. ` +
               `Bathe in their light and unfathomable beauty, ` +
               `and accept their judgement.`
@@ -312,9 +312,9 @@ client.on('message', (message) => {
     message.content.startsWith('!permadeath') &&
     message.author.id === '160320553322807296'
   ) {
-    Deaths.reset()
-    Immortal.reset()
-    Meta.reset()
+    if (Deaths.find().run().length > 0) Deaths.reset()
+    if (Immortal.find().run().length > 0) Immortal.reset()
+    if (Meta.find().run().length > 0) Meta.reset()
     message.channel.send(`Permadeath has been \`reset\` 💀`)
   }
 
