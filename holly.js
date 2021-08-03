@@ -73,6 +73,7 @@ const status = [
 const version = process.env.npm_package_version || '(Development)'
 
 let csc
+let raceActive = false
 
 db.configure({ dir: './db' })
 const Avatar = new db.Collection('avatars', {
@@ -120,8 +121,9 @@ client.on('message', (message) => {
   else if (message.channel.id === channelTerminal) {
     // queeg
     if (message.author.id === '844980040579678259') {
-      const matches = message.content.includes('Running daily tasks.')
+      const matches = message.content.matches(/Running daily tasks./)
       if (matches) {
+        message.channel.send('Systems updating.')
       }
     }
     // hal9000
@@ -262,10 +264,10 @@ client.on('message', (message) => {
       if (immortal && immortal.uid && immortal.score) {
         embed
           .setDescription(
-            `<@${immortal.uid}> with \`${immortal.score}\` points 👑\n\n` +
-              `Bow before our ruler; an immortal being. ` +
+            `<@${immortal.uid}> with \`${immortal.score}\` points.` +
+              `\n\nBow before our ruler; an immortal being. ` +
               `Bathe in their light and unfathomable beauty, ` +
-              `and accept their judgement.`
+              `and *accept* their judgement.`
           )
           .setTitle('Immortal')
 
@@ -325,7 +327,40 @@ client.on('message', (message) => {
     if (Deaths.find().run().length > 0) Deaths.reset()
     if (Immortal.find().run().length > 0) Immortal.reset()
     if (Meta.find().run().length > 0) Meta.reset()
-    message.channel.send(`Permadeath has been \`reset\` 💀`)
+    return message.channel.send(`Permadeath has been reset.`)
+  } else if (
+    message.content.startsWith('!leaderboard') ||
+    message.content.startsWith('!lb')
+  ) {
+    const immortals = Immortal.find().run()
+
+    let leaderboard = []
+
+    if (immortals.length > 0) {
+      const embed = new Discord.MessageEmbed()
+        .setColor(embedColorBlack)
+        .setTitle(`Leaderboard`)
+
+      const immortalsSorted = immortals.sort((a, b) => a.score - b.score)
+      const immortalRanked = immortalsSorted.reverse()
+
+      for (let i = 0; i < 5; i++) {
+        let member = csc.members.cache.get(immortalRanked[i].uid)
+
+        if (i === 0) embed.setThumbnail(member.user.avatarURL())
+
+        leaderboard.push(
+          `\`${i + 1}.\` ${member.user.username} ` +
+            `\`${immortalRanked[i].score}\``
+        )
+      }
+
+      embed
+        .setDescription(leaderboard.join('\n'))
+        .setFooter(`Active: ${immortals.length} `)
+
+      message.channel.send(embed)
+    }
   }
 
   const permaDeath = () => {
@@ -334,17 +369,22 @@ client.on('message', (message) => {
       .setColor(embedColorBlack)
       .setThumbnail(message.author.avatarURL())
       .setTitle(`:headstone: ${message.author.username}`)
-      .setDescription(`${message.author} died in ${message.channel} just now.`)
+      .setDescription(
+        `Here lies ${message.author} who died in ${message.channel} just now.`
+      )
 
     if (!isImmortal(message.author.id)) {
       if (message) message.react('💀')
       message.member.roles.add(roleGhost)
       channelGraveyard.send(obituary)
       permaDeathScore(true)
+    } else {
+      const loss = Math.floor(Math.random() * 10) + 1
+      permaDeathScore(false, loss)
     }
   }
 
-  const permaDeathScore = (death = false) => {
+  const permaDeathScore = (death = false, loss = 0) => {
     const matches = Immortal.find()
       .matches('uid', message.author.id)
       .limit(1)
@@ -379,9 +419,22 @@ client.on('message', (message) => {
 
       Immortal.remove(immortal._id_)
     } else {
-      Immortal.update(immortal._id_, {
-        score: `${parseInt(immortal.score) + 1}`,
-      })
+      if (loss > 0) {
+        Immortal.update(immortal._id_, {
+          score: `${parseInt(immortal.score) - loss}`,
+        })
+        message.channel
+          .send(`The immortal has taken \`${negativePoints}\` worth of damage.`)
+          .then((message) => {
+            setTimeout(() => {
+              message.delete()
+            }, 10000)
+          })
+      } else {
+        Immortal.update(immortal._id_, {
+          score: `${parseInt(immortal.score) + 1}`,
+        })
+      }
     }
   }
 
@@ -597,6 +650,70 @@ client.on('message', (message) => {
         value: `0|${highscore}`,
       })
       permaDeath()
+    }
+  }
+
+  // #racetrack
+  else if (message.channel.id === '871673936121835520') {
+    if (message.content.startsWith('!race') && !raceActive) {
+      raceActive = true
+
+      let racers = {
+        0: { emoji: '🚗', name: 'Red Car' },
+        1: { emoji: '🚙', name: 'Blue Car' },
+        2: { emoji: '🏎️', name: 'Race Car' },
+        3: { emoji: '🐎', name: 'Race Horse' },
+      }
+
+      const spacer = `        `
+
+      const tiles = {
+        forest: {
+          tree: '🌲|🌳',
+          skyline: `☁️|${spacer}|${spacer}|${spacer}`,
+          sun: '☀️',
+        },
+      }
+
+      const renderTiles = () => {
+        const tiles = Object.keys(racers).forEach((racer) => {
+          let multiplier = 1
+          let random = Math.random()
+
+          if (random < 0.1) {
+            multiplier = 2
+          } else if (random < 0.05) {
+            multiplier = 3
+          } else if (random < 0.01) {
+            multiplier = 4
+          }
+
+          if (racers[racer].distance) racers[racer].distance = 100
+
+          racers[racer].distance = racers[racer].distance - 1 * multiplier
+
+          if (racers[racer].distance === 0) {
+            return `${racers[racer].name} wins!`
+          }
+
+          return `\n ${' '.repeat(racers[racer].distance)}${
+            racers[racer].emoji
+          }`
+        })
+        return tiles
+      }
+
+      const race = message.channel
+        .send(`\n${raceTrees}\n${renderTiles()}`)
+        .then((message) => {
+          Object.keys(racers).forEach((racer) => {
+            message.react(racers[racer].emoji)
+          })
+
+          let activeRace = setInterval(() => {
+            message.edit(`\n${raceTrees}\n${renderTiles()}`)
+          }, 500)
+        })
     }
   }
 
