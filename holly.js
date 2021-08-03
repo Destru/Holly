@@ -124,6 +124,18 @@ client.on('message', (message) => {
       const matches = message.content.matches(/Running daily tasks./)
       if (matches) {
         message.channel.send('Systems updating.')
+
+        const immortal = Immortal.find()
+          .run()
+          .sort((a, b) => a.score - b.score)
+          .pop()
+
+        Immortal.update(immortal._id_, {
+          score: `${
+            parseInt(immortal.score) - Math.floor(Math.random() * 10) + 1
+          }`,
+        })
+        message.channel.send('Immortal has been found and wounded.')
       }
     }
     // hal9000
@@ -379,12 +391,11 @@ client.on('message', (message) => {
       channelGraveyard.send(obituary)
       permaDeathScore(true)
     } else {
-      const loss = Math.floor(Math.random() * 10) + 1
-      permaDeathScore(false, loss)
+      permaDeathScore(false, Math.floor(Math.random() * 10) + 1)
     }
   }
 
-  const permaDeathScore = (death = false, loss = 0) => {
+  const permaDeathScore = (death = false, penalty = 0) => {
     const matches = Immortal.find()
       .matches('uid', message.author.id)
       .limit(1)
@@ -419,17 +430,10 @@ client.on('message', (message) => {
 
       Immortal.remove(immortal._id_)
     } else {
-      if (loss > 0) {
+      if (penalty > 0) {
         Immortal.update(immortal._id_, {
-          score: `${parseInt(immortal.score) - loss}`,
+          score: `${parseInt(immortal.score) - penalty}`,
         })
-        message.channel
-          .send(`The immortal has taken \`${negativePoints}\` worth of damage.`)
-          .then((message) => {
-            setTimeout(() => {
-              message.delete()
-            }, 10000)
-          })
       } else {
         Immortal.update(immortal._id_, {
           score: `${parseInt(immortal.score) + 1}`,
@@ -823,15 +827,16 @@ client.on('message', (message) => {
       .pop()
 
     const description =
-      `Bios :pencil: \`${countBios}\`` +
-      `\nCounting :1234: \`${countHighscore}\`` +
-      `\nDeaths :skull: \`${countDeaths}\`` +
-      `\nHaikus :notebook_with_decorative_cover: \`${countHaikus}\`` +
-      `\nImmortal <@${immortal.uid}> :crown: \`${immortal.score}\``
+      `:pencil: \`${countBios}\` Bios` +
+      `\n:1234: \`${countHighscore}\` Counting` +
+      `\n:skull: \`${countDeaths}\` Deaths` +
+      `\n:sunflower: \`${countHaikus}\` Haikus` +
+      `\n:crown: \`${immortal.score}\` Immortal`
+
     const embed = new Discord.MessageEmbed()
       .setColor(embedColorBlack)
       .setDescription(description)
-      .setTitle('Stats')
+      .setTitle('Statistics')
 
     message.channel.send(embed)
   }
