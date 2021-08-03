@@ -359,7 +359,7 @@ client.on('message', (message) => {
       for (let i = 0; i < 5; i++) {
         let member = csc.members.cache.get(immortalRanked[i].uid)
 
-        if (i === 0) embed.setThumbnail(member.user.avatarURL())
+        if (i === 0 && member) embed.setThumbnail(member.user.avatarURL())
 
         leaderboard.push(
           `\`${i + 1}.\` ${member.user.username} ` +
