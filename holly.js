@@ -33,6 +33,7 @@ const complimentEmoji = [
 ]
 const embedColor = '#FF00FF'
 const embedColorBlack = '#2F3136'
+const immortalPenalty = 10
 const insultUsers = ['400786664861204481']
 const isImmortal = (id) => {
   const immortal = Immortal.find()
@@ -128,7 +129,7 @@ client.on('message', (message) => {
           .sort((a, b) => a.score - b.score)
           .pop()
 
-        const penalty = Math.floor(Math.random() * 10)
+        const penalty = Math.floor(Math.random() * immortalPenalty)
         const score = parseInt(immortal.score)
 
         if (penalty > score) penalty = score - 1
@@ -284,7 +285,7 @@ client.on('message', (message) => {
               `Bathe in their light and unfathomable beauty, ` +
               `and *accept* their judgement.`
           )
-          .setTitle('Immortal')
+          .setTitle('Immortal :crown:')
 
         const member = csc.members.cache.get(immortal.uid)
         if (member) embed.setThumbnail(member.user.avatarURL())
@@ -349,17 +350,18 @@ client.on('message', (message) => {
     if (immortals.length > 0) {
       const embed = new Discord.MessageEmbed()
         .setColor(embedColorBlack)
-        .setTitle(`Permadeath`)
+        .setTitle(`Permadeath :skull:`)
 
       const immortalsSorted = immortals.sort((a, b) => a.score - b.score)
       const immortalRanked = immortalsSorted.reverse()
 
-      let member = csc.members.cache.get(immortalRanked[i].uid)
       let ranks = [],
         username = [],
         score = []
 
       for (let i = 0; i < 5; i++) {
+        let member = csc.members.cache.get(immortalRanked[i].uid)
+
         if (member) {
           if (i === 0) embed.setThumbnail(member.user.avatarURL())
           ranks.push(`\`${i + 1}.\``)
@@ -381,7 +383,7 @@ client.on('message', (message) => {
     const obituary = new Discord.MessageEmbed()
       .setColor(embedColorBlack)
       .setThumbnail(message.author.avatarURL())
-      .setTitle(`:headstone: ${message.author.username}`)
+      .setTitle(`${message.author.username} :headstone:`)
       .setDescription(
         `Here lies ${message.author} who died in ${message.channel} just now.`
       )
@@ -392,7 +394,7 @@ client.on('message', (message) => {
       channelGraveyard.send(obituary)
       permaDeathScore(true)
     } else {
-      permaDeathScore(false, Math.floor(Math.random() * 10) + 1)
+      permaDeathScore(false, Math.floor(Math.random() * immortalPenalty) + 1)
     }
   }
 
