@@ -329,7 +329,7 @@ client.on('message', (message) => {
     }
 
     if (deaths.length > 0) {
-      const deathsSorted = deaths.sort((a, b) => a.score - b.score)
+      const deathsSorted = deaths.sort((a, b) => a.deaths - b.deaths)
       const deathsRanked = deathsSorted.reverse()
 
       let leaderboard = []
