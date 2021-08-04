@@ -339,7 +339,6 @@ client.on('message', (message) => {
         let member = csc.members.cache.get(deathsRanked[i].uid)
 
         if (member) {
-          if (i === 0) embed.setThumbnail(member.user.avatarURL())
           const user = member.user
           const deaths = deathsRanked[i].deaths
 
