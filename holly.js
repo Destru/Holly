@@ -298,19 +298,18 @@ client.on('message', (message) => {
       )
     }
   } else if (message.content.startsWith('!permadeath')) {
+    const deaths = Deaths.find().run()
+    const embed = new Discord.MessageEmbed()
+      .setColor(embedColorBlack)
+      .setTitle(`Permadeath :skull:`)
+
     const immortals = Immortal.find().run()
 
     if (immortals.length > 0) {
-      const embed = new Discord.MessageEmbed()
-        .setColor(embedColorBlack)
-        .setTitle(`Permadeath :skull:`)
-
       const immortalsSorted = immortals.sort((a, b) => a.score - b.score)
       const immortalRanked = immortalsSorted.reverse()
 
-      let ranks = [],
-        username = [],
-        score = []
+      let leaderboard = []
 
       let entries = immortals.length > 5 ? 5 : immortals.length
 
@@ -319,18 +318,39 @@ client.on('message', (message) => {
 
         if (member) {
           if (i === 0) embed.setThumbnail(member.user.avatarURL())
-          ranks.push(`\`${i + 1}.\``)
-          username.push(member.user.username)
-          score.push(`\`${immortalRanked[i].score}\``)
+          const user = member.user
+          const score = immortalRanked[i].score
+
+          leaderboard.push(`\`${i + 1}.\` ${user} \`${score}\``)
         }
       }
 
-      embed.addField('Rank', ranks.join('\n'), true)
-      embed.addField('Name', username.join('\n'), true)
-      embed.addField('Score', score.join('\n'), true)
-
-      message.channel.send(embed)
+      embed.addField('Leaderboard', leaderboard.join('\n'), false)
     }
+
+    if (deaths.length > 0) {
+      const deathsSorted = deaths.sort((a, b) => a.score - b.score)
+      const deathsRanked = deathsSorted.reverse()
+
+      let leaderboard = []
+      let entries = deaths.length > 5 ? 5 : deaths.length
+
+      for (let i = 0; i < entries; i++) {
+        let member = csc.members.cache.get(deathsRanked[i].uid)
+
+        if (member) {
+          if (i === 0) embed.setThumbnail(member.user.avatarURL())
+          const user = member.user
+          const deaths = deathsRanked[i].deaths
+
+          leaderboard.push(`\`${i + 1}.\` ${user} \`${deaths}\``)
+        }
+      }
+
+      embed.addField('Deaths', leaderboard.join('\n'), false)
+    }
+
+    message.channel.send(embed)
   } else if (message.content.startsWith('!permadeath-reset')) {
     if (message.author.id === '160320553322807296') {
       if (Deaths.find().run().length > 0) Deaths.reset()
