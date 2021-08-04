@@ -136,7 +136,9 @@ client.on('message', (message) => {
         Immortal.update(immortal._id_, {
           score: `${score - penalty}`,
         })
-        message.channel.send('Immortal has been found and wounded.')
+        message.channel.send(
+          `Immortal has been found and wounded for \`${penalty}\` points.`
+        )
       }
     }
     // hal9000
