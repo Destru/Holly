@@ -853,7 +853,7 @@ client.on('message', (message) => {
       `:pencil: \`${countBios}\` Bios` +
       `\n:1234: \`${countHighscore}\` Counting` +
       `\n:skull: \`${countDeaths}\` Deaths` +
-      `\n:sunflower: \`${countHaikus}\` Haikus` +
+      `\n:bookmark: \`${countHaikus}\` Haikus` +
       `\n:crown: \`${immortal.score}\` Immortal`
 
     const embed = new Discord.MessageEmbed()
