@@ -312,7 +312,9 @@ client.on('message', (message) => {
         username = [],
         score = []
 
-      for (let i = 0; i < 5; i++) {
+      let entries = immortals.length > 5 ? 5 : immortals.length
+
+      for (let i = 0; i < entries; i++) {
         let member = csc.members.cache.get(immortalRanked[i].uid)
 
         if (member) {
