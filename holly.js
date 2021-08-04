@@ -346,8 +346,6 @@ client.on('message', (message) => {
   } else if (message.content.startsWith('!permadeath')) {
     const immortals = Immortal.find().run()
 
-    let leaderboard = []
-
     if (immortals.length > 0) {
       const embed = new Discord.MessageEmbed()
         .setColor(embedColorBlack)
@@ -356,12 +354,12 @@ client.on('message', (message) => {
       const immortalsSorted = immortals.sort((a, b) => a.score - b.score)
       const immortalRanked = immortalsSorted.reverse()
 
-      for (let i = 0; i < 5; i++) {
-        let member = csc.members.cache.get(immortalRanked[i].uid)
-        let ranks = [],
-          username = [],
-          score = []
+      let member = csc.members.cache.get(immortalRanked[i].uid)
+      let ranks = [],
+        username = [],
+        score = []
 
+      for (let i = 0; i < 5; i++) {
         if (member) {
           if (i === 0) embed.setThumbnail(member.user.avatarURL())
           ranks.push(`\`${i + 1}.\``)
