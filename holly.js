@@ -121,19 +121,20 @@ client.on('message', (message) => {
   else if (message.channel.id === channelTerminal) {
     // queeg
     if (message.author.id === '844980040579678259') {
-      const matches = message.content.matches(/Running daily tasks./)
+      const matches = message.content.match(/Running daily tasks/)
       if (matches) {
-        message.channel.send('Systems updating.')
-
         const immortal = Immortal.find()
           .run()
           .sort((a, b) => a.score - b.score)
           .pop()
 
+        const penalty = Math.floor(Math.random() * 10)
+        const score = parseInt(immortal.score)
+
+        if (penalty > score) penalty = score - 1
+
         Immortal.update(immortal._id_, {
-          score: `${
-            parseInt(immortal.score) - Math.floor(Math.random() * 10) + 1
-          }`,
+          score: `${score - penalty}`,
         })
         message.channel.send('Immortal has been found and wounded.')
       }
@@ -143,7 +144,7 @@ client.on('message', (message) => {
       const matches = message.content.match(/<@(\d+)> has reached level (\d+)/)
       const promotionChannel =
         message.client.channels.cache.get('160320676580818951')
-      const tag = encodeURI('"audience applause"')
+      const tag = encodeURI('"big applause"')
       let level, user
 
       if (matches) {
@@ -333,17 +334,14 @@ client.on('message', (message) => {
     }
     return message.channel.send(embed)
   } else if (
-    message.content.startsWith('!permadeath') &&
+    message.content.startsWith('!permadeath-reset') &&
     message.author.id === '160320553322807296'
   ) {
     if (Deaths.find().run().length > 0) Deaths.reset()
     if (Immortal.find().run().length > 0) Immortal.reset()
     if (Meta.find().run().length > 0) Meta.reset()
     return message.channel.send(`Permadeath has been reset.`)
-  } else if (
-    message.content.startsWith('!leaderboard') ||
-    message.content.startsWith('!lb')
-  ) {
+  } else if (message.content.startsWith('!permadeath')) {
     const immortals = Immortal.find().run()
 
     let leaderboard = []
@@ -351,25 +349,28 @@ client.on('message', (message) => {
     if (immortals.length > 0) {
       const embed = new Discord.MessageEmbed()
         .setColor(embedColorBlack)
-        .setTitle(`Leaderboard`)
+        .setTitle(`Permadeath`)
 
       const immortalsSorted = immortals.sort((a, b) => a.score - b.score)
       const immortalRanked = immortalsSorted.reverse()
 
       for (let i = 0; i < 5; i++) {
         let member = csc.members.cache.get(immortalRanked[i].uid)
+        let ranks = [],
+          username = [],
+          score = []
+
         if (member) {
           if (i === 0) embed.setThumbnail(member.user.avatarURL())
-          leaderboard.push(
-            `\`${i + 1}.\` ${member.user.username} ` +
-              `\`${immortalRanked[i].score}\``
-          )
+          ranks.push(`\`${i + 1}.\``)
+          username.push(member.user.username)
+          score.push(`\`${immortalRanked[i].score}\``)
         }
       }
 
-      embed
-        .setDescription(leaderboard.join('\n'))
-        .setFooter(`Active: ${immortals.length} `)
+      embed.addField('Rank', ranks.join('\n'), true)
+      embed.addField('Name', username.join('\n'), true)
+      embed.addField('Score', score.join('\n'), true)
 
       message.channel.send(embed)
     }
