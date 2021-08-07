@@ -280,12 +280,12 @@ client.on('message', (message) => {
       if (immortal && immortal.uid && immortal.score) {
         embed
           .setDescription(
-            `<@${immortal.uid}> with \`${immortal.score}\` points.` +
+            `<@${immortal.uid}> :crown: with \`${immortal.score}\` points.` +
               `\n\nBow before our ruler; an immortal being. ` +
               `Bathe in their light and unfathomable beauty, ` +
               `and *accept* their judgement.`
           )
-          .setTitle('Immortal :crown:')
+          .setTitle('Immortal')
 
         const member = csc.members.cache.get(immortal.uid)
         if (member) embed.setThumbnail(member.user.avatarURL())
@@ -301,7 +301,12 @@ client.on('message', (message) => {
     const deaths = Deaths.find().run()
     const embed = new Discord.MessageEmbed()
       .setColor(embedColorBlack)
-      .setTitle(`Permadeath :skull:`)
+      .setDescription(
+        `Contributing in :skull: channels awards points. ` +
+          `Points reset on death. ` +
+          `Whoever has the most points is \`!immortal\` (see picture).`
+      )
+      .setTitle(`Permadeath`)
 
     const immortals = Immortal.find().run()
 
@@ -321,11 +326,11 @@ client.on('message', (message) => {
           const user = member.user
           const score = immortalRanked[i].score
 
-          leaderboard.push(`\`${i + 1}.\` ${user} \`${score}\``)
+          leaderboard.push(`${user} \`${score}\``)
         }
       }
 
-      embed.addField('Leaderboard', leaderboard.join('\n'), false)
+      embed.addField('Leaderboard :trophy:', leaderboard.join('\n'), false)
     }
 
     if (deaths.length > 0) {
@@ -342,21 +347,14 @@ client.on('message', (message) => {
           const user = member.user
           const deaths = deathsRanked[i].deaths
 
-          leaderboard.push(`\`${i + 1}.\` ${user} \`${deaths}\``)
+          leaderboard.push(`${user} \`${deaths}\``)
         }
       }
 
-      embed.addField('Deaths', leaderboard.join('\n'), false)
+      embed.addField('Death Toll :skull:', leaderboard.join('\n'), false)
     }
 
     message.channel.send(embed)
-  } else if (message.content.startsWith('!permadeath-reset')) {
-    if (message.author.id === '160320553322807296') {
-      if (Deaths.find().run().length > 0) Deaths.reset()
-      if (Immortal.find().run().length > 0) Immortal.reset()
-      if (Meta.find().run().length > 0) Meta.reset()
-      return message.channel.send(`Permadeath has been reset.`)
-    } else return message.channel.send(`No access.`)
   } else if (message.content.startsWith('!points')) {
     const matches = Immortal.find()
       .matches('uid', message.author.id)
