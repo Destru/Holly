@@ -330,7 +330,8 @@ client.on('message', (message) => {
         }
       }
 
-      embed.addField('Leaderboard :trophy:', leaderboard.join('\n'), false)
+      if (leaderboard.length > 0)
+        embed.addField('Leaderboard :trophy:', leaderboard.join('\n'), false)
     }
 
     if (deaths.length > 0) {
@@ -351,7 +352,8 @@ client.on('message', (message) => {
         }
       }
 
-      embed.addField('Death Toll :skull:', leaderboard.join('\n'), false)
+      if (leaderboard.length > 0)
+        embed.addField('Death Toll :skull:', leaderboard.join('\n'), false)
     }
 
     message.channel.send(embed)
