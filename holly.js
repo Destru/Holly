@@ -842,17 +842,12 @@ client.on('message', (message) => {
     const countHaikus = Haiku.find().run().length
     const highscore = Meta.find().matches('name', 'counting').limit(1).run()
     const countHighscore = highscore[0].value.split('|')[1]
-    const immortal = Immortal.find()
-      .run()
-      .sort((a, b) => a.score - b.score)
-      .pop()
 
     const description =
       `:pencil: \`${countBios}\` Bios` +
       `\n:1234: \`${countHighscore}\` Counting` +
       `\n:skull: \`${countDeaths}\` Deaths` +
-      `\n:bookmark: \`${countHaikus}\` Haikus` +
-      `\n:crown: \`${immortal.score}\` Immortal`
+      `\n:bookmark: \`${countHaikus}\` Haikus`
 
     const embed = new Discord.MessageEmbed()
       .setColor(embedColorBlack)
