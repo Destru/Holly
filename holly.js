@@ -138,7 +138,7 @@ client.on('message', (message) => {
           score: `${score - penalty}`,
         })
         message.channel.send(
-          `Immortal has been found and wounded for \`${penalty}\` points.`
+          `The \`!immortal\` has been found and wounded for \`${penalty}\` points.`
         )
       }
     }
@@ -375,7 +375,7 @@ client.on('message', (message) => {
 
     const embed = new Discord.MessageEmbed()
       .setColor(embedColorBlack)
-      .setTitle(`Ressurection`)
+      .setTitle(`Resurrection`)
     const matches = Resurrection.find().matches('uid', message.author.id).run()
     const hasResurrected = matches.length > 0
     let timeRemaining
