@@ -369,7 +369,11 @@ client.on('message', (message) => {
       return message.channel.send(
         `You have not taken any succesful action in a permadeath channel.`
       )
-  } else if (message.content.startsWith('!resurrect')) {
+  } else if (
+    message.content.startsWith('!resurrect') ||
+    message.content.startsWith('!ressurect') ||
+    message.content.startsWith('!ressurrect')
+  ) {
     if (!message.member.roles.cache.has(roleGhost))
       return message.channel.send(`You're not dead.`)
 
