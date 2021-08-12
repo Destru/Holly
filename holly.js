@@ -33,7 +33,7 @@ const complimentEmoji = [
 ]
 const embedColor = '#FF00FF'
 const embedColorBlack = '#2F3136'
-const immortalPenalty = 10
+const immortalPenalty = 20
 const insultUsers = ['400786664861204481']
 const isImmortal = (id) => {
   const immortal = Immortal.find()
@@ -91,6 +91,10 @@ const Deaths = new db.Collection('deaths', {
   uid: '',
   deaths: '',
 })
+const Entries = new db.Collection('entries', {
+  uid: '',
+  url: '',
+})
 const Haiku = new db.Collection('haikus', {
   uid: '',
   channel: '',
@@ -147,7 +151,7 @@ client.on('message', (message) => {
       const matches = message.content.match(/<@(\d+)> has reached level (\d+)/)
       const promotionChannel =
         message.client.channels.cache.get('160320676580818951')
-      const tag = encodeURI('"big applause"')
+      const tag = encodeURI('"applause crowd"')
       let level, user
 
       if (matches) {
@@ -304,7 +308,7 @@ client.on('message', (message) => {
       .setDescription(
         `Contributing in :skull: channels awards points. ` +
           `Points reset on death. ` +
-          `Whoever has the most points is \`!immortal\` (see picture).`
+          `Whoever has the most points is \`!immortal\` and will be hunted.`
       )
       .setTitle(`Permadeath`)
 
@@ -681,6 +685,30 @@ client.on('message', (message) => {
         value: `0|${highscore}`,
       })
       permaDeath()
+    }
+  }
+
+  // #shirt-contest
+  else if (message.channel.id === '875207790468153386') {
+    const matches = Entries.find()
+      .matches('uid', message.author.id)
+      .limit(1)
+      .run()
+    if (matches.length > 0) {
+      if (message) message.delete()
+      message.channel
+        .send(`Please edit your existing entry: ${matches[0].url}`)
+        .then((message) => {
+          setTimeout(() => {
+            if (message) message.delete()
+          }, 5 * 1000)
+        })
+    } else {
+      message.react('462126280704262144')
+      Entries.add({
+        uid: message.author.id,
+        url: message.url,
+      })
     }
   }
 
