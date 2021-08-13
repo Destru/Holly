@@ -33,7 +33,6 @@ const complimentEmoji = [
 ]
 const embedColor = '#FF00FF'
 const embedColorBlack = '#2F3136'
-const immortalPenalty = 20
 const insultUsers = ['400786664861204481']
 const isImmortal = (id) => {
   const immortal = Immortal.find()
@@ -133,13 +132,13 @@ client.on('message', (message) => {
           .sort((a, b) => a.score - b.score)
           .pop()
 
-        const penalty = Math.floor(Math.random() * immortalPenalty) + 1
-        const score = parseInt(immortal.score)
+        const currentScore = parseInt(immortal.score)
+        const penalty = Math.floor(Math.random() * (currentScore / 2)) + 1
 
-        if (penalty > score) penalty = score - 1
+        if (penalty > currentScore) penalty = currentScore - 1
 
         Immortal.update(immortal._id_, {
-          score: `${score - penalty}`,
+          score: `${currentScore - penalty}`,
         })
         message.channel.send(
           `The \`!immortal\` has been found and wounded for \`${penalty}\` points.`
@@ -422,7 +421,7 @@ client.on('message', (message) => {
       channelGraveyard.send(obituary)
       permaDeathScore(true)
     } else {
-      permaDeathScore(false, Math.floor(Math.random() * immortalPenalty) + 1)
+      permaDeathScore(false, Math.floor(Math.random() * 42) + 1)
     }
   }
 
@@ -803,15 +802,11 @@ client.on('message', (message) => {
   } else if (message.content.startsWith('!commands')) {
     const embed = new Discord.MessageEmbed()
       .setColor(embedColor)
-      .setDescription(
-        `There are actually over \`420\` commands available. ` +
-          `I am dead serious. Look into my eyes. *Commaaands...*`
-      )
       .setTitle('Commands')
       .addFields(
         {
           name: 'Anonymous <:anonymous:837247849145303080>',
-          value: '`!avatar`\n`!seed`\n`!name`\n`!style`',
+          value: '`!avatar`\n`!name`\n`!seed`\n`!style`',
           inline: true,
         },
         {
@@ -845,11 +840,16 @@ client.on('message', (message) => {
       `\n:1234: \`${countHighscore}\` Counting` +
       `\n:skull: \`${countDeaths}\` Deaths` +
       `\n:bookmark: \`${countHaikus}\` Haikus`
+    // prettyMs(message.client.uptime)
 
     const embed = new Discord.MessageEmbed()
       .setColor(embedColorBlack)
-      .setDescription(description)
+      .setDescription(`Some more or *less* useful statistics about the *CSC*.`)
       .setTitle('Statistics')
+      .addFields(
+        { name: 'Highscores', value: '' },
+        { name: 'Original Content', value: '' }
+      )
 
     message.channel.send(embed)
   }
