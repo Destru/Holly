@@ -44,6 +44,13 @@ const isImmortal = (id) => {
   else return false
 }
 const perPage = 5
+const quotes = [
+  `If you've got a complaint, just come straight out with it. Don't hide behind innuendo and hyperbole.`,
+  `Rude alert! Rude alert! An electrical fire has knocked out my voice recognition unicycle! Many Wurlitzers are missing from my database.`,
+  `We have enough food to last thirty thousand years, but we've only got one Milk Dud left. And everyone's too polite to take it.`,
+  `Our deepest fear is going space crazy through loneliness. The only thing that helps me keep my slender grip on reality is the friendship I have with my collection of anime waifus.`,
+  ` Well, the thing about a black hole, its main distinguishing feature, is it's black. And the thing about space, the colour of space, your basic space colour, is black. So how are you supposed to see them?`,
+]
 const randomChance = 0.02
 const randomEmoji = () => {
   const emoji = [
@@ -806,6 +813,7 @@ client.on('message', (message) => {
   } else if (message.content.startsWith('!commands')) {
     const embed = new Discord.MessageEmbed()
       .setColor(embedColor)
+      .setDescription(quotes[Math.floor(Math.random() * quotes.length)])
       .setTitle('Commands')
       .addFields(
         {
