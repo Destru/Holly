@@ -294,10 +294,7 @@ client.on('message', (message) => {
 
         message.channel.send(embed)
       }
-    } else
-      message.channel.send(
-        `>>> I searched the data\nfor a couple of seconds\nbut there's nothing there.`
-      )
+    } else message.channel.send(`No haikus found.`)
   }
 
   // permadeath
@@ -364,28 +361,6 @@ client.on('message', (message) => {
 
       if (leaderboard.length > 0)
         embed.addField('Leaderboard :trophy:', leaderboard.join('\n'), false)
-    }
-
-    if (deaths.length > 0) {
-      const deathsSorted = deaths.sort((a, b) => a.deaths - b.deaths)
-      const deathsRanked = deathsSorted.reverse()
-
-      let leaderboard = []
-      let entries = deaths.length > 5 ? 5 : deaths.length
-
-      for (let i = 0; i < entries; i++) {
-        let member = csc.members.cache.get(deathsRanked[i].uid)
-
-        if (member) {
-          const user = member.user
-          const deaths = deathsRanked[i].deaths
-
-          leaderboard.push(`${user} \`${deaths}\``)
-        }
-      }
-
-      if (leaderboard.length > 0)
-        embed.addField('Death Toll :skull:', leaderboard.join('\n'), false)
     }
 
     message.channel.send(embed)
@@ -856,28 +831,41 @@ client.on('message', (message) => {
   } else if (message.content.startsWith('!stats')) {
     const countBios = Bio.find().run().length
     const deaths = Deaths.find().run()
+
     let countDeaths = 0
     deaths.forEach((death) => {
       countDeaths = countDeaths + parseInt(death.deaths)
     })
+    const countAnon = Avatar.find().run().length
     const countHaikus = Haiku.find().run().length
     const highscore = Meta.find().matches('name', 'counting').limit(1).run()
-    const countHighscore = highscore[0].value.split('|')[1]
 
-    const description =
-      `:pencil: \`${countBios}\` Bios` +
-      `\n:1234: \`${countHighscore}\` Counting` +
-      `\n:skull: \`${countDeaths}\` Deaths` +
-      `\n:bookmark: \`${countHaikus}\` Haikus`
-    // prettyMs(message.client.uptime)
+    let countHighscore = 1
+
+    if (highscore.length > 0) countHighscore = highscore[0].value.split('|')[1]
+
+    const statsNumbers =
+      `Anonymous Avatars \`${countAnon}\`` +
+      `\nCounting Highscore \`${countHighscore}\`` +
+      `\nDeath Count \`${countDeaths}\``
+
+    const statsOriginal =
+      `Accidental Haikus \`${countHaikus}\`` + `\nBiographies \`${countBios}\``
 
     const embed = new Discord.MessageEmbed()
       .setColor(embedColorBlack)
-      .setDescription(`Some more or *less* useful statistics about the *CSC*.`)
+      .setDescription(
+        `Some more or *less* useful information, like my ` +
+          `current uptime: \`${prettyMs(message.client.uptime)}\` :nerd:`
+      )
       .setTitle('Statistics')
       .addFields(
-        { name: 'Highscores', value: '' },
-        { name: 'Original Content', value: '' }
+        { name: 'Numbers :1234: ', value: statsNumbers, inline: true },
+        {
+          name: 'Original :brain:',
+          value: ` ${statsOriginal}`,
+          inline: true,
+        }
       )
 
     message.channel.send(embed)
