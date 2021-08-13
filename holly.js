@@ -5,6 +5,7 @@ const client = new Discord.Client()
 const db = require('flat-db')
 const fetch = require('node-fetch')
 const findahaiku = require('findahaiku')
+const paginationEmbed = require('discord.js-pagination')
 const prettyMs = require('pretty-ms')
 const checkWord = require('check-word')
 const dictionary = checkWord('en')
@@ -42,7 +43,8 @@ const isImmortal = (id) => {
   if (immortal && immortal.uid === id) return true
   else return false
 }
-const randomChance = 0.01
+const perPage = 5
+const randomChance = 0.05
 const randomEmoji = () => {
   const emoji = [
     '<:cscalt:837251418247004205>',
@@ -70,10 +72,9 @@ const status = [
   'Gunmen of the Apocalypse',
   'Play-by-mail Chess',
 ]
-const version = process.env.npm_package_version || '(Development)'
+const version = process.env.npm_package_version || 'Dev'
 
 let csc
-let raceActive = false
 
 db.configure({ dir: './db' })
 const Avatar = new db.Collection('avatars', {
@@ -250,21 +251,49 @@ client.on('message', (message) => {
     const haikus = Haiku.find().matches('uid', author).run()
 
     if (haikus.length > 0) {
-      const embed = new Discord.MessageEmbed()
-        .setColor(embedColor)
-        .setTitle('Haikus')
+      if (haikus.length > perPage) {
+        const pages = []
+        const pageCount = Math.floor(haikus.length / perPage)
 
-      haikus.forEach((haiku) => {
-        const timestamp = new Date(haiku._ts_).toLocaleString([], {
-          year: 'numeric',
-          month: 'numeric',
-          day: 'numeric',
+        for (let page = 0; page < pageCount; page++) {
+          const embed = new Discord.MessageEmbed()
+            .setColor(embedColor)
+            .setDescription(`Accidental haikus by <@${author}> :bookmark:`)
+            .setTitle(`Haikus`)
+
+          const haikuIndex = perPage * page
+
+          for (i = haikuIndex; i < haikuIndex + perPage; i++) {
+            const timestamp = new Date(haikus[i]._ts_).toLocaleString([], {
+              year: 'numeric',
+              month: 'numeric',
+              day: 'numeric',
+            })
+
+            embed.addField(`${timestamp}`, haikus[i].content)
+          }
+
+          pages.push(embed)
+        }
+
+        paginationEmbed(message, pages)
+      } else {
+        const embed = new Discord.MessageEmbed()
+          .setColor(embedColor)
+          .setTitle('Haikus')
+
+        haikus.forEach((haiku) => {
+          const timestamp = new Date(haiku._ts_).toLocaleString([], {
+            year: 'numeric',
+            month: 'numeric',
+            day: 'numeric',
+          })
+
+          embed.addField(timestamp, haiku.content)
         })
 
-        embed.addField(timestamp, haiku.content)
-      })
-
-      message.channel.send(embed)
+        message.channel.send(embed)
+      }
     } else
       message.channel.send(
         `>>> I searched the data\nfor a couple of seconds\nbut there's nothing there.`
