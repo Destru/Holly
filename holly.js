@@ -151,7 +151,7 @@ client.on('message', (message) => {
       const matches = message.content.match(/<@(\d+)> has reached level (\d+)/)
       const promotionChannel =
         message.client.channels.cache.get('160320676580818951')
-      const tag = encodeURI('"applause crowd"')
+      const tag = 'celebration'
       let level, user
 
       if (matches) {
@@ -799,6 +799,33 @@ client.on('message', (message) => {
         },
         { name: 'Version', value: version, inline: true }
       )
+    message.channel.send(embed)
+  } else if (message.content.startsWith('!commands')) {
+    const embed = new Discord.MessageEmbed()
+      .setColor(embedColor)
+      .setDescription(
+        `There are actually over \`420\` commands available. ` +
+          `I am dead serious. Look into my eyes. *Commaaands...*`
+      )
+      .setTitle('Commands')
+      .addFields(
+        {
+          name: 'Anonymous <:anonymous:837247849145303080>',
+          value: '`!avatar`\n`!seed`\n`!name`\n`!style`',
+          inline: true,
+        },
+        {
+          name: 'Community <:cscbob:846528128524091422>',
+          value: '`!haikus`\n`!resurrect`\n`!stats`',
+          inline: true,
+        },
+        {
+          name: 'Permadeath :skull:',
+          value: '`!immortal`\n`!permadeath`\n`!points`',
+          inline: true,
+        }
+      )
+
     message.channel.send(embed)
   } else if (message.content.startsWith('!version')) {
     message.channel.send(version)
