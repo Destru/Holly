@@ -44,7 +44,7 @@ const isImmortal = (id) => {
   else return false
 }
 const perPage = 5
-const randomChance = 0.05
+const randomChance = 0.02
 const randomEmoji = () => {
   const emoji = [
     '<:cscalt:837251418247004205>',
@@ -829,6 +829,7 @@ client.on('message', (message) => {
   } else if (message.content.startsWith('!version')) {
     message.channel.send(version)
   } else if (message.content.startsWith('!stats')) {
+    const countAnon = Avatar.find().run().length
     const countBios = Bio.find().run().length
     const deaths = Deaths.find().run()
 
@@ -836,7 +837,6 @@ client.on('message', (message) => {
     deaths.forEach((death) => {
       countDeaths = countDeaths + parseInt(death.deaths)
     })
-    const countAnon = Avatar.find().run().length
     const countHaikus = Haiku.find().run().length
     const highscore = Meta.find().matches('name', 'counting').limit(1).run()
 
@@ -860,10 +860,10 @@ client.on('message', (message) => {
       )
       .setTitle('Statistics')
       .addFields(
-        { name: 'Numbers :1234: ', value: statsNumbers, inline: true },
+        { name: 'Numbers :1234:', value: statsNumbers, inline: true },
         {
           name: 'Original :brain:',
-          value: ` ${statsOriginal}`,
+          value: statsOriginal,
           inline: true,
         }
       )
