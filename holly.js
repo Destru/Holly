@@ -79,8 +79,7 @@ const status = [
   'Gunmen of the Apocalypse',
   'Play-by-mail Chess',
 ]
-const superuser = '160320553322807296'
-const version = process.env.npm_package_version || 'Dev'
+const version = process.env.npm_package_version || '(Development)'
 const waifuCommands = [
   'awoo',
   'bite',
@@ -933,7 +932,10 @@ client.on('message', (message) => {
 
     const embed = new Discord.MessageEmbed()
       .setColor(embedColorBlack)
-      .setDescription(`Some more or *less* useful information :nerd:`)
+      .setDescription(
+        `Some more or *less* useful information. ` +
+          `It's less, it's definitely less.`
+      )
       .setTitle('Statistics')
       .addFields(
         { name: 'Numbers :1234:', value: statsNumbers, inline: true },
