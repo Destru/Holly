@@ -518,10 +518,19 @@ client.on('message', (message) => {
   }
 
   // #acronyms
-  if (message.channel.id === '866967261092773918') {
+  if (message.channel.id === '845382463685132288') {
     const acronym = /^C.+S.+C\S+$/i
+    const words = message.content.split(' ')
 
-    if (message.content.match(acronym)) {
+    let fail = false
+
+    if (message.content.match(acronym) && words.length === 3) {
+      words.forEach((word) => {
+        if (!dictionary.check(word)) fail = true
+      })
+    } else fail = true
+
+    if (fail === false) {
       message.react('✅')
       permaDeathScore()
     } else {
@@ -759,6 +768,7 @@ client.on('message', (message) => {
   // #word-war
   else if (message.channel.id === '866967592622489640') {
     const matches = Meta.find().matches('name', 'word-war').limit(1).run()
+    const word = message.content.toLowerCase()
 
     let lastLetter, uid
 
@@ -777,8 +787,8 @@ client.on('message', (message) => {
 
     if (
       message.author.id !== uid &&
-      dictionary.check(message.content.toLowerCase()) &&
-      message.content.toLowerCase().startsWith(lastLetter)
+      dictionary.check(word) &&
+      word.startsWith(lastLetter)
     ) {
       const newLetter = message.content.toLowerCase().slice(-1)
 
