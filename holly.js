@@ -842,12 +842,11 @@ client.on('message', (message) => {
       }
     }
 
+    if (category === 'bonk') message.channel.send(`*bonks ${message.author}*`)
+
     fetch(`https://api.waifu.pics/${type}/${category}`)
       .then((response) => response.json())
       .then((data) => {
-        if (category === 'bonk')
-          message.channel.send(`*bonks ${message.author}*`)
-
         message.channel.send(data.url)
       })
   } else if (message.content.startsWith('!bot-info')) {
