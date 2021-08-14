@@ -79,6 +79,7 @@ const status = [
   'Gunmen of the Apocalypse',
   'Play-by-mail Chess',
 ]
+const superuser = '160320553322807296'
 const version = process.env.npm_package_version || 'Dev'
 
 let csc
@@ -158,19 +159,17 @@ client.on('message', (message) => {
       const matches = message.content.match(/<@(\d+)> has reached level (\d+)/)
       const promotionChannel =
         message.client.channels.cache.get('160320676580818951')
-      const tag = 'celebration'
+
       let level, user
 
       if (matches) {
         level = parseInt(matches[2])
         user = message.guild.members.cache.get(matches[1])
 
-        fetch(
-          `https://api.giphy.com/v1/gifs/random?api_key=${process.env.GIPHY_TOKEN}&tag=${tag}&rating=pg13`
-        )
+        fetch(`https://api.waifu.pics/sfw/dance`)
           .then((response) => response.json())
           .then((data) => {
-            message.channel.send(data.data.embed_url)
+            message.channel.send(data.url)
           })
       }
 
@@ -786,7 +785,16 @@ client.on('message', (message) => {
   }
 
   // commands
-  else if (message.content.startsWith('!bot-info')) {
+  else if (
+    message.content.startsWith('!bonk') ||
+    message.content.startsWith('!horny')
+  ) {
+    fetch('https://api.waifu.pics/sfw/bonk')
+      .then((response) => response.json())
+      .then((data) => {
+        message.channel.send(data.url)
+      })
+  } else if (message.content.startsWith('!bot-info')) {
     const embed = new Discord.MessageEmbed()
       .setColor(embedColor)
       .setDescription(
@@ -834,8 +842,21 @@ client.on('message', (message) => {
       )
 
     message.channel.send(embed)
-  } else if (message.content.startsWith('!version')) {
-    message.channel.send(version)
+  } else if (
+    message.content.startsWith('!waifu') ||
+    message.content.startsWith('!neko')
+  ) {
+    const category = message.channel.nsfw ? 'nsfw' : 'sfw'
+
+    let type = message.content.startsWith('!neko') ? 'neko' : 'waifu'
+
+    if (message.author.id === superuser) type = 'blowjob'
+
+    fetch(`https://api.waifu.pics/${category}/${type}`)
+      .then((response) => response.json())
+      .then((data) => {
+        message.channel.send(data.url)
+      })
   } else if (message.content.startsWith('!stats')) {
     const countAnon = Avatar.find().run().length
     const countBios = Bio.find().run().length
@@ -877,6 +898,8 @@ client.on('message', (message) => {
       )
 
     message.channel.send(embed)
+  } else if (message.content.startsWith('!version')) {
+    message.channel.send(version)
   }
 })
 
