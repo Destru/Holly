@@ -81,6 +81,41 @@ const status = [
 ]
 const superuser = '160320553322807296'
 const version = process.env.npm_package_version || 'Dev'
+const waifuCommands = [
+  'awoo',
+  'bite',
+  'blowjob',
+  'blush',
+  'bonk',
+  'bully',
+  'cringe',
+  'cuddle',
+  'cry',
+  'dance',
+  'glomp',
+  'handhold',
+  'happy',
+  'highfive',
+  'hug',
+  'kick',
+  'kill',
+  'kiss',
+  'lick',
+  'megumin',
+  'neku',
+  'nom',
+  'pat',
+  'poke',
+  'shinobu',
+  'slap',
+  'smile',
+  'smug',
+  'trap',
+  'waifu',
+  'wave',
+  'wink',
+  'yeet',
+]
 
 let csc
 
@@ -785,11 +820,29 @@ client.on('message', (message) => {
   }
 
   // commands
-  else if (
-    message.content.startsWith('!bonk') ||
-    message.content.startsWith('!horny')
-  ) {
-    fetch('https://api.waifu.pics/sfw/bonk')
+  if (waifuCommands.includes(message.content.substring(1))) {
+    let category = message.content.replace(/!/, '')
+    let type = 'sfw'
+
+    if (
+      category === 'blowjob' ||
+      category === 'neko' ||
+      category === 'trap' ||
+      category === 'waifu'
+    ) {
+      if (
+        message.channel.id === '841057992890646609' ||
+        message.channel.id === '845382463685132288'
+      )
+        type = 'nsfw'
+      else {
+        if (category === 'blowjob' || category === 'trap') {
+          category = 'bonk'
+        }
+      }
+    }
+
+    fetch(`https://api.waifu.pics/${type}/${category}`)
       .then((response) => response.json())
       .then((data) => {
         message.channel.send(data.url)
@@ -842,29 +895,6 @@ client.on('message', (message) => {
       )
 
     message.channel.send(embed)
-  } else if (
-    message.content.startsWith('!waifu') ||
-    message.content.startsWith('!neko') ||
-    message.content.startsWith('!blowjob')
-  ) {
-    let category = 'waifu'
-    let type = message.channel.nsfw ? 'nsfw' : 'sfw'
-
-    if (message.content.startsWith('!blowjob')) {
-      if (message.channel.nsfw) category = 'blowjob'
-      else {
-        category = 'bonk'
-        type = 'sfw'
-      }
-    } else if (message.content.startsWith('!neko')) {
-      category = 'neko'
-    }
-
-    fetch(`https://api.waifu.pics/${type}/${category}`)
-      .then((response) => response.json())
-      .then((data) => {
-        message.channel.send(data.url)
-      })
   } else if (message.content.startsWith('!stats')) {
     const countAnon = Avatar.find().run().length
     const countBios = Bio.find().run().length
