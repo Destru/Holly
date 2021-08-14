@@ -768,12 +768,12 @@ client.on('message', (message) => {
   // #word-war
   else if (message.channel.id === '866967592622489640') {
     const matches = Meta.find().matches('name', 'word-war').limit(1).run()
-    const word = message.content.toLowerCase()
+    const word = message.content.toLowerCase().trim()
 
     let lastLetter, uid
 
     if (matches.length === 0) {
-      lastLetter = message.content.toLowerCase().slice(-1)
+      lastLetter = word.slice(-1)
 
       Meta.add({
         name: 'word-war',
@@ -790,7 +790,7 @@ client.on('message', (message) => {
       dictionary.check(word) &&
       word.startsWith(lastLetter)
     ) {
-      const newLetter = message.content.toLowerCase().slice(-1)
+      const newLetter = word.slice(-1)
 
       Meta.update(matches[0]._id_, { uid: message.author.id, value: newLetter })
       message.react('✅')
