@@ -518,7 +518,7 @@ client.on('message', (message) => {
   }
 
   // #acronyms
-  if (message.channel.id === '845382463685132288') {
+  if (message.channel.id === '866967592622489640') {
     const acronym = /^C.+S.+C\S+$/i
     const words = message.content.split(' ')
 
