@@ -844,15 +844,23 @@ client.on('message', (message) => {
     message.channel.send(embed)
   } else if (
     message.content.startsWith('!waifu') ||
-    message.content.startsWith('!neko')
+    message.content.startsWith('!neko') ||
+    message.content.startsWith('!blowjob')
   ) {
-    const category = message.channel.nsfw ? 'nsfw' : 'sfw'
+    let category = 'waifu'
+    let type = message.channel.nsfw ? 'nsfw' : 'sfw'
 
-    let type = message.content.startsWith('!neko') ? 'neko' : 'waifu'
+    if (message.content.startsWith('!blowjob')) {
+      if (message.channel.nsfw) category = 'blowjob'
+      else {
+        category = 'bonk'
+        type = 'sfw'
+      }
+    } else if (message.content.startsWith('!neko')) {
+      category = 'neko'
+    }
 
-    if (message.author.id === superuser) type = 'blowjob'
-
-    fetch(`https://api.waifu.pics/${category}/${type}`)
+    fetch(`https://api.waifu.pics/${type}/${category}`)
       .then((response) => response.json())
       .then((data) => {
         message.channel.send(data.url)
