@@ -933,10 +933,7 @@ client.on('message', (message) => {
 
     const embed = new Discord.MessageEmbed()
       .setColor(embedColorBlack)
-      .setDescription(
-        `Some more or *less* useful information, like my ` +
-          `current uptime: \`${prettyMs(message.client.uptime)}\` :nerd:`
-      )
+      .setDescription(`Some more or *less* useful information :nerd:`)
       .setTitle('Statistics')
       .addFields(
         { name: 'Numbers :1234:', value: statsNumbers, inline: true },
