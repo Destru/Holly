@@ -154,6 +154,8 @@ const Resurrection = new db.Collection('resurrections', {
 })
 
 client.on('message', (message) => {
+  const args = message.content.slice(1).trim().split(/ +/g)
+  const command = args.shift().toLowerCase()
   const { isHaiku, formattedHaiku } = findahaiku.analyzeText(message.content)
 
   const permaDeath = () => {
@@ -452,25 +454,25 @@ client.on('message', (message) => {
     }
 
     if (message.content.startsWith('!') && message.content.match(textOnly)) {
-      if (message.content.startsWith('!avatar')) {
+      if (command === 'avatar') {
         const embed = new Discord.MessageEmbed()
           .setColor(embedColorVR)
           .setImage(customAvatar(avatar, message))
           .setTitle(customName(avatar))
         message.member.send(embed)
-      } else if (message.content.startsWith('!name')) {
+      } else if (command === 'name') {
         let name = message.content.replace('!name', '').trim()
         Avatar.update(avatar._id_, {
           name: name,
         })
         updateVR = `Name updated ${emojiVR}`
-      } else if (message.content.startsWith('!seed')) {
+      } else if (command === 'seed') {
         const random = Math.random().toString().slice(2, 11)
         Avatar.update(avatar._id_, {
           seed: random,
         })
         updateVR = `Seed randomized ${emojiVR}`
-      } else if (message.content.startsWith('!style')) {
+      } else if (command === 'style') {
         const styles = `\`${Object.keys(apis).join('`, `')}\``
         let style = message.content.replace('!style', '').trim()
 
@@ -486,7 +488,7 @@ client.on('message', (message) => {
         } else {
           updateVR = `You must \`!vote\` to access this command ${emojiVR}`
         }
-      } else if (message.content.startsWith('!reset')) {
+      } else if (command === 'reset') {
         Avatar.remove(avatar._id_)
         updateVR = `User reset ${emojiVR}`
       }
@@ -643,14 +645,13 @@ client.on('message', (message) => {
   ) {
     // #akihabara + #horny-jail
     if (akihabara.includes(message.content.substring(1))) {
-      let category = message.content.replace(/!/, '')
       let type = 'sfw'
 
       if (
-        category === 'blowjob' ||
-        category === 'neko' ||
-        category === 'trap' ||
-        category === 'waifu'
+        command === 'blowjob' ||
+        command === 'neko' ||
+        command === 'trap' ||
+        command === 'waifu'
       ) {
         if (
           message.channel.id === '841057992890646609' ||
@@ -664,7 +665,7 @@ client.on('message', (message) => {
         }
       }
 
-      fetch(`https://api.waifu.pics/${type}/${category}`)
+      fetch(`https://api.waifu.pics/${type}/${command}`)
         .then((response) => response.json())
         .then((data) => {
           if (category === 'bonk')
@@ -673,7 +674,7 @@ client.on('message', (message) => {
           message.channel.send(data.url)
         })
     }
-  } else if (message.content.startsWith('!bot-info')) {
+  } else if (command === 'bot-info') {
     const embed = new Discord.MessageEmbed()
       .setColor(embedColor)
       .setDescription(
@@ -697,7 +698,7 @@ client.on('message', (message) => {
         { name: 'Version', value: version, inline: true }
       )
     message.channel.send(embed)
-  } else if (message.content.startsWith('!commands')) {
+  } else if (command === 'commands') {
     const embed = new Discord.MessageEmbed()
       .setColor(embedColor)
       .setDescription(quotes[Math.floor(Math.random() * quotes.length)])
@@ -721,7 +722,7 @@ client.on('message', (message) => {
       )
 
     message.channel.send(embed)
-  } else if (message.content.startsWith('!haikus')) {
+  } else if (command === 'haikus') {
     let author = message.author.id
     let matches = message.content.match(/<@!(\d+)>/)
 
@@ -774,7 +775,7 @@ client.on('message', (message) => {
         return message.channel.send(embed)
       }
     } else return message.channel.send(`No haikus found.`)
-  } else if (message.content.startsWith('!immortal')) {
+  } else if (command === 'immortal') {
     const embed = new Discord.MessageEmbed().setColor(embedColorBlack)
     const immortals = Immortal.find().run()
 
@@ -802,7 +803,7 @@ client.on('message', (message) => {
         `There is currently no immortal being present on the server ${randomEmoji()}`
       )
     }
-  } else if (message.content.startsWith('!permadeath')) {
+  } else if (command === 'permadeath') {
     const deaths = Deaths.find().run()
     const embed = new Discord.MessageEmbed()
       .setColor(embedColorBlack)
@@ -840,7 +841,7 @@ client.on('message', (message) => {
     }
 
     message.channel.send(embed)
-  } else if (message.content.startsWith('!points')) {
+  } else if (command === 'points') {
     const matches = Immortal.find()
       .matches('uid', message.author.id)
       .limit(1)
@@ -852,11 +853,7 @@ client.on('message', (message) => {
       return message.channel.send(
         `You have not taken any succesful action in a permadeath channel.`
       )
-  } else if (
-    message.content.startsWith('!resurrect') ||
-    message.content.startsWith('!ressurect') ||
-    message.content.startsWith('!ressurrect')
-  ) {
+  } else if (command === 'resurrect' || command === 'ressurect') {
     if (!message.member.roles.cache.has(roleGhost))
       return message.channel.send(`You're not dead.`)
 
@@ -883,7 +880,7 @@ client.on('message', (message) => {
       )
     }
     return message.channel.send(embed)
-  } else if (message.content.startsWith('!stats')) {
+  } else if (command === 'stats') {
     const countAnon = Avatar.find().run().length
     const countBios = Bio.find().run().length
     const deaths = Deaths.find().run()
@@ -924,7 +921,7 @@ client.on('message', (message) => {
       )
 
     message.channel.send(embed)
-  } else if (message.content.startsWith('!version')) {
+  } else if (command === 'version') {
     message.channel.send(version)
   }
 })
