@@ -323,8 +323,7 @@ client.on('message', (message) => {
               break
             case 10:
               description +=
-                `You can now post in <#352149516885164044>, ` +
-                `host in <#833933467142062110>, ` +
+                `You can now host in <#833933467142062110>, ` +
                 `and will receive the \`Live\` role when you stream. `
               break
             case 15:
@@ -776,13 +775,14 @@ client.on('message', (message) => {
     const immortals = Immortal.find().run()
 
     if (immortals.length > 0) {
+      const emoji = '<:baphomet:866887258892140574>'
       const immortalsSorted = immortals.sort((a, b) => a.score - b.score)
       const immortal = immortalsSorted.pop()
 
       if (immortal && immortal.uid && immortal.score) {
         embed
           .setDescription(
-            `<@${immortal.uid}> :crown: with \`${immortal.score}\` points.` +
+            `<@${immortal.uid}> ${emoji} with \`${immortal.score}\` points.` +
               `\n\nBow before our ruler; an immortal being. ` +
               `Bathe in their light and unfathomable beauty, ` +
               `and *accept* their judgement.`
@@ -833,7 +833,7 @@ client.on('message', (message) => {
       }
 
       if (leaderboard.length > 0)
-        embed.addField('Leaderboard :trophy:', leaderboard.join('\n'), false)
+        embed.addField('Leaderboard', leaderboard.join('\n'), false)
     }
 
     message.channel.send(embed)
