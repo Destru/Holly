@@ -908,9 +908,9 @@ client.on('message', (message) => {
       )
       .setTitle('Statistics')
       .addFields(
-        { name: 'Numbers :1234:', value: statsNumbers, inline: true },
+        { name: 'Numbers', value: statsNumbers, inline: true },
         {
-          name: 'Original :brain:',
+          name: 'OC',
           value: statsOriginal,
           inline: true,
         }
