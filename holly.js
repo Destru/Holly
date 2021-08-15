@@ -644,7 +644,7 @@ client.on('message', (message) => {
     message.channel.id === '841057992890646609'
   ) {
     // #akihabara + #horny-jail
-    if (akihabara.includes(message.content.substring(1))) {
+    if (akihabara.includes(command)) {
       let type = 'sfw'
 
       if (
@@ -664,7 +664,7 @@ client.on('message', (message) => {
       fetch(`https://api.waifu.pics/${type}/${command}`)
         .then((response) => response.json())
         .then((data) => {
-          if (category === 'bonk')
+          if (command === 'bonk')
             message.channel.send(`*bonks ${message.author}*`)
 
           message.channel.send(data.url)
