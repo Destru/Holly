@@ -653,14 +653,10 @@ client.on('message', (message) => {
         command === 'trap' ||
         command === 'waifu'
       ) {
-        if (
-          message.channel.id === '841057992890646609' ||
-          message.channel.id === '845382463685132288'
-        )
-          type = 'nsfw'
+        if (message.channel.id === '841057992890646609') type = 'nsfw'
         else {
-          if (category === 'blowjob' || category === 'trap') {
-            category = 'bonk'
+          if (command === 'blowjob' || command === 'trap') {
+            command = 'bonk'
           }
         }
       }
