@@ -873,10 +873,12 @@ client.on('message', (message) => {
       .limit(1)
       .run()
 
-    if (matches.length > 0)
-      return message.channel.send(`You have \`${matches[0].score}\` point(s).`)
-    else
-      return message.channel.send(
+    if (matches.length > 0) {
+      const points = matches[0].score === 1 ? 'point' : 'points'
+
+      message.channel.send(`You have \`${matches[0].score}\` ${points}.`)
+    } else
+      message.channel.send(
         `You have not taken any succesful action in a permadeath channel.`
       )
   } else if (command === 'resurrect' || command === 'ressurect') {
