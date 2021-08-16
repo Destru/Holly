@@ -738,23 +738,16 @@ client.on('message', (message) => {
       const deathsRanked = deathsSorted.reverse()
 
       let entries = deaths.length > 10 ? 10 : deaths.length
-      let fetched = 0
       let leaderboard = []
 
       for (let i = 0; i < entries; i++) {
-        message.guild.members.fetch(deathsRanked[i].uid).then((member) => {
-          const user = member.user
-          const score = deathsRanked[i].deaths
+        const score = deathsRanked[i].deaths
+        const user = `<@${deathsRanked[i].uid}>`
 
-          leaderboard.push(`${user} \`${score}\``)
-          fetched++
-
-          if (fetched === entries - 1) {
-            embed.addField('Leaderboard', leaderboard.join('\n'), false)
-            message.channel.send(embed)
-          }
-        })
+        leaderboard.push(`${user} \`${score}\``)
       }
+      embed.addField('Leaderboard', leaderboard.join('\n'), false)
+      message.channel.send(embed)
     }
   } else if (command === 'haikus') {
     let authorId = message.author.id
@@ -872,18 +865,17 @@ client.on('message', (message) => {
 
       let entries = immortals.length > 10 ? 10 : immortals.length
 
-      for (let i = 0; i < entries; i++) {
-        message.guild.members.fetch(immortalRanked[i].uid).then((member) => {
-          if (i === 0) embed.setThumbnail(member.user.avatarURL())
-          const user = member.user
-          const score = immortalRanked[i].score
+      message.guild.members.fetch(immortalRanked[0].uid).then((member) => {
+        embed.setThumbnail(member.user.avatarURL())
+        embed.addField('Leaderboard', leaderboard.join('\n'), false)
+        message.channel.send(embed)
+      })
 
-          leaderboard.push(`${user} \`${score}\``)
-          if (i === entries - 1) {
-            embed.addField('Leaderboard', leaderboard.join('\n'), false)
-            return message.channel.send(embed)
-          }
-        })
+      for (let i = 0; i < entries; i++) {
+        const user = `<@${immortalRanked[i].uid}>`
+        const score = immortalRanked[i].score
+
+        leaderboard.push(`${user} \`${score}\``)
       }
     }
   } else if (command === 'points') {
