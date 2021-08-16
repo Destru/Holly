@@ -755,7 +755,7 @@ client.on('message', (message) => {
 
           leaderboard.push(`${user} \`${score}\``)
           if (i === entries - 1) {
-            embed.addField('Body Count', leaderboard.join('\n'), false)
+            embed.addField('Death Toll', leaderboard.join('\n'), false)
             return message.channel.send(embed)
           }
         })
