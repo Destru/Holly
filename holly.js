@@ -9,6 +9,7 @@ const findahaiku = require('findahaiku')
 const paginationEmbed = require('discord.js-pagination')
 const prettyMs = require('pretty-ms')
 const checkWord = require('check-word')
+const { alphabetEmoji } = require('../Queeg/helpers')
 const dictionary = checkWord('en')
 
 const akihabara = [
@@ -963,8 +964,9 @@ client.on('ready', () => {
 
   cron.schedule('0 */2 * * *', () => {
     const alphabet = 'abcdefghijklmnopqrstuvwxyz'
-    const randomCharacter =
-      alphabet[Math.floor(Math.random() * alphabet.length)]
+    const channel = client.channels.cache.get('866967592622489640')
+    const random = Math.floor(Math.random() * alphabet.length)
+    const randomCharacter = alphabet[random]
     const matches = Meta.find().matches('name', 'word-war').limit(1).run()
 
     if (matches.length > 0) {
@@ -973,9 +975,8 @@ client.on('ready', () => {
       Meta.add({ name: 'word-war', value: randomCharacter })
     }
 
-    client.channels.cache
-      .get('866967592622489640')
-      .send(`The current letter is \`${randomCharacter.toUpperCase()}\``)
+    channel.setTopic(`${alphabetEmoji[random]} :skull:`)
+    channel.send(`The current letter is ${alphabetEmoji[random]}`)
   })
 })
 
