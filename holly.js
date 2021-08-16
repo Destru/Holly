@@ -965,7 +965,6 @@ client.on('ready', () => {
 
   setInterval(() => {
     const alphabet = 'abcdefghijklmnopqrstuvwxyz'
-
     const randomCharacter =
       alphabet[Math.floor(Math.random() * alphabet.length)]
     const matches = Meta.find().matches('name', 'word-war').limit(1).run()
