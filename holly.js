@@ -743,15 +743,15 @@ client.on('message', (message) => {
 
       for (let i = 0; i < entries; i++) {
         message.guild.members.fetch(deathsRanked[i].uid).then((member) => {
-          fetched++
           const user = member.user
           const score = deathsRanked[i].deaths
 
           leaderboard.push(`${user} \`${score}\``)
+          fetched++
 
-          if (fetched === entries) {
+          if (fetched === entries - 1) {
             embed.addField('Leaderboard', leaderboard.join('\n'), false)
-            return message.channel.send(embed)
+            message.channel.send(embed)
           }
         })
       }
