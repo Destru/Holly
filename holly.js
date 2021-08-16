@@ -911,6 +911,7 @@ client.on('message', (message) => {
   } else if (command === 'stats') {
     const countAnon = Avatar.find().run().length
     const countBios = Bio.find().run().length
+    const countEntries = Bio.find().run().length
     const deaths = Deaths.find().run()
 
     let countDeaths = 0
@@ -931,7 +932,9 @@ client.on('message', (message) => {
       `\nDeath Count \`${countDeaths}\``
 
     const statsOriginal =
-      `Accidental Haikus \`${countHaikus}\`` + `\nBiographies \`${countBios}\``
+      `Accidental Haikus \`${countHaikus}\`` +
+      `\nBiographies \`${countBios}\`` +
+      `\nContest Entries \`${countEntries}\``
 
     const embed = new Discord.MessageEmbed()
       .setColor(embedColorBlack)
