@@ -9,9 +9,12 @@ const findahaiku = require('findahaiku')
 const paginationEmbed = require('discord.js-pagination')
 const prettyMs = require('pretty-ms')
 const checkWord = require('check-word')
-const { alphabetEmoji } = require('../Queeg/helpers')
 const dictionary = checkWord('en')
 
+const alphabetEmoji =
+  '🇦 🇧 🇨 🇩 🇪 🇫 🇬 🇭 🇮 🇯 🇰 🇱 🇲 🇳 🇴 🇵 🇶 🇷 🇸 🇹 🇺 🇻 🇼 🇽 🇾 🇿'.split(
+    ' '
+  )
 const akihabara = [
   'awoo',
   'bite',
