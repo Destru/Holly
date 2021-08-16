@@ -33,6 +33,7 @@
     "dotenv": "^9.0.2",
     "findahaiku": "^1.1.2",
     "flat-db": "^4.0.0",
+    "node-cron": "^3.0.0",
     "node-fetch": "^2.6.1",
     "pretty-ms": "^7.0.1"
   },

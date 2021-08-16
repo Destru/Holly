@@ -3,6 +3,7 @@ require('discord-reply')
 const Discord = require('discord.js')
 const client = new Discord.Client()
 const db = require('flat-db')
+const cron = require('node-cron')
 const fetch = require('node-fetch')
 const findahaiku = require('findahaiku')
 const paginationEmbed = require('discord.js-pagination')
@@ -960,7 +961,7 @@ client.on('ready', () => {
     },
   })
 
-  setInterval(() => {
+  cron.schedule('0 */2 * * *', () => {
     const alphabet = 'abcdefghijklmnopqrstuvwxyz'
     const randomCharacter =
       alphabet[Math.floor(Math.random() * alphabet.length)]
@@ -975,7 +976,7 @@ client.on('ready', () => {
     client.channels.cache
       .get('866967592622489640')
       .send(`The current letter is \`${randomCharacter.toUpperCase()}\``)
-  }, 6 * 60 * 60 * 1000)
+  })
 })
 
 client.login()
