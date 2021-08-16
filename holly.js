@@ -692,7 +692,7 @@ client.on('message', (message) => {
       .addFields(
         {
           name: 'Anonymous <:anonymous:837247849145303080>',
-          value: '`!avatar`\n`!name`\n`!seed`',
+          value: '`!avatar`\n`!name`\n`!seed`\n`!reset`',
           inline: true,
         },
         {
