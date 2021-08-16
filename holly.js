@@ -820,7 +820,9 @@ client.on('message', (message) => {
     const matches = Meta.find().matches('name', 'word-war').limit(1).run()
 
     if (matches.length > 0)
-      message.channel.send(`The current letter is \`${matches[0].value}\``)
+      message.channel.send(
+        `The current letter is \`${matches[0].value.toUpperCase()}\``
+      )
   } else if (command === 'immortal') {
     const embed = new Discord.MessageEmbed().setColor(embedColorBlack)
     const immortals = Immortal.find().run()
