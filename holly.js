@@ -729,33 +729,28 @@ client.on('message', (message) => {
     const embed = new Discord.MessageEmbed()
       .setColor(embedColorBlack)
       .setDescription(
-        `There have been \`${deathCount}\` recorded deaths. ` +
-          `Voters are able to \`!resurrect\` (with a time penalty). `
+        `There have been \`${deathCount}\` recorded deaths :headstone:`
       )
+      .setTitle(`Deaths`)
 
     if (deaths.length > 0) {
       const deathsSorted = deaths.sort((a, b) => a.deaths - b.deaths)
       const deathsRanked = deathsSorted.reverse()
 
-      let leaderboard = []
-
       let entries = deaths.length > 10 ? 10 : deaths.length
+      let fetched = 0
+      let leaderboard = []
 
       for (let i = 0; i < entries; i++) {
         message.guild.members.fetch(deathsRanked[i].uid).then((member) => {
-          if (i === 0) {
-            embed.setAuthor(
-              member.user.username,
-              member.user.avatarURL(),
-              'https://cyberpunksocial.club'
-            )
-          }
+          fetched++
           const user = member.user
           const score = deathsRanked[i].deaths
 
           leaderboard.push(`${user} \`${score}\``)
-          if (i === entries - 1) {
-            embed.addField('Death Toll', leaderboard.join('\n'), false)
+
+          if (fetched === entries) {
+            embed.addField('Leaderboard', leaderboard.join('\n'), false)
             return message.channel.send(embed)
           }
         })
