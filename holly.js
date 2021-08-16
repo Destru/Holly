@@ -611,7 +611,7 @@ client.on('message', (message) => {
     const matches = Meta.find().matches('name', 'word-war').limit(1).run()
     const word = message.content.toLowerCase().trim()
 
-    if (matches.length === 0) {
+    if (matches.length > 0) {
       const letter = matches[0].value
       const uid = matches[0].uid
 
