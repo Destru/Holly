@@ -224,9 +224,13 @@ client.on('message', (message) => {
   }
 
   if (!message.author.bot && isHaiku) {
+    const poet =
+      message.channel.id === '412714197399371788'
+        ? message.author.username.toUpperCase()
+        : message.author.username
     const embed = new Discord.MessageEmbed()
       .setColor(embedColor)
-      .setDescription(`${formattedHaiku}\n—*${message.author.username}*`)
+      .setDescription(`${formattedHaiku}\n—*${poet}*`)
 
     Haiku.add({
       uid: message.author.id,
@@ -805,6 +809,8 @@ client.on('message', (message) => {
         return message.channel.send(embed)
       }
     } else return message.channel.send(`No haikus found.`)
+  } else if (command === 'immortal') {
+    const letter = Meta.find().run()
   } else if (command === 'immortal') {
     const embed = new Discord.MessageEmbed().setColor(embedColorBlack)
     const immortals = Immortal.find().run()
