@@ -163,9 +163,9 @@ client.on('message', (message) => {
     const obituary = new Discord.MessageEmbed()
       .setColor(embedColorBlack)
       .setThumbnail(message.author.avatarURL())
-      .setTitle(`${message.author.username} :headstone:`)
+      .setTitle(`${message.author.username}`)
       .setDescription(
-        `Here lies ${message.author} who died in ${message.channel} just now.`
+        `Here lies ${message.author} who died in ${message.channel} :headstone:`
       )
 
     if (!isImmortal(message.author.id)) {
@@ -323,7 +323,7 @@ client.on('message', (message) => {
               break
             case 10:
               description +=
-                `You can now host in <#833933467142062110>, ` +
+                `You can now post in <#352149516885164044>, ` +
                 `and will receive the \`Live\` role when you stream. `
               break
             case 15:
@@ -701,7 +701,7 @@ client.on('message', (message) => {
       .addFields(
         {
           name: 'Anonymous <:anonymous:837247849145303080>',
-          value: '`!avatar`\n`!name`\n`!seed`\n`!style`',
+          value: '`!avatar`\n`!name`\n`!seed`',
           inline: true,
         },
         {
