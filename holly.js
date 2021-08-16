@@ -850,15 +850,8 @@ client.on('message', (message) => {
       const immortalsSorted = immortals.sort((a, b) => a.score - b.score)
       const immortalRanked = immortalsSorted.reverse()
 
-      let leaderboard = []
-
       let entries = immortals.length > 10 ? 10 : immortals.length
-
-      message.guild.members.fetch(immortalRanked[0].uid).then((member) => {
-        embed.setThumbnail(member.user.avatarURL())
-        embed.addField('Leaderboard', leaderboard.join('\n'), false)
-        message.channel.send(embed)
-      })
+      let leaderboard = []
 
       for (let i = 0; i < entries; i++) {
         const user = `<@${immortalRanked[i].uid}>`
@@ -866,6 +859,8 @@ client.on('message', (message) => {
 
         leaderboard.push(`${user} \`${score}\``)
       }
+      embed.addField('Leaderboard', leaderboard.join('\n'), false)
+      message.channel.send(embed)
     }
   } else if (command === 'points') {
     const matches = Immortal.find()
