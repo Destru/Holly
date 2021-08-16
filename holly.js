@@ -611,34 +611,23 @@ client.on('message', (message) => {
     const matches = Meta.find().matches('name', 'word-war').limit(1).run()
     const word = message.content.toLowerCase().trim()
 
-    let lastLetter, uid
-
     if (matches.length === 0) {
-      lastLetter = word.slice(-1)
+      const letter = matches[0].value
+      const uid = matches[0].uid
 
-      Meta.add({
-        name: 'word-war',
-        uid: message.author.id,
-        value: lastLetter,
-      })
-    } else {
-      lastLetter = matches[0].value
-      uid = matches[0].uid
-    }
-
-    if (
-      message.author.id !== uid &&
-      dictionary.check(word) &&
-      word.startsWith(lastLetter)
-    ) {
-      const newLetter = word.slice(-1)
-
-      Meta.update(matches[0]._id_, { uid: message.author.id, value: newLetter })
-      message.react('✅')
-      permaDeathScore()
-    } else {
-      message.react('❌')
-      permaDeath()
+      if (
+        message.author.id !== uid &&
+        dictionary.check(word) &&
+        word.startsWith(letter) &&
+        word.endsWith(letter)
+      ) {
+        Meta.update(matches[0]._id_, { uid: message.author.id, value: letter })
+        message.react('✅')
+        permaDeathScore()
+      } else {
+        message.react('❌')
+        permaDeath()
+      }
     }
   } else if (
     message.channel.id === '837824443799175179' ||
@@ -973,6 +962,24 @@ client.on('ready', () => {
       type: 'PLAYING',
     },
   })
+
+  setInterval(() => {
+    const alphabet = 'abcdefghijklmnopqrstuvwxyz'
+
+    const randomCharacter =
+      alphabet[Math.floor(Math.random() * alphabet.length)]
+    const matches = Meta.find().matches('name', 'word-war').limit(1).run()
+
+    if (matches.length > 0) {
+      Meta.update(matches[0]._id_, { value: randomCharacter })
+    } else {
+      Meta.add({ name: 'word-war', value: randomCharacter })
+    }
+
+    client.channels.cache
+      .get('866967592622489640')
+      .send(`The current letter is \`${randomCharacter.toUpperCase()}\``)
+  }, 6 * 60 * 60 * 1000)
 })
 
 client.login()
