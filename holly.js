@@ -816,7 +816,7 @@ client.on('message', (message) => {
         return message.channel.send(embed)
       }
     } else return message.channel.send(`No haikus found.`)
-  } else if (command === 'wordwar') {
+  } else if (command === 'letter') {
     const matches = Meta.find().matches('name', 'word-war').limit(1).run()
 
     if (matches.length > 0)
