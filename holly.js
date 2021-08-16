@@ -113,8 +113,6 @@ const status = [
 ]
 const version = process.env.npm_package_version || '(Development)'
 
-let csc
-
 db.configure({ dir: './db' })
 
 const Avatar = new db.Collection('avatars', {
@@ -711,12 +709,49 @@ client.on('message', (message) => {
         },
         {
           name: 'Permadeath :skull:',
-          value: '`!immortal`\n`!permadeath`\n`!points`',
+          value: '`!deaths`\n`!immortal`\n`!permadeath`\n`!points`',
           inline: true,
         }
       )
 
     message.channel.send(embed)
+  } else if (command === 'deaths') {
+    const deaths = Deaths.find().run()
+    let deathCount = 0
+    deaths.forEach((death) => {
+      deathCount = deathCount + parseInt(death.deaths)
+    })
+
+    const embed = new Discord.MessageEmbed()
+      .setColor(embedColor)
+      .setDescription(
+        `There have been \`${deathCount}\` recorded deaths. ` +
+          `Voters are able to \`!resurrect\` (with a time penalty). `
+      )
+      .setTitle('Deaths')
+
+    if (deaths.length > 0) {
+      const deathsSorted = deaths.sort((a, b) => a.deaths - b.deaths)
+      const deathsRanked = deathsSorted.reverse()
+
+      let leaderboard = []
+
+      let entries = deaths.length > 10 ? 10 : deaths.length
+
+      for (let i = 0; i < entries; i++) {
+        message.guild.members.fetch(deathsRanked[i].uid).then((member) => {
+          if (i === 0) embed.setThumbnail(member.user.avatarURL())
+          const user = member.user
+          const score = deathsRanked[i].deaths
+
+          leaderboard.push(`${user} \`${score}\``)
+          if (i === entries - 1) {
+            embed.addField('Body Count', leaderboard.join('\n'), false)
+            return message.channel.send(embed)
+          }
+        })
+      }
+    }
   } else if (command === 'haikus') {
     let author = message.author.id
     let matches = message.content.match(/<@!(\d+)>/)
@@ -789,10 +824,12 @@ client.on('message', (message) => {
           )
           .setTitle('Immortal')
 
-        const member = csc.members.cache.get(immortal.uid)
-        if (member) embed.setThumbnail(member.user.avatarURL())
-
-        return message.channel.send(embed)
+        const member = message.guild.members
+          .fetch(immortal.uid)
+          .then((member) => {
+            embed.setThumbnail(member.user.avatarURL())
+            message.channel.send(embed)
+          })
       }
     } else {
       return message.channel.send(
@@ -800,7 +837,6 @@ client.on('message', (message) => {
       )
     }
   } else if (command === 'permadeath') {
-    const deaths = Deaths.find().run()
     const embed = new Discord.MessageEmbed()
       .setColor(embedColorBlack)
       .setDescription(
@@ -818,25 +854,22 @@ client.on('message', (message) => {
 
       let leaderboard = []
 
-      let entries = immortals.length > 5 ? 5 : immortals.length
+      let entries = immortals.length > 10 ? 10 : immortals.length
 
       for (let i = 0; i < entries; i++) {
-        let member = csc.members.cache.get(immortalRanked[i].uid)
-
-        if (member) {
+        message.guild.members.fetch(immortalRanked[i].uid).then((member) => {
           if (i === 0) embed.setThumbnail(member.user.avatarURL())
           const user = member.user
           const score = immortalRanked[i].score
 
           leaderboard.push(`${user} \`${score}\``)
-        }
+          if (i === entries - 1) {
+            embed.addField('Leaderboard', leaderboard.join('\n'), false)
+            return message.channel.send(embed)
+          }
+        })
       }
-
-      if (leaderboard.length > 0)
-        embed.addField('Leaderboard', leaderboard.join('\n'), false)
     }
-
-    message.channel.send(embed)
   } else if (command === 'points') {
     const matches = Immortal.find()
       .matches('uid', message.author.id)
@@ -885,6 +918,7 @@ client.on('message', (message) => {
     deaths.forEach((death) => {
       countDeaths = countDeaths + parseInt(death.deaths)
     })
+
     const countHaikus = Haiku.find().run().length
     const highscore = Meta.find().matches('name', 'counting').limit(1).run()
 
@@ -910,7 +944,7 @@ client.on('message', (message) => {
       .addFields(
         { name: 'Numbers', value: statsNumbers, inline: true },
         {
-          name: 'OC',
+          name: 'Original Content',
           value: statsOriginal,
           inline: true,
         }
@@ -924,9 +958,6 @@ client.on('message', (message) => {
 
 client.on('ready', () => {
   console.log(`Holly ${version} is online.`)
-
-  csc = client.guilds.cache.get('160320676580818951')
-
   client.user.setPresence({
     status: 'online',
     activity: {
