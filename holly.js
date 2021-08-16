@@ -727,12 +727,11 @@ client.on('message', (message) => {
     })
 
     const embed = new Discord.MessageEmbed()
-      .setColor(embedColor)
+      .setColor(embedColorBlack)
       .setDescription(
         `There have been \`${deathCount}\` recorded deaths. ` +
           `Voters are able to \`!resurrect\` (with a time penalty). `
       )
-      .setTitle('Deaths')
 
     if (deaths.length > 0) {
       const deathsSorted = deaths.sort((a, b) => a.deaths - b.deaths)
@@ -744,7 +743,13 @@ client.on('message', (message) => {
 
       for (let i = 0; i < entries; i++) {
         message.guild.members.fetch(deathsRanked[i].uid).then((member) => {
-          if (i === 0) embed.setThumbnail(member.user.avatarURL())
+          if (i === 0) {
+            embed.setAuthor(
+              member.user.username,
+              member.user.avatarURL(),
+              'https://cyberpunksocial.club'
+            )
+          }
           const user = member.user
           const score = deathsRanked[i].deaths
 
@@ -757,40 +762,47 @@ client.on('message', (message) => {
       }
     }
   } else if (command === 'haikus') {
-    let author = message.author.id
+    let authorId = message.author.id
     let matches = message.content.match(/<@!(\d+)>/)
 
-    if (matches) author = matches[1]
+    if (matches) authorId = matches[1]
 
-    const haikus = Haiku.find().matches('uid', author).run()
+    const haikus = Haiku.find().matches('uid', authorId).run()
 
     if (haikus.length > 0) {
       if (haikus.length > perPage) {
+        const emoji = complimentEmoji[Math.floor(Math.random() * status.length)]
         const pages = []
-        const pageCount = Math.floor(haikus.length / perPage)
+        const pageCount = Math.ceil(haikus.length / perPage)
 
-        for (let page = 0; page < pageCount; page++) {
-          const embed = new Discord.MessageEmbed()
-            .setColor(embedColor)
-            .setDescription(`Accidental haikus by <@${author}> :bookmark:`)
-            .setTitle(`Haikus`)
+        message.guild.members.fetch(authorId).then((member) => {
+          for (let page = 0; page < pageCount; page++) {
+            const embed = new Discord.MessageEmbed()
+              .setColor(embedColor)
+              .setDescription(`Accidental haikus by ${member} ${emoji}`)
+              .setAuthor(
+                member.user.username,
+                member.user.avatarURL(),
+                'https://cyberpunksocial.club'
+              )
+            const haikuIndex = perPage * page
 
-          const haikuIndex = perPage * page
+            for (i = haikuIndex; i < haikuIndex + perPage; i++) {
+              if (i < haikus.length) {
+                const timestamp = new Date(haikus[i]._ts_).toLocaleString([], {
+                  year: 'numeric',
+                  month: 'numeric',
+                  day: 'numeric',
+                })
 
-          for (i = haikuIndex; i < haikuIndex + perPage; i++) {
-            const timestamp = new Date(haikus[i]._ts_).toLocaleString([], {
-              year: 'numeric',
-              month: 'numeric',
-              day: 'numeric',
-            })
+                embed.addField(`${timestamp}`, haikus[i].content)
+              }
+            }
 
-            embed.addField(`${timestamp}`, haikus[i].content)
+            pages.push(embed)
           }
-
-          pages.push(embed)
-        }
-
-        paginationEmbed(message, pages)
+          paginationEmbed(message, pages)
+        })
       } else {
         const embed = new Discord.MessageEmbed()
           .setColor(embedColor)
@@ -809,8 +821,11 @@ client.on('message', (message) => {
         return message.channel.send(embed)
       }
     } else return message.channel.send(`No haikus found.`)
-  } else if (command === 'immortal') {
-    const letter = Meta.find().run()
+  } else if (command === 'wordwar') {
+    const matches = Meta.find().matches('name', 'word-war').limit(1).run()
+
+    if (matches.length > 0)
+      message.channel.send(`The current letter is \`${matches[0].value}\``)
   } else if (command === 'immortal') {
     const embed = new Discord.MessageEmbed().setColor(embedColorBlack)
     const immortals = Immortal.find().run()
@@ -830,12 +845,10 @@ client.on('message', (message) => {
           )
           .setTitle('Immortal')
 
-        const member = message.guild.members
-          .fetch(immortal.uid)
-          .then((member) => {
-            embed.setThumbnail(member.user.avatarURL())
-            message.channel.send(embed)
-          })
+        message.guild.members.fetch(immortal.uid).then((member) => {
+          embed.setThumbnail(member.user.avatarURL())
+          message.channel.send(embed)
+        })
       }
     } else {
       return message.channel.send(
