@@ -535,14 +535,16 @@ client.on('message', (message) => {
       matches = Bio.find().matches('uid', message.author.id).limit(1).run()
     } else {
       // #contest
-      matches = Entry.find().matches('uid', message.author.id).limit(1).run()
+      matches = Entry.find().matches('uid', message.author.id).limit(3).run()
     }
 
-    if (matches.length > 0) {
+    if (matches.length >= 3) {
       if (message) message.delete()
       embed.setDescription(
-        `You're only allowed one (\`1\`) post in this channel.` +
-          `\n\n[Edit your current post](${matches[0].url}) :pencil2:`
+        `You're only allowed three (\`3\`) posts in this channel.` +
+          `\n\n[Edit your last post](${
+            matches[matches.length - 1].url
+          }) :pencil2:`
       )
       message.channel.send(embed).then((message) => {
         setTimeout(() => {
