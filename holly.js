@@ -411,6 +411,7 @@ client.on('message', (message) => {
   } else if (message.channel.id === '866967261092773918') {
     // #acronyms
     const acronym = /^C.+S.+C\S+$/i
+    // TODO const acronyms = 'csc acab cccp cia fbi kgb nasa'.split(' ')
     const words = message.content.toLowerCase().trim().split(' ')
 
     let fail = false
@@ -621,8 +622,8 @@ client.on('message', (message) => {
   ) {
     // #memes + #stimulus
     if (
-      message.content.startsWith('http://') ||
-      message.content.startsWith('https://') ||
+      message.content.includes('http://') ||
+      message.content.includes('https://') ||
       message.attachments.size > 0
     ) {
       if (message.channel.id === '415948136759164928')
