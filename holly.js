@@ -728,7 +728,7 @@ client.on('message', (message) => {
     })
 
     const embed = new Discord.MessageEmbed()
-      .setColor(embedColor)
+      .setColor(embedColorBlack)
       .setDescription(
         `There have been \`${deathCount}\` recorded deaths :headstone:`
       )
