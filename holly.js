@@ -528,10 +528,6 @@ client.on('message', (message) => {
     // #comrades + #contest
     const embed = new Discord.MessageEmbed()
       .setColor(embedColor)
-      .setDescription(
-        `You're only allowed one (\`1\`) post in this channel.` +
-          `\n\n[Edit your current post](${matches[0].url}) :pencil2:`
-      )
       .setTitle(`Warning`)
 
     let matches
@@ -546,6 +542,10 @@ client.on('message', (message) => {
 
     if (matches.length > 0) {
       if (message) message.delete()
+      embed.setDescription(
+        `You're only allowed one (\`1\`) post in this channel.` +
+          `\n\n[Edit your current post](${matches[0].url}) :pencil2:`
+      )
       message.channel.send(embed).then((message) => {
         setTimeout(() => {
           if (message) message.delete()
