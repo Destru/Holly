@@ -992,7 +992,6 @@ client.on('ready', () => {
     }
 
     channel.setTopic(`${alphabetEmoji[random]} :skull:`)
-    channel.send(`${alphabetEmoji[random]}`)
   })
 })
 
