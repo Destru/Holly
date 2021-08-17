@@ -169,9 +169,7 @@ client.on('message', (message) => {
       .setColor(embedColorBlack)
       .setThumbnail(message.author.avatarURL())
       .setTitle(`${message.author.username}`)
-      .setDescription(
-        `Here lies ${message.author} who died in ${message.channel} :headstone:`
-      )
+      .setDescription(`Died in ${message.channel} :headstone:`)
 
     if (!isImmortal(message.author.id)) {
       if (message) message.react('💀')
