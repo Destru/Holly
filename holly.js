@@ -633,6 +633,12 @@ client.on('message', (message) => {
       message.react('462126280704262144')
       message.react('462126761098870784')
     }
+  } else if (
+    message.channel.id === '362316618044407819' ||
+    '414177882865401866'
+  ) {
+    // #nsfw + #in-real-life
+    message.react('875259618119536701')
   } else if (message.channel.id === '866967592622489640') {
     // #word-war
     const matches = Meta.find().matches('name', 'word-war').limit(1).run()
