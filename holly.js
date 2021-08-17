@@ -11,6 +11,7 @@ const prettyMs = require('pretty-ms')
 const checkWord = require('check-word')
 const dictionary = checkWord('en')
 
+const alphabet = 'abcdefghijklmnopqrstuvwxyz'
 const alphabetEmoji =
   '🇦 🇧 🇨 🇩 🇪 🇫 🇬 🇭 🇮 🇯 🇰 🇱 🇲 🇳 🇴 🇵 🇶 🇷 🇸 🇹 🇺 🇻 🇼 🇽 🇾 🇿'.split(
     ' '
@@ -72,6 +73,7 @@ const complimentEmoji = [
 ]
 const embedColor = '#FF00FF'
 const embedColorBlack = '#2F3136'
+const timerFeedbackDelete = 5000
 const isImmortal = (id) => {
   const immortal = Immortal.find()
     .run()
@@ -502,7 +504,7 @@ client.on('message', (message) => {
         message.channel.send(updateVR).then((message) => {
           setTimeout(() => {
             if (message) message.delete()
-          }, 5 * 1000)
+          }, timerFeedbackDelete)
         })
     } else {
       if (!message.content.match(textOnly) || message.content.length > 2048) {
@@ -521,23 +523,51 @@ client.on('message', (message) => {
     message.react('462126280704262144')
     message.react('462126761098870784')
     // #band-names
-  } else if (message.channel.id === '865757944552488960') {
-    // #comrades
-    const matches = Bio.find().matches('uid', message.author.id).limit(1).run()
+  } else if (
+    message.channel.id === '865757944552488960' ||
+    message.channel.id === '875207790468153386'
+  ) {
+    // #comrades + #contest
+    const embed = new Discord.MessageEmbed()
+      .setColor(embedColor)
+      .setDescription(
+        `You're only allowed one (\`1\`) post in this channel.` +
+          `\n\n[Edit your current post](${matches[0].url}) :pencil2:`
+      )
+      .setTitle(`Warning`)
+
+    let matches
+
+    if (message.channel.id === '865757944552488960') {
+      // #comrades
+      matches = Bio.find().matches('uid', message.author.id).limit(1).run()
+    } else {
+      // #contest
+      matches = Entries.find().matches('uid', message.author.id).limit(1).run()
+    }
+
     if (matches.length > 0) {
       if (message) message.delete()
-      message.channel
-        .send(`Please edit your existing bio: ${matches[0].url}`)
-        .then((message) => {
-          setTimeout(() => {
-            if (message) message.delete()
-          }, 5 * 1000)
-        })
-    } else {
-      Bio.add({
-        uid: message.author.id,
-        url: message.url,
+      message.channel.send(embed).then((message) => {
+        setTimeout(() => {
+          if (message) message.delete()
+        }, timerFeedbackDelete)
       })
+    } else {
+      if (message.channel.id === '865757944552488960') {
+        // #comrades
+        Bio.add({
+          uid: message.author.id,
+          url: message.url,
+        })
+      } else {
+        // #contest
+        message.react('462126280704262144')
+        Entries.add({
+          uid: message.author.id,
+          url: message.url,
+        })
+      }
     }
   } else if (message.channel.id === '827487959241457694') {
     // #counting
@@ -588,28 +618,6 @@ client.on('message', (message) => {
         value: `0|${highscore}`,
       })
       permaDeath()
-    }
-  } else if (message.channel.id === '875207790468153386') {
-    // #contest
-    const matches = Entries.find()
-      .matches('uid', message.author.id)
-      .limit(1)
-      .run()
-    if (matches.length > 0) {
-      if (message) message.delete()
-      message.channel
-        .send(`Please edit your existing entry: ${matches[0].url}`)
-        .then((message) => {
-          setTimeout(() => {
-            if (message) message.delete()
-          }, 5 * 1000)
-        })
-    } else {
-      message.react('462126280704262144')
-      Entries.add({
-        uid: message.author.id,
-        url: message.url,
-      })
     }
   } else if (message.channel.id === '866967592622489640') {
     // #word-war
@@ -807,9 +815,7 @@ client.on('message', (message) => {
     const matches = Meta.find().matches('name', 'word-war').limit(1).run()
 
     if (matches.length > 0)
-      message.channel.send(
-        `The current letter is \`${matches[0].value.toUpperCase()}\``
-      )
+      message.channel.send(alphabetEmoji[alphabet.indexOf(matches[0].value)])
   } else if (command === 'immortal') {
     const embed = new Discord.MessageEmbed().setColor(embedColorBlack)
     const immortals = Immortal.find().run()
@@ -968,21 +974,24 @@ client.on('ready', () => {
     },
   })
 
-  cron.schedule('0 */2 * * *', () => {
-    const alphabet = 'abcdefghijklmnopqrstuvwxyz'
+  cron.schedule('0 */6 * * *', () => {
     const channel = client.channels.cache.get('866967592622489640')
-    const random = Math.floor(Math.random() * alphabet.length)
-    const randomCharacter = alphabet[random]
     const matches = Meta.find().matches('name', 'word-war').limit(1).run()
+    const random = Math.floor(Math.random() * alphabet.length)
+
+    let randomCharacter = alphabet[random]
 
     if (matches.length > 0) {
+      while (randomCharacter === matches[0].value) {
+        randomCharacter = alphabet[Math.floor(Math.random() * alphabet.length)]
+      }
       Meta.update(matches[0]._id_, { value: randomCharacter })
     } else {
       Meta.add({ name: 'word-war', value: randomCharacter })
     }
 
     channel.setTopic(`${alphabetEmoji[random]} :skull:`)
-    channel.send(`The current letter is ${alphabetEmoji[random]}`)
+    channel.send(`${alphabetEmoji[random]}`)
   })
 })
 
