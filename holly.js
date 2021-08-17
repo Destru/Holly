@@ -165,11 +165,11 @@ const Bio = new db.Collection('bios', {
   uid: '',
   url: '',
 })
-const Deaths = new db.Collection('deaths', {
+const Death = new db.Collection('deaths', {
   uid: '',
   deaths: '',
 })
-const Entries = new db.Collection('entries', {
+const Entry = new db.Collection('entries', {
   uid: '',
   url: '',
 })
@@ -232,14 +232,14 @@ client.on('message', (message) => {
     }
 
     if (death) {
-      const deaths = Deaths.find().matches('uid', message.author.id).run()
+      const deaths = Death.find().matches('uid', message.author.id).run()
 
       if (deaths.length > 0) {
-        Deaths.update(deaths[0]._id_, {
+        Death.update(deaths[0]._id_, {
           deaths: `${parseInt(deaths[0].deaths) + 1}`,
         })
       } else {
-        Deaths.add({
+        Death.add({
           uid: message.author.id,
           deaths: '1',
         })
@@ -534,7 +534,7 @@ client.on('message', (message) => {
       matches = Bio.find().matches('uid', message.author.id).limit(1).run()
     } else {
       // #contest
-      matches = Entries.find().matches('uid', message.author.id).limit(1).run()
+      matches = Entry.find().matches('uid', message.author.id).limit(1).run()
     }
 
     if (matches.length > 0) {
@@ -559,7 +559,7 @@ client.on('message', (message) => {
       } else {
         // #contest
         message.react('462126280704262144')
-        Entries.add({
+        Entry.add({
           uid: message.author.id,
           url: message.url,
         })
@@ -757,7 +757,7 @@ client.on('message', (message) => {
 
     message.channel.send(embed)
   } else if (command === 'deaths') {
-    const deaths = Deaths.find().run()
+    const deaths = Death.find().run()
     let deathCount = 0
     deaths.forEach((death) => {
       deathCount = deathCount + parseInt(death.deaths)
@@ -952,8 +952,8 @@ client.on('message', (message) => {
   } else if (command === 'stats') {
     const countAnon = Avatar.find().run().length
     const countBios = Bio.find().run().length
-    const countEntries = Bio.find().run().length
-    const deaths = Deaths.find().run()
+    const countEntries = Entry.find().run().length
+    const deaths = Death.find().run()
 
     let countDeaths = 0
     deaths.forEach((death) => {
