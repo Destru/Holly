@@ -796,10 +796,10 @@ client.on('message', (message) => {
     const haikus = Haiku.find().matches('uid', authorId).run()
 
     if (haikus.length > 0) {
-      const displayHaikus = ''
       const pages = []
       const pageCount = Math.ceil(haikus.length / perPage)
 
+      let displayHaikus = ''
       message.guild.members.fetch(authorId).then((member) => {
         for (let page = 0; page < pageCount; page++) {
           const embed = new Discord.MessageEmbed()
