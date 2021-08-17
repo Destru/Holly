@@ -796,42 +796,48 @@ client.on('message', (message) => {
     const haikus = Haiku.find().matches('uid', authorId).run()
 
     if (haikus.length > 0) {
-      const pages = []
-      const pageCount = Math.ceil(haikus.length / perPage)
+      if (haikus.length > perPage) {
+        const pages = []
+        const pageCount = Math.ceil(haikus.length / perPage)
 
-      message.guild.members.fetch(authorId).then((member) => {
-        for (let page = 0; page < pageCount; page++) {
-          let displayHaikus = ''
+        message.guild.members.fetch(authorId).then((member) => {
+          for (let page = 0; page < pageCount; page++) {
+            let displayHaikus = ''
 
-          const embed = new Discord.MessageEmbed()
-            .setColor(embedColor)
-            .setAuthor(
-              member.user.username,
-              member.user.avatarURL(),
-              'https://cyberpunksocial.club'
-            )
-          const haikuIndex = perPage * page
+            const embed = new Discord.MessageEmbed()
+              .setAuthor(member.user.username, member.user.avatarURL())
+              .setColor(embedColor)
+            const haikuIndex = perPage * page
 
-          for (i = haikuIndex; i < haikuIndex + perPage; i++) {
-            if (haikus[i]) {
-              const timestamp = new Date(haikus[i]._ts_).toLocaleString([], {
-                year: 'numeric',
-                month: 'numeric',
-                day: 'numeric',
-              })
-
-              displayHaikus +=
-                `${haikus[i].content}` +
-                `\n*<#${haikus[i].channel}>*\n\`${timestamp}\`\n\n`
+            for (i = haikuIndex; i < haikuIndex + perPage; i++) {
+              if (haikus[i]) {
+                displayHaikus +=
+                  `${haikus[i].content}` + `\n<#${haikus[i].channel}>\n\n`
+              }
             }
+
+            embed.setDescription(displayHaikus)
+            pages.push(embed)
           }
 
+          paginationEmbed(message, pages)
+        })
+      } else {
+        message.guild.members.fetch(authorId).then((member) => {
+          const embed = new Discord.MessageEmbed()
+            .setAuthor(member.user.username, member.user.avatarURL())
+            .setColor(embedColor)
+
+          let displayHaikus = ''
+
+          haikus.forEach((haiku) => {
+            displayHaikus += `${haiku.content}` + `\n<#${haiku.channel}>\n\n`
+          })
+
           embed.setDescription(displayHaikus)
-          pages.push(embed)
-        }
-        console.log(pages)
-        paginationEmbed(message, pages)
-      })
+          message.channel.send(embed)
+        })
+      }
     } else return message.channel.send(`No haikus found.`)
   } else if (command === 'letter') {
     const matches = Meta.find().matches('name', 'word-war').limit(1).run()
