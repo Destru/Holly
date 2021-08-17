@@ -302,7 +302,7 @@ client.on('message', (message) => {
           fetch(`https://api.waifu.pics/sfw/dance`)
             .then((response) => response.json())
             .then((data) => {
-              message.channel.send(data.url)
+              message.lineReply(data.url)
             })
         }
 
@@ -518,9 +518,9 @@ client.on('message', (message) => {
       }
     }
   } else if (message.channel.id === '867179976444870696') {
+    // #band-names
     message.react('462126280704262144')
     message.react('462126761098870784')
-    // #band-names
   } else if (
     message.channel.id === '865757944552488960' ||
     message.channel.id === '875207790468153386'
@@ -618,6 +618,19 @@ client.on('message', (message) => {
       })
       permaDeath()
     }
+  } else if (
+    message.channel.id === '415948136759164928' ||
+    message.channel.id === '419929465989234720'
+  ) {
+    // #memes + #stimulus
+    if (
+      message.content.startsWith('http://') ||
+      message.content.startsWith('https://') ||
+      message.attachments.size > 0
+    ) {
+      message.react('462126280704262144')
+      message.react('462126761098870784')
+    }
   } else if (message.channel.id === '866967592622489640') {
     // #word-war
     const matches = Meta.find().matches('name', 'word-war').limit(1).run()
@@ -671,6 +684,24 @@ client.on('message', (message) => {
 
           message.channel.send(data.url)
         })
+    }
+  } else if (
+    [
+      '462734936177115136',
+      '843417385444442152',
+      '844039499487117362',
+      '843417452787662848',
+      '843417014756179978',
+    ].includes(message.channel.id)
+  ) {
+    // #anything #composing #illustrating #filmmaking #programming #writing
+    if (
+      message.content.includes('http://') ||
+      message.content.includes('https://') ||
+      message.attachments.size > 0
+    ) {
+      message.react('462126280704262144')
+      message.react('875259618119536701')
     }
   } else if (command === 'bot-info') {
     const embed = new Discord.MessageEmbed()
