@@ -628,6 +628,8 @@ client.on('message', (message) => {
       message.content.startsWith('https://') ||
       message.attachments.size > 0
     ) {
+      if (message.channel.id === '415948136759164928')
+        message.react('830114281168699412')
       message.react('462126280704262144')
       message.react('462126761098870784')
     }
