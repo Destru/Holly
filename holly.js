@@ -11,11 +11,6 @@ const prettyMs = require('pretty-ms')
 const checkWord = require('check-word')
 const dictionary = checkWord('en')
 
-const alphabet = 'abcdefghijklmnopqrstuvwxyz'
-const alphabetEmoji =
-  '🇦 🇧 🇨 🇩 🇪 🇫 🇬 🇭 🇮 🇯 🇰 🇱 🇲 🇳 🇴 🇵 🇶 🇷 🇸 🇹 🇺 🇻 🇼 🇽 🇾 🇿'.split(
-    ' '
-  )
 const akihabara = [
   'awoo',
   'bite',
@@ -51,6 +46,32 @@ const akihabara = [
   'wink',
   'yeet',
 ]
+const alphabet = 'abcdefghijklmnopqrstuvwxyz'
+const alphabetEmoji =
+  '🇦 🇧 🇨 🇩 🇪 🇫 🇬 🇭 🇮 🇯 🇰 🇱 🇲 🇳 🇴 🇵 🇶 🇷 🇸 🇹 🇺 🇻 🇼 🇽 🇾 🇿'.split(
+    ' '
+  )
+const anonymousAvatars = {
+  kitten: {
+    url: 'https://robohash.org/',
+    append: '.png?set=set4',
+  },
+  monster: {
+    url: 'https://robohash.org/',
+    append: '.png?set=set2',
+  },
+  robot: {
+    url: 'https://robohash.org/',
+  },
+  robot2: {
+    url: 'https://robohash.org/',
+    append: '.png?set=set3',
+  },
+  ai: {
+    url: 'https://api.generated.photos/api/v1/faces',
+    v2: true,
+  },
+}
 const complimentChannels = ['836963196916858902', '841057992890646609']
 const complimentEmoji = [
   ':heart:',
@@ -71,6 +92,28 @@ const complimentEmoji = [
   ':kissing_closed_eyes:',
   ':kissing_smiling_eyes:',
 ]
+const customAvatar = (avatar, message) => {
+  const api = avatar.style
+    ? anonymousAvatars[avatar.style]
+    : anonymousAvatars.robot
+  const seed = avatar.seed ? avatar.seed : message.author.id
+  let append
+
+  if (avatar.style && 'append' in anonymousAvatars[avatar.style]) {
+    append = apis[avatar.style].append
+  } else append = ''
+
+  if (api.v2) {
+    fetch(`${api.url}?api_key=${process.env.GENERATED_KEY}`)
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data)
+      })
+  } else return api.url + seed + append
+}
+const customName = (avatar) => {
+  return avatar.name ? avatar.name : 'Anonymous'
+}
 const embedColor = '#FF00FF'
 const embedColorBlack = '#2F3136'
 const timerFeedbackDelete = 5000
@@ -162,7 +205,6 @@ client.on('message', (message) => {
   const args = message.content.slice(1).trim().split(/ +/g)
   const command = args.shift().toLowerCase()
   const { isHaiku, formattedHaiku } = findahaiku.analyzeText(message.content)
-
   const permaDeath = () => {
     const channelGraveyard = client.channels.cache.get('832394205422026813')
     const obituary = new Discord.MessageEmbed()
@@ -180,7 +222,6 @@ client.on('message', (message) => {
       permaDeathScore(false, Math.floor(Math.random() * 42) + 1)
     }
   }
-
   const permaDeathScore = (death = false, penalty = 0) => {
     const matches = Immortal.find()
       .matches('uid', message.author.id)
@@ -406,42 +447,8 @@ client.on('message', (message) => {
       permaDeath()
     } else permaDeathScore()
   } else if (message.channel.id === '848997740767346699') {
-    // #anonymous
+    // #anonymous 848997740767346699
     message.delete()
-
-    const apis = {
-      kitten: {
-        url: 'https://robohash.org/',
-        append: '.png?set=set4',
-      },
-      monster: {
-        url: 'https://robohash.org/',
-        append: '.png?set=set2',
-      },
-      robot: {
-        url: 'https://robohash.org/',
-      },
-      robot2: {
-        url: 'https://robohash.org/',
-        append: '.png?set=set3',
-      },
-    }
-
-    const customAvatar = (avatar, message) => {
-      const api = avatar.style ? apis[avatar.style] : apis.robot
-      const seed = avatar.seed ? avatar.seed : message.author.id
-      let append
-
-      if (avatar.style && 'append' in apis[avatar.style]) {
-        append = apis[avatar.style].append
-      } else append = ''
-
-      return api.url + seed + append
-    }
-
-    const customName = (avatar) => {
-      return avatar.name ? avatar.name : 'Anonymous'
-    }
 
     const emojiVR = `<:anonymous:837247849145303080>`
     const embedColorVR = embedColorBlack
@@ -479,11 +486,11 @@ client.on('message', (message) => {
         })
         updateVR = `Seed randomized ${emojiVR}`
       } else if (command === 'style') {
-        const styles = `\`${Object.keys(apis).join('`, `')}\``
+        const styles = `\`${Object.keys(anonymousAvatars).join('`, `')}\``
         let style = message.content.replace('!style', '').trim()
 
         if (message.member.roles.cache.has('827915811724460062')) {
-          if (style in apis) {
+          if (style in anonymousAvatars) {
             Avatar.update(avatar._id_, {
               style: style,
             })
@@ -635,7 +642,7 @@ client.on('message', (message) => {
     }
   } else if (
     message.channel.id === '362316618044407819' ||
-    '414177882865401866'
+    message.channel.id === '414177882865401866'
   ) {
     // #nsfw + #in-real-life
     message.react('875259618119536701')
