@@ -821,7 +821,7 @@ client.on('message', (message) => {
 
               displayHaikus +=
                 `${haikus[i].content}` +
-                `\n${timestamp}\n<#${haikus[i].channel}>`
+                `\n*<#${haikus[i].channel}>*\n\`${timestamp}\`\n\n`
             }
           }
 
