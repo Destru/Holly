@@ -971,7 +971,7 @@ client.on('message', (message) => {
       `\nContest Entries \`${countEntries}\``
 
     const embed = new Discord.MessageEmbed()
-      .setColor(embedColorBlack)
+      .setColor(embedColor)
       .setDescription(
         `Some more or *less* useful information. ` +
           `It's less, it's definitely less.`
