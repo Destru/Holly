@@ -67,10 +67,6 @@ const anonymousAvatars = {
     url: 'https://robohash.org/',
     append: '.png?set=set3',
   },
-  ai: {
-    url: 'https://api.generated.photos/api/v1/faces',
-    v2: true,
-  },
 }
 const complimentChannels = ['836963196916858902', '841057992890646609']
 const complimentEmoji = [
@@ -103,13 +99,7 @@ const customAvatar = (avatar, message) => {
     append = apis[avatar.style].append
   } else append = ''
 
-  if (api.v2) {
-    fetch(`${api.url}?api_key=${process.env.GENERATED_KEY}`)
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(data)
-      })
-  } else return api.url + seed + append
+  return api.url + seed + append
 }
 const customName = (avatar) => {
   return avatar.name ? avatar.name : 'Anonymous'
@@ -447,7 +437,7 @@ client.on('message', (message) => {
       permaDeath()
     } else permaDeathScore()
   } else if (message.channel.id === '848997740767346699') {
-    // #anonymous 848997740767346699
+    // #anonymous
     message.delete()
 
     const emojiVR = `<:anonymous:837247849145303080>`
