@@ -333,7 +333,7 @@ client.on('message', (message) => {
           fetch(`https://api.waifu.pics/sfw/dance`)
             .then((response) => response.json())
             .then((data) => {
-              message.lineReply(data.url)
+              message.channel.send(data.url)
             })
         }
 
@@ -917,6 +917,8 @@ client.on('message', (message) => {
       message.channel.send(
         `You have not taken any succesful action in a permadeath channel.`
       )
+  } else if (command === 'profile') {
+    message.channel.send('Under construction :construction:')
   } else if (command === 'resurrect' || command === 'ressurect') {
     if (!message.member.roles.cache.has(roleGhost))
       return message.channel.send(`You're not dead.`)
