@@ -799,9 +799,10 @@ client.on('message', (message) => {
       const pages = []
       const pageCount = Math.ceil(haikus.length / perPage)
 
-      let displayHaikus = ''
       message.guild.members.fetch(authorId).then((member) => {
         for (let page = 0; page < pageCount; page++) {
+          let displayHaikus = ''
+
           const embed = new Discord.MessageEmbed()
             .setColor(embedColor)
             .setAuthor(
@@ -812,7 +813,7 @@ client.on('message', (message) => {
           const haikuIndex = perPage * page
 
           for (i = haikuIndex; i < haikuIndex + perPage; i++) {
-            if (i < haikus.length) {
+            if (haikus[i]) {
               const timestamp = new Date(haikus[i]._ts_).toLocaleString([], {
                 year: 'numeric',
                 month: 'numeric',
@@ -828,6 +829,7 @@ client.on('message', (message) => {
           embed.setDescription(displayHaikus)
           pages.push(embed)
         }
+        console.log(pages)
         paginationEmbed(message, pages)
       })
     } else return message.channel.send(`No haikus found.`)
