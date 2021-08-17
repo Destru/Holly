@@ -556,6 +556,7 @@ client.on('message', (message) => {
     } else {
       if (message.channel.id === '865757944552488960') {
         // #comrades
+        message.react('837251418247004205')
         Bio.add({
           uid: message.author.id,
           url: message.url,
