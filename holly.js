@@ -728,7 +728,7 @@ client.on('message', (message) => {
     })
 
     const embed = new Discord.MessageEmbed()
-      .setColor(embedColorBlack)
+      .setColor(embedColor)
       .setDescription(
         `There have been \`${deathCount}\` recorded deaths :headstone:`
       )
@@ -816,7 +816,7 @@ client.on('message', (message) => {
     if (matches.length > 0)
       message.channel.send(alphabetEmoji[alphabet.indexOf(matches[0].value)])
   } else if (command === 'immortal') {
-    const embed = new Discord.MessageEmbed().setColor(embedColorBlack)
+    const embed = new Discord.MessageEmbed().setColor(embedColor)
     const immortals = Immortal.find().run()
 
     if (immortals.length > 0) {
@@ -846,7 +846,7 @@ client.on('message', (message) => {
     }
   } else if (command === 'permadeath') {
     const embed = new Discord.MessageEmbed()
-      .setColor(embedColorBlack)
+      .setColor(embedColor)
       .setDescription(
         `Contributing in :skull: channels awards points. ` +
           `Points reset on death. ` +
