@@ -139,7 +139,6 @@ const randomEmoji = () => {
     '<:cscalt:837251418247004205>',
     '<:cscbob:846528128524091422>',
     '<:csc:403256716583632906>',
-    '<:cscglitch>',
   ]
   return emoji[Math.floor(Math.random() * emoji.length)]
 }
