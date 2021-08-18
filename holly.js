@@ -933,7 +933,7 @@ client.on('message', (message) => {
       const anonymous =
         Avatar.find().matches('uid', id).limit(1).run()[0] || false
       const bio = Bio.find().matches('uid', id).limit(1).run()[0] || false
-      const entries = Entry.find().matches('uid', id).run().count
+      const entries = Entry.find().matches('uid', id).run().count || 0
       const patreon = member.roles.cache.has('824015992417419283')
       const twitch = member.roles.cache.has('444074281694003210')
       const joinedAt = member.joinedAt.getTime()
