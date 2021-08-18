@@ -205,6 +205,7 @@ client.on('message', (message) => {
   const args = message.content.slice(1).trim().split(/ +/g)
   const command = args.shift().toLowerCase()
   const { isHaiku, formattedHaiku } = findahaiku.analyzeText(message.content)
+
   const permaDeath = () => {
     const channelGraveyard = client.channels.cache.get('832394205422026813')
     const obituary = new Discord.MessageEmbed()
@@ -970,7 +971,7 @@ client.on('message', (message) => {
         .setColor(member.displayHexColor || embedColor)
         .setDescription(description)
         .setThumbnail(member.user.avatarURL())
-        .setTitle(member.user.username)
+        .setTitle(member.user.name)
 
       message.channel.send(embed)
     })
