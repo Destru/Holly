@@ -933,15 +933,15 @@ client.on('message', (message) => {
       const anonymous =
         Avatar.find().matches('uid', id).limit(1).run()[0] || false
       const bio = Bio.find().matches('uid', id).limit(1).run()[0] || false
-      const deaths = Death.find().matches('uid', id).limit(1).run()[0] || 0
       const entries = Entry.find().matches('uid', id).run().count || 0
       const patreon = member.roles.cache.has('824015992417419283')
       const twitch = member.roles.cache.has('444074281694003210')
-      const points = Immortal.find().matches('uid', id).limit(1).run()[0] || 0
       const joinedAt = member.joinedAt.getTime()
 
       let badges = []
+      let deaths = Death.find().matches('uid', id).limit(1).run()[0] || 0
       let description = `Member for \`${prettyMs(Date.now() - joinedAt)}\``
+      let points = Immortal.find().matches('uid', id).limit(1).run()[0] || 0
 
       if (admin) badges.push('<:cscalt:837251418247004205>')
       if (anonymous) badges.push('<:anonymous:837247849145303080>')
