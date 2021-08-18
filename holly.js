@@ -334,20 +334,15 @@ client.on('message', (message) => {
         const promotionChannel =
           message.client.channels.cache.get('160320676580818951')
 
-        let level, user
-
         if (matches) {
-          level = parseInt(matches[2])
-          user = message.guild.members.cache.get(matches[1])
-
           fetch(`https://api.waifu.pics/sfw/dance`)
             .then((response) => response.json())
             .then((data) => {
               message.channel.send(data.url)
             })
-        }
 
-        if (matches && ranks[level]) {
+          const id = matches[1]
+          const level = parseInt(matches[2])
           const embed = new Discord.MessageEmbed()
 
           let adjective = `a contributing`
@@ -358,9 +353,7 @@ client.on('message', (message) => {
           else if (level >= 20) adjective = `an important`
 
           let description =
-            `${user} has been promoted to **${
-              ranks[level]
-            }** ${randomEmoji()}` +
+            `Has been promoted to **${ranks[level]}** ${randomEmoji()}` +
             `\n\nThank you for being ${adjective} member of this community. `
 
           switch (level) {
@@ -393,15 +386,15 @@ client.on('message', (message) => {
               description += `Enjoy your new color, comrade.`
           }
 
-          embed
-            .setDescription(description)
-            .setTitle('Promotion')
-            .setThumbnail(message.mentions.users.first().avatarURL())
+          embed.setDescription(description).setTitle('Promotion')
 
-          setTimeout(() => {
-            embed.setColor(user.displayHexColor)
+          message.guild.members.fetch(id).then((member) => {
+            embed
+              .setAuthor(member.user.username, member.user.avatarURL())
+              .setColor(member.displayHexColor)
+              .setThumbnail(member.user.avatarURL())
             promotionChannel.send(embed)
-          }, 20 * 1000)
+          })
         }
       }
     } else if (message.channel.id === '833098945668186182') {
@@ -778,7 +771,7 @@ client.on('message', (message) => {
     })
 
     const embed = new Discord.MessageEmbed()
-      .setColor(embedColorBlack)
+      .setColor(embedColor)
       .setDescription(
         `There have been \`${deathCount}\` recorded deaths :headstone:`
       )
@@ -854,7 +847,7 @@ client.on('message', (message) => {
     if (matches.length > 0)
       message.channel.send(alphabetEmoji[alphabet.indexOf(matches[0].value)])
   } else if (command === 'immortal') {
-    const embed = new Discord.MessageEmbed().setColor(embedColor)
+    const embed = new Discord.MessageEmbed()
     const immortals = Immortal.find().run()
 
     if (immortals.length > 0) {
@@ -873,6 +866,7 @@ client.on('message', (message) => {
           .setTitle('Immortal')
 
         message.guild.members.fetch(immortal.uid).then((member) => {
+          embed.setColor(member.displayHexColor)
           embed.setThumbnail(member.user.avatarURL())
           message.channel.send(embed)
         })
@@ -934,40 +928,39 @@ client.on('message', (message) => {
         member.roles.cache.has('832089472337182770')
       const avatar = Avatar.find().matches('uid', id).limit(1).run()[0] || false
       const bio = Bio.find().matches('uid', id).limit(1).run()[0] || false
-      const entries = Entry.find().matches('uid', id).run().count || 0
+      const deaths = Death.find().matches('uid', id).limit(1).run()
+      const entries = Entry.find().matches('uid', id).run()
       const haikus = Haiku.find().matches('uid', id).run()
+      const immortal = Immortal.find().matches('uid', id).limit(1).run()
       const patreon = member.roles.cache.has('824015992417419283')
       const twitch = member.roles.cache.has('444074281694003210')
       const joinedAt = member.joinedAt.getTime()
-
-      let description = ''
+      const memberFor = Date.now() - joinedAt
 
       let badges = []
+      let description = `Member for \`${prettyMs(memberFor)}\` ${randomEmoji()}`
       let stats = []
-      let deaths = Death.find().matches('uid', id).limit(1).run()
-      let points = Immortal.find().matches('uid', id).limit(1).run()
 
       if (admin) badges.push('<:cscalt:837251418247004205>')
       if (avatar) badges.push('<:anonymous:837247849145303080>')
+
       if (patreon) badges.push('<:patreon:837291787797135360>')
       if (twitch) badges.push('<:twitch:847500070373818379>')
 
-      description += `Member for \`${prettyMs(
-        Date.now() - joinedAt
-      )}\` ${randomEmoji()}`
+      if (deaths.length > 0) stats.push(`Deaths \`${deaths[0].deaths}\``)
+      if (immortal.length > 0) {
+        stats.push(`Points \`${immortal[0].score}\``)
+        if (isImmortal(immortal[0].uid))
+          badges.push('<:baphomet:866887258892140574>')
+      }
+
       if (bio) description += `\n[Mini Biography](${bio.url})`
-
-      if (deaths > 0) stats.push(`Deaths \`${deaths[0].deaths}\``)
-      if (entries > 0) stats.push(`Entries \`${entries.count}\``)
-      if (points > 0) stats.push(`Points \`${points[0].score}\``)
-
       if (haikus.length > 0) {
         const haiku = haikus[Math.floor(Math.random() * haikus.length)]
         embed.addField('Haiku', `*${haiku.content}*`, false)
       }
-
       if (badges.length > 0) embed.addField('Badges', badges.join(' '), true)
-      if (stats.length > 0) embed.addField('Stats', stats.join(' '), true)
+      if (stats.length > 0) embed.addField('Permadeath', stats.join(' '), true)
 
       embed
         .setColor(member.displayHexColor || embedColor)
