@@ -341,60 +341,62 @@ client.on('message', (message) => {
               message.channel.send(data.url)
             })
 
-          const id = matches[1]
-          const level = parseInt(matches[2])
-          const embed = new Discord.MessageEmbed()
+          if (ranks[level]) {
+            const id = matches[1]
+            const level = parseInt(matches[2])
+            const embed = new Discord.MessageEmbed()
 
-          let adjective = `a contributing`
+            let adjective = `a contributing`
 
-          if (level >= 50) adjective = `a *godlike*`
-          else if (level >= 40) adjective = `an inspiring`
-          else if (level >= 30) adjective = `a prolific`
-          else if (level >= 20) adjective = `an important`
+            if (level >= 50) adjective = `a *godlike*`
+            else if (level >= 40) adjective = `an inspiring`
+            else if (level >= 30) adjective = `a prolific`
+            else if (level >= 20) adjective = `an important`
 
-          let description =
-            `Has been promoted to **${ranks[level]}** ${randomEmoji()}` +
-            `\n\nThank you for being ${adjective} member of this community. `
+            let description =
+              `Has been promoted to **${ranks[level]}** ${randomEmoji()}` +
+              `\n\nThank you for being ${adjective} member of this community. `
 
-          switch (level) {
-            case 5:
-              description +=
-                `You're now considered a comrade, ` +
-                `and have been granted access to \`Limited\` channels. `
-              break
-            case 10:
-              description +=
-                `You can now post in <#352149516885164044>, ` +
-                `and will receive the \`Live\` role when you stream. `
-              break
-            case 15:
-              description +=
-                `You've unlocked an even <#830131461000658994> ` +
-                `with anonynomous confessions. `
-              break
-            case 50:
-              description +=
-                `You have joined the *Hacker's Club*; ` +
-                `backdoor access has been granted. `
-              break
-            case 60:
-              description +=
-                `You have unlocked the *Master Control Program*, ` +
-                `and may change your color at will. `
-              break
-            default:
-              description += `Enjoy your new color, comrade.`
+            switch (level) {
+              case 5:
+                description +=
+                  `You're now considered a comrade, ` +
+                  `and have been granted access to \`Limited\` channels. `
+                break
+              case 10:
+                description +=
+                  `You can now post in <#352149516885164044>, ` +
+                  `and will receive the \`Live\` role when you stream. `
+                break
+              case 15:
+                description +=
+                  `You've unlocked an even <#830131461000658994> ` +
+                  `with anonynomous confessions. `
+                break
+              case 50:
+                description +=
+                  `You have joined the *Hacker's Club*; ` +
+                  `backdoor access has been granted. `
+                break
+              case 60:
+                description +=
+                  `You have unlocked the *Master Control Program*, ` +
+                  `and may change your color at will. `
+                break
+              default:
+                description += `Enjoy your new color, comrade.`
+            }
+
+            embed.setDescription(description).setTitle('Promotion')
+
+            message.guild.members.fetch(id).then((member) => {
+              embed
+                .setAuthor(member.user.username, member.user.avatarURL())
+                .setColor(member.displayHexColor)
+                .setThumbnail(member.user.avatarURL())
+              promotionChannel.send(embed)
+            })
           }
-
-          embed.setDescription(description).setTitle('Promotion')
-
-          message.guild.members.fetch(id).then((member) => {
-            embed
-              .setAuthor(member.user.username, member.user.avatarURL())
-              .setColor(member.displayHexColor)
-              .setThumbnail(member.user.avatarURL())
-            promotionChannel.send(embed)
-          })
         }
       }
     } else if (message.channel.id === '833098945668186182') {
