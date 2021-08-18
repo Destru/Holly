@@ -139,6 +139,7 @@ const randomEmoji = () => {
     '<:cscalt:837251418247004205>',
     '<:cscbob:846528128524091422>',
     '<:csc:403256716583632906>',
+    '<:cscglitch>',
   ]
   return emoji[Math.floor(Math.random() * emoji.length)]
 }
@@ -959,7 +960,7 @@ client.on('message', (message) => {
       if (bio) description += `\n[Mini Biography](${bio.url})`
 
       if (deaths > 0) stats.push(`Deaths \`${deaths}\``)
-      if (entries >= 0) stats.push(`Entries \`${entries}\``)
+      if (entries > 0) stats.push(`Entries \`${entries}\``)
       if (points > 0) stats.push(`Points \`${points}\``)
 
       if (haikus.length > 0) {
@@ -968,7 +969,7 @@ client.on('message', (message) => {
       }
 
       if (badges.length > 0) embed.addField('Badges', badges.join(' '), true)
-      if (stats.length >= 0) embed.addField('Stats', stats.join(' '), true)
+      if (stats.length > 0) embed.addField('Stats', stats.join(' '), true)
 
       if (deaths) deaths = deaths.deaths
       if (points) points = points.score
