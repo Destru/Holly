@@ -854,23 +854,22 @@ client.on('message', (message) => {
     const immortals = Immortal.find().run()
 
     if (immortals.length > 0) {
-      const emoji = '<:baphomet:866887258892140574>'
       const immortalsSorted = immortals.sort((a, b) => a.score - b.score)
       const immortal = immortalsSorted.pop()
 
       if (immortal && immortal.uid && immortal.score) {
-        embed
-          .setDescription(
-            `<@${immortal.uid}> ${emoji} with \`${immortal.score}\` points.` +
-              `\n\nBow before our ruler; an immortal being. ` +
-              `Bathe in their light and unfathomable beauty, ` +
-              `and *accept* their judgement.`
-          )
-          .setTitle('Immortal')
+        embed.setDescription(
+          `\`${immortal.score}\` points <:baphomet:866887258892140574>` +
+            `\n\nBow before our ruler; an immortal being. ` +
+            `Bathe in their light and unfathomable beauty, ` +
+            `and *accept* their judgement.`
+        )
 
         message.guild.members.fetch(immortal.uid).then((member) => {
-          embed.setColor(member.displayHexColor)
-          embed.setThumbnail(member.user.avatarURL())
+          embed
+            .setColor(member.displayHexColor)
+            .setThumbnail(member.user.avatarURL())
+            .setTitle(member.displayName)
           message.channel.send(embed)
         })
       }
@@ -971,7 +970,7 @@ client.on('message', (message) => {
         .setColor(member.displayHexColor || embedColor)
         .setDescription(description)
         .setThumbnail(member.user.avatarURL())
-        .setTitle(member.user.name)
+        .setTitle(member.displayName)
 
       message.channel.send(embed)
     })
