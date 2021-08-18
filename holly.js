@@ -938,7 +938,7 @@ client.on('message', (message) => {
       const memberFor = Date.now() - joinedAt
 
       let badges = []
-      let description = `Member for \`${prettyMs(memberFor)}\` ${randomEmoji()}`
+      let description = `Member for \`${prettyMs(memberFor)}\` `
       let permadeath = []
 
       if (admin) badges.push('<:cscalt:837251418247004205>')
