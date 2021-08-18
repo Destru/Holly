@@ -932,8 +932,7 @@ client.on('message', (message) => {
       const admin =
         member.roles.cache.has('412545631228395540') ||
         member.roles.cache.has('832089472337182770')
-      const anonymous =
-        Avatar.find().matches('uid', id).limit(1).run()[0] || false
+      const avatar = Avatar.find().matches('uid', id).limit(1).run()[0] || false
       const bio = Bio.find().matches('uid', id).limit(1).run()[0] || false
       const entries = Entry.find().matches('uid', id).run().count || 0
       const haikus = Haiku.find().matches('uid', id).run()
@@ -944,12 +943,12 @@ client.on('message', (message) => {
       let description = ''
 
       let badges = []
-      let deaths = Death.find().matches('uid', id).limit(1).run()[0] || 0
-      let points = Immortal.find().matches('uid', id).limit(1).run()[0] || 0
       let stats = []
+      let deaths = Death.find().matches('uid', id).limit(1).run()
+      let points = Immortal.find().matches('uid', id).limit(1).run()
 
       if (admin) badges.push('<:cscalt:837251418247004205>')
-      if (anonymous) badges.push('<:anonymous:837247849145303080>')
+      if (avatar) badges.push('<:anonymous:837247849145303080>')
       if (patreon) badges.push('<:patreon:837291787797135360>')
       if (twitch) badges.push('<:twitch:847500070373818379>')
 
@@ -958,9 +957,9 @@ client.on('message', (message) => {
       )}\` ${randomEmoji()}`
       if (bio) description += `\n[Mini Biography](${bio.url})`
 
-      if (deaths > 0) stats.push(`Deaths \`${deaths}\``)
-      if (entries > 0) stats.push(`Entries \`${entries}\``)
-      if (points > 0) stats.push(`Points \`${points}\``)
+      if (deaths > 0) stats.push(`Deaths \`${deaths[0].deaths}\``)
+      if (entries > 0) stats.push(`Entries \`${entries.count}\``)
+      if (points > 0) stats.push(`Points \`${points[0].score}\``)
 
       if (haikus.length > 0) {
         const haiku = haikus[Math.floor(Math.random() * haikus.length)]
@@ -969,9 +968,6 @@ client.on('message', (message) => {
 
       if (badges.length > 0) embed.addField('Badges', badges.join(' '), true)
       if (stats.length > 0) embed.addField('Stats', stats.join(' '), true)
-
-      if (deaths) deaths = deaths.deaths
-      if (points) points = points.score
 
       embed
         .setColor(member.displayHexColor || embedColor)
