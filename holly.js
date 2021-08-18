@@ -939,7 +939,7 @@ client.on('message', (message) => {
 
       let badges = []
       let description = `Member for \`${prettyMs(memberFor)}\` ${randomEmoji()}`
-      let stats = []
+      let permadeath = []
 
       if (admin) badges.push('<:cscalt:837251418247004205>')
       if (avatar) badges.push('<:anonymous:837247849145303080>')
@@ -947,11 +947,12 @@ client.on('message', (message) => {
       if (patreon) badges.push('<:patreon:837291787797135360>')
       if (twitch) badges.push('<:twitch:847500070373818379>')
 
-      if (deaths.length > 0) stats.push(`Deaths \`${deaths[0].deaths}\``)
+      if (deaths.length > 0) permadeath.push(`Deaths \`${deaths[0].deaths}\``)
       if (immortal.length > 0) {
-        stats.push(`Points \`${immortal[0].score}\``)
+        let points = `Points \`${immortal[0].score}\``
         if (isImmortal(immortal[0].uid))
-          badges.push('<:baphomet:866887258892140574>')
+          points += ' <:baphomet:866887258892140574>'
+        permadeath.push(points)
       }
 
       if (bio) description += `\n[Mini Biography](${bio.url})`
@@ -960,7 +961,8 @@ client.on('message', (message) => {
         embed.addField('Haiku', `*${haiku.content}*`, false)
       }
       if (badges.length > 0) embed.addField('Badges', badges.join(' '), true)
-      if (stats.length > 0) embed.addField('Permadeath', stats.join(' '), true)
+      if (permadeath.length > 0)
+        embed.addField('Permadeath', permadeath.join(' '), true)
 
       embed
         .setColor(member.displayHexColor || embedColor)
