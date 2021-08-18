@@ -933,13 +933,11 @@ client.on('message', (message) => {
       const anonymous =
         Avatar.find().matches('uid', id).limit(1).run()[0] || false
       const bio = Bio.find().matches('uid', id).limit(1).run()[0] || false
-      const deaths =
-        Death.find().matches('uid', id).limit(1).run()[0].deaths || 0
+      const deaths = Death.find().matches('uid', id).limit(1).run()[0] || 0
       const entries = Entry.find().matches('uid', id).run().count || 0
       const patreon = member.roles.cache.has('824015992417419283')
       const twitch = member.roles.cache.has('444074281694003210')
-      const points =
-        Immortal.find().matches('uid', id).limit(1).run()[0].score || 0
+      const points = Immortal.find().matches('uid', id).limit(1).run()[0] || 0
       const joinedAt = member.joinedAt.getTime()
 
       let badges = []
@@ -953,6 +951,8 @@ client.on('message', (message) => {
       if (badges.length > 0) embed.addField('Badges', badges.join(' '), true)
 
       if (bio) description += `\n[Biography](${bio.url})`
+      if (deaths) deaths = deaths.deaths
+      if (points) points = points.score
 
       embed
         .setAuthor(
