@@ -939,9 +939,9 @@ client.on('message', (message) => {
       const joinedAt = member.joinedAt.getTime()
 
       let badges = []
-      let deaths = Death.find().matches('uid', id).limit(1).run()[0] || 0
+      let deaths = Death.find().matches('uid', id).limit(1).run()[0] || false
       let description = `Member for \`${prettyMs(Date.now() - joinedAt)}\``
-      let points = Immortal.find().matches('uid', id).limit(1).run()[0] || 0
+      let points = Immortal.find().matches('uid', id).limit(1).run()[0] || false
 
       if (admin) badges.push('<:cscalt:837251418247004205>')
       if (anonymous) badges.push('<:anonymous:837247849145303080>')
@@ -955,11 +955,6 @@ client.on('message', (message) => {
       if (points) points = points.score
 
       embed
-        .setAuthor(
-          'Cyberpunk Social Club',
-          message.guild.iconURL(),
-          'https://cyberpunksocial.club'
-        )
         .setColor(member.displayHexColor || embedColor)
         .setDescription(description)
         .setThumbnail(member.user.avatarURL())
