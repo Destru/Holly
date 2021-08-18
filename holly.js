@@ -936,24 +936,40 @@ client.on('message', (message) => {
         Avatar.find().matches('uid', id).limit(1).run()[0] || false
       const bio = Bio.find().matches('uid', id).limit(1).run()[0] || false
       const entries = Entry.find().matches('uid', id).run().count || 0
+      const haikus = Haiku.find().matches('uid', id).run()
       const patreon = member.roles.cache.has('824015992417419283')
       const twitch = member.roles.cache.has('444074281694003210')
       const joinedAt = member.joinedAt.getTime()
 
-      let description = `Member for \`${prettyMs(Date.now() - joinedAt)}\``
+      let description = ''
 
       let badges = []
       let deaths = Death.find().matches('uid', id).limit(1).run()[0] || 0
       let points = Immortal.find().matches('uid', id).limit(1).run()[0] || 0
+      let stats = []
 
       if (admin) badges.push('<:cscalt:837251418247004205>')
       if (anonymous) badges.push('<:anonymous:837247849145303080>')
       if (patreon) badges.push('<:patreon:837291787797135360>')
       if (twitch) badges.push('<:twitch:847500070373818379>')
 
-      if (badges.length > 0) embed.addField('Badges', badges.join(' '), true)
+      description += `Member for \`${prettyMs(
+        Date.now() - joinedAt
+      )}\` ${randomEmoji()}`
+      if (bio) description += `\n[Mini Biography](${bio.url})`
 
-      if (bio) description += `\n[Biography](${bio.url})`
+      if (deaths > 0) stats.push(`Deaths \`${deaths}\``)
+      if (entries >= 0) stats.push(`Entries \`${entries}\``)
+      if (points > 0) stats.push(`Points \`${points}\``)
+
+      if (haikus.length > 0) {
+        const haiku = haikus[Math.floor(Math.random() * haikus.length)]
+        embed.addField('Haiku', `*${haiku.content}*`, false)
+      }
+
+      if (badges.length > 0) embed.addField('Badges', badges.join(' '), true)
+      if (stats.length >= 0) embed.addField('Stats', stats.join(' '), true)
+
       if (deaths) deaths = deaths.deaths
       if (points) points = points.score
 
@@ -962,11 +978,6 @@ client.on('message', (message) => {
         .setDescription(description)
         .setThumbnail(member.user.avatarURL())
         .setTitle(member.user.username)
-        .addField(
-          'Statistics',
-          `Deaths \`${deaths}\`\nEntries \`${entries}\`\n Points \`${points}\``,
-          true
-        )
 
       message.channel.send(embed)
     })
