@@ -700,7 +700,10 @@ client.on('message', (message) => {
           if (command === 'bonk')
             message.channel.send(`*bonks ${message.author}*`)
 
-          message.channel.send(data.url)
+          message.channel.send(data.url).then((message) => {
+            message.react('462126280704262144')
+            message.react('462126761098870784')
+          })
         })
     }
   } else if (
