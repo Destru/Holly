@@ -68,6 +68,16 @@ const anonymousAvatars = {
     append: '.png?set=set3',
   },
 }
+const authorId = (message) => {
+  const matches = message.content.match(/<@!(\d+)>/)
+  let id = message.author.id
+  if (matches) id = matches[1]
+  return id
+}
+const capitalize = (string) => {
+  if (typeof string !== 'string') return string
+  return string.charAt(0).toUpperCase() + string.slice(1)
+}
 const complimentChannels = ['836963196916858902', '841057992890646609']
 const complimentEmoji = [
   ':heart:',
@@ -649,8 +659,8 @@ client.on('message', (message) => {
       const uid = matches[0].uid
 
       if (
-        message.author.id !== uid &&
         dictionary.check(word) &&
+        message.author.id !== uid &&
         word.startsWith(letter) &&
         word.endsWith(letter)
       ) {
@@ -695,20 +705,19 @@ client.on('message', (message) => {
     }
   } else if (
     [
-      '462734936177115136',
-      '843417385444442152',
-      '844039499487117362',
-      '843417452787662848',
-      '843417014756179978',
+      '462734936177115136', // #anything
+      '843417385444442152', // #composing
+      '877484284519264296', // #gallery
+      '843417452787662848', // #illustrating
+      '843417014756179978', // #writing
     ].includes(message.channel.id)
   ) {
-    // #anything #composing #illustrating #filmmaking #programming #writing
     if (
       message.content.includes('http://') ||
       message.content.includes('https://') ||
       message.attachments.size > 0
     ) {
-      message.react('462126280704262144')
+      message.react('837251418247004205')
       message.react('875259618119536701')
     }
   } else if (command === 'bot-info') {
@@ -743,12 +752,12 @@ client.on('message', (message) => {
       .addFields(
         {
           name: 'Anonymous <:anonymous:837247849145303080>',
-          value: '`!avatar`\n`!name`\n`!seed`\n`!reset`',
+          value: '`!avatar`\n`!name`\n`!seed`\n`!style`',
           inline: true,
         },
         {
           name: 'Community <:cscbob:846528128524091422>',
-          value: '`!haikus`\n`!resurrect`\n`!stats`',
+          value: '`!haikus`\n`!profile`\n`!resurrect`\n`!stats`',
           inline: true,
         },
         {
@@ -790,19 +799,15 @@ client.on('message', (message) => {
       message.channel.send(embed)
     }
   } else if (command === 'haikus') {
-    let authorId = message.author.id
-    let matches = message.content.match(/<@!(\d+)>/)
-
-    if (matches) authorId = matches[1]
-
-    const haikus = Haiku.find().matches('uid', authorId).run()
+    const id = authorId(message)
+    const haikus = Haiku.find().matches('uid', id).run()
 
     if (haikus.length > 0) {
       if (haikus.length > perPage) {
         const pages = []
         const pageCount = Math.ceil(haikus.length / perPage)
 
-        message.guild.members.fetch(authorId).then((member) => {
+        message.guild.members.fetch(id).then((member) => {
           for (let page = 0; page < pageCount; page++) {
             let displayHaikus = ''
 
@@ -918,7 +923,55 @@ client.on('message', (message) => {
         `You have not taken any succesful action in a permadeath channel.`
       )
   } else if (command === 'profile') {
-    message.channel.send('Under construction :construction:')
+    const embed = new Discord.MessageEmbed()
+    const id = authorId(message)
+
+    message.guild.members.fetch(id).then((member) => {
+      const admin =
+        member.roles.cache.has('412545631228395540') ||
+        member.roles.cache.has('832089472337182770')
+      const anonymous =
+        Avatar.find().matches('uid', id).limit(1).run()[0] || false
+      const bio = Bio.find().matches('uid', id).limit(1).run()[0] || false
+      const deaths =
+        Death.find().matches('uid', id).limit(1).run()[0].deaths || 0
+      const entries = Entry.find().matches('uid', id).run().count || 0
+      const patreon = member.roles.cache.has('824015992417419283')
+      const twitch = member.roles.cache.has('444074281694003210')
+      const points =
+        Immortal.find().matches('uid', id).limit(1).run()[0].score || 0
+      const joinedAt = member.joinedAt.getTime()
+
+      let badges = []
+      let description = `Member for \`${prettyMs(Date.now() - joinedAt)}\``
+
+      if (admin) badges.push('<:cscalt:837251418247004205>')
+      if (anonymous) badges.push('<:anonymous:837247849145303080>')
+      if (patreon) badges.push('<:patreon:837291787797135360>')
+      if (twitch) badges.push('<:twitch:847500070373818379>')
+
+      if (badges.length > 0) embed.addField('Badges', badges.join(' '), true)
+
+      if (bio) description += `\n[Biography](${bio.url})`
+
+      embed
+        .setAuthor(
+          'Cyberpunk Social Club',
+          message.guild.iconURL(),
+          'https://cyberpunksocial.club'
+        )
+        .setColor(member.displayHexColor || embedColor)
+        .setDescription(description)
+        .setThumbnail(member.user.avatarURL())
+        .setTitle(member.user.username)
+        .addField(
+          'Statistics',
+          `Deaths \`${deaths}\`\nEntries \`${entries}\`\n Points \`${points}\``,
+          true
+        )
+
+      message.channel.send(embed)
+    })
   } else if (command === 'resurrect' || command === 'ressurect') {
     if (!message.member.roles.cache.has(roleGhost))
       return message.channel.send(`You're not dead.`)
