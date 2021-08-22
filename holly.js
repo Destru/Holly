@@ -78,6 +78,9 @@ const capitalize = (string) => {
   if (typeof string !== 'string') return string
   return string.charAt(0).toUpperCase() + string.slice(1)
 }
+const channel = {
+  memes: '415948136759164928',
+}
 const complimentChannels = ['836963196916858902', '841057992890646609']
 const complimentEmoji = [
   ':heart:',
@@ -98,6 +101,7 @@ const complimentEmoji = [
   ':kissing_closed_eyes:',
   ':kissing_smiling_eyes:',
 ]
+const countLeaderboard = 5
 const customAvatar = (avatar, message) => {
   const api = avatar.style
     ? anonymousAvatars[avatar.style]
@@ -155,6 +159,22 @@ const ranks = {
   60: 'Tron',
 }
 const roleGhost = '832393909988491304'
+const setReactions = (message, type = false) => {
+  switch (type) {
+    case 'csc':
+      message.react('837251418247004205')
+      message.react('875259618119536701')
+      break
+    case 'updown':
+      if (message.channel.id === channel.memes)
+        message.react('830114281168699412')
+      else message.react('462126280704262144')
+      message.react('462126761098870784')
+      break
+    default:
+      message.react('875259618119536701')
+  }
+}
 const status = [
   'Back to Reality',
   'Better Than Life',
@@ -336,6 +356,8 @@ client.on('message', (message) => {
           message.client.channels.cache.get('160320676580818951')
 
         if (matches) {
+          const level = parseInt(matches[2])
+
           fetch(`https://api.waifu.pics/sfw/dance`)
             .then((response) => response.json())
             .then((data) => {
@@ -344,7 +366,6 @@ client.on('message', (message) => {
 
           if (ranks[level]) {
             const id = matches[1]
-            const level = parseInt(matches[2])
             const embed = new Discord.MessageEmbed()
 
             let adjective = `a contributing`
@@ -395,7 +416,9 @@ client.on('message', (message) => {
                 .setAuthor(member.user.username, member.user.avatarURL())
                 .setColor(member.displayHexColor)
                 .setThumbnail(member.user.avatarURL())
-              promotionChannel.send(embed)
+              promotionChannel.send(embed).then((message) => {
+                setReactions(message, 'csc')
+              })
             })
           }
         }
@@ -417,7 +440,7 @@ client.on('message', (message) => {
   } else if (message.channel.id === '866967261092773918') {
     // #acronyms
     const acronym = /^C.+S.+C\S+$/i
-    // TODO const acronyms = 'csc acab cccp cia fbi kgb nasa'.split(' ')
+    const acronyms = 'csc acab cccp cia fbi kgb nasa'.split(' ') // TODO: this
     const words = message.content.toLowerCase().trim().split(' ')
 
     let fail = false
@@ -523,8 +546,7 @@ client.on('message', (message) => {
     }
   } else if (message.channel.id === '867179976444870696') {
     // #band-names
-    message.react('462126280704262144')
-    message.react('462126761098870784')
+    setReactions(message, 'updown')
   } else if (
     message.channel.id === '865757944552488960' ||
     message.channel.id === '875207790468153386'
@@ -634,17 +656,14 @@ client.on('message', (message) => {
       message.content.includes('https://') ||
       message.attachments.size > 0
     ) {
-      if (message.channel.id === '415948136759164928')
-        message.react('830114281168699412')
-      else message.react('462126280704262144')
-      message.react('462126761098870784')
+      setReactions(message, 'updown')
     }
   } else if (
     message.channel.id === '362316618044407819' ||
     message.channel.id === '414177882865401866'
   ) {
     // #nsfw + #in-real-life
-    message.react('875259618119536701')
+    setReactions(message)
   } else if (message.channel.id === '866967592622489640') {
     // #word-war
     const matches = Meta.find().matches('name', 'word-war').limit(1).run()
@@ -693,12 +712,7 @@ client.on('message', (message) => {
       fetch(`https://api.waifu.pics/${type}/${command}`)
         .then((response) => response.json())
         .then((data) => {
-          message.channel.send(data.url).then((message) => {
-            if (type !== 'bonk') {
-              message.react('462126280704262144')
-              message.react('462126761098870784')
-            }
-          })
+          message.channel.send(data.url)
         })
     }
   } else if (
@@ -715,8 +729,7 @@ client.on('message', (message) => {
       message.content.includes('https://') ||
       message.attachments.size > 0
     ) {
-      message.react('837251418247004205')
-      message.react('875259618119536701')
+      setReactions(message, 'csc')
     }
   } else if (command === 'bot-info') {
     const embed = new Discord.MessageEmbed()
@@ -774,7 +787,7 @@ client.on('message', (message) => {
     })
 
     const embed = new Discord.MessageEmbed()
-      .setColor(embedColor)
+      .setColor(embedColorBlack)
       .setDescription(
         `There have been \`${deathCount}\` recorded deaths :headstone:`
       )
@@ -784,14 +797,15 @@ client.on('message', (message) => {
       const deathsSorted = deaths.sort((a, b) => a.deaths - b.deaths)
       const deathsRanked = deathsSorted.reverse()
 
-      let entries = deaths.length > 10 ? 10 : deaths.length
+      let entries =
+        deaths.length > countLeaderboard ? countLeaderboard : deaths.length
       let leaderboard = []
 
       for (let i = 0; i < entries; i++) {
         const score = deathsRanked[i].deaths
         const user = `<@${deathsRanked[i].uid}>`
 
-        leaderboard.push(`${user} \`${score}\``)
+        leaderboard.push(`\`${i + 1}.\` ${user} \`${score}\``)
       }
       embed.addField('Leaderboard', leaderboard.join('\n'), false)
       message.channel.send(embed)
@@ -880,7 +894,7 @@ client.on('message', (message) => {
     }
   } else if (command === 'permadeath') {
     const embed = new Discord.MessageEmbed()
-      .setColor(embedColor)
+      .setColor(embedColorBlack)
       .setDescription(
         `Contributing in :skull: channels awards points. ` +
           `Points reset on death. ` +
@@ -894,14 +908,17 @@ client.on('message', (message) => {
       const immortalsSorted = immortals.sort((a, b) => a.score - b.score)
       const immortalRanked = immortalsSorted.reverse()
 
-      let entries = immortals.length > 10 ? 10 : immortals.length
+      let entries =
+        immortals.length > countLeaderboard
+          ? countLeaderboard
+          : immortals.length
       let leaderboard = []
 
       for (let i = 0; i < entries; i++) {
         const user = `<@${immortalRanked[i].uid}>`
         const score = immortalRanked[i].score
 
-        leaderboard.push(`${user} \`${score}\``)
+        leaderboard.push(`\`${i + 1}.\` ${user} \`${score}\``)
       }
       embed.addField('Leaderboard', leaderboard.join('\n'), false)
       message.channel.send(embed)
