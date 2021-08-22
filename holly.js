@@ -78,8 +78,28 @@ const capitalize = (string) => {
   if (typeof string !== 'string') return string
   return string.charAt(0).toUpperCase() + string.slice(1)
 }
-const channel = {
+const channelId = {
+  akihabara: '837824443799175179',
+  anything: '462734936177115136',
+  acronyms: '866967261092773918',
+  allcaps: '412714197399371788',
+  anonymous: '848997740767346699',
+  bandnames: '867179976444870696',
+  comrades: '865757944552488960',
+  composing: '843417385444442152',
+  contest: '875207790468153386',
+  counting: '827487959241457694',
+  gallery: '877484284519264296',
+  graveyard: '832394205422026813',
+  hornyjail: '841057992890646609',
+  illustrating: '843417452787662848',
+  irl: '414177882865401866',
   memes: '415948136759164928',
+  nsfw: '362316618044407819',
+  releases: '352149516885164044',
+  stimulus: '419929465989234720',
+  wordwar: '866967592622489640',
+  writing: '843417014756179978',
 }
 const complimentChannels = ['836963196916858902', '841057992890646609']
 const complimentEmoji = [
@@ -166,7 +186,7 @@ const setReactions = (message, type = false) => {
       message.react('875259618119536701')
       break
     case 'updown':
-      if (message.channel.id === channel.memes)
+      if (message.channel.id === channelId.memes)
         message.react('830114281168699412')
       else message.react('462126280704262144')
       message.react('462126761098870784')
@@ -227,7 +247,7 @@ client.on('message', (message) => {
   const { isHaiku, formattedHaiku } = findahaiku.analyzeText(message.content)
 
   const permaDeath = () => {
-    const channelGraveyard = client.channels.cache.get('832394205422026813')
+    const channelGraveyard = client.channels.cache.get(channelId.graveyard)
     const obituary = new Discord.MessageEmbed()
       .setColor(embedColorBlack)
       .setThumbnail(message.author.avatarURL())
@@ -437,8 +457,7 @@ client.on('message', (message) => {
       }
     }
     return
-  } else if (message.channel.id === '866967261092773918') {
-    // #acronyms
+  } else if (message.channel.id === channelId.acronyms) {
     const acronym = /^C.+S.+C\S+$/i
     const acronyms = 'csc acab cccp cia fbi kgb nasa'.split(' ') // TODO: this
     const words = message.content.toLowerCase().trim().split(' ')
@@ -458,16 +477,14 @@ client.on('message', (message) => {
       message.react('❌')
       permaDeath()
     }
-  } else if (message.channel.id === '412714197399371788') {
-    // #all-caps
+  } else if (message.channel.id === channelId.allcaps) {
     const allCaps = /^[A-Z0-9\s-_,./?;:'"‘’“”`~!@#$%^&*()=+|\\<>\[\]{}]+$/gm
 
     if (!message.content.match(allCaps)) {
       message.react('❌')
       permaDeath()
     } else permaDeathScore()
-  } else if (message.channel.id === '848997740767346699') {
-    // #anonymous
+  } else if (message.channel.id === channelId.anonymous) {
     message.delete()
 
     const emojiVR = `<:anonymous:837247849145303080>`
@@ -544,25 +561,21 @@ client.on('message', (message) => {
         permaDeathScore()
       }
     }
-  } else if (message.channel.id === '867179976444870696') {
-    // #band-names
+  } else if (message.channel.id === channelId.bandnames) {
     setReactions(message, 'updown')
   } else if (
-    message.channel.id === '865757944552488960' ||
-    message.channel.id === '875207790468153386'
+    message.channel.id === channelId.comrades ||
+    message.channel.id === channelId.contest
   ) {
-    // #comrades + #contest
     const embed = new Discord.MessageEmbed()
       .setColor(embedColor)
       .setTitle(`Warning`)
 
     let matches
 
-    if (message.channel.id === '865757944552488960') {
-      // #comrades
+    if (message.channel.id === channelId.comrades) {
       matches = Bio.find().matches('uid', message.author.id).limit(1).run()
     } else {
-      // #contest
       matches = Entry.find().matches('uid', message.author.id).limit(3).run()
     }
 
@@ -580,15 +593,13 @@ client.on('message', (message) => {
         }, timerFeedbackDelete)
       })
     } else {
-      if (message.channel.id === '865757944552488960') {
-        // #comrades
-        message.react('837251418247004205')
+      if (message.channel.id === channelId.comrades) {
+        setReactions(message, 'csc')
         Bio.add({
           uid: message.author.id,
           url: message.url,
         })
       } else {
-        // #contest
         message.react('462126280704262144')
         Entry.add({
           uid: message.author.id,
@@ -596,8 +607,7 @@ client.on('message', (message) => {
         })
       }
     }
-  } else if (message.channel.id === '827487959241457694') {
-    // #counting
+  } else if (message.channel.id === channelId.counting) {
     const matches = Meta.find().matches('name', 'counting').limit(1).run()
     const numOnly = /^\d+$/
 
@@ -647,10 +657,9 @@ client.on('message', (message) => {
       permaDeath()
     }
   } else if (
-    message.channel.id === '415948136759164928' ||
-    message.channel.id === '419929465989234720'
+    message.channel.id === channelId.memes ||
+    message.channel.id === channelId.stimulus
   ) {
-    // #memes + #stimulus
     if (
       message.content.includes('http://') ||
       message.content.includes('https://') ||
@@ -659,13 +668,11 @@ client.on('message', (message) => {
       setReactions(message, 'updown')
     }
   } else if (
-    message.channel.id === '362316618044407819' ||
-    message.channel.id === '414177882865401866'
+    message.channel.id === channelId.nsfw ||
+    message.channel.id === channelId.irl
   ) {
-    // #nsfw + #in-real-life
     setReactions(message)
-  } else if (message.channel.id === '866967592622489640') {
-    // #word-war
+  } else if (message.channel.id === channelId.wordwar) {
     const matches = Meta.find().matches('name', 'word-war').limit(1).run()
     const word = message.content.toLowerCase().trim()
 
@@ -688,8 +695,8 @@ client.on('message', (message) => {
       }
     }
   } else if (
-    message.channel.id === '837824443799175179' ||
-    message.channel.id === '841057992890646609'
+    message.channel.id === channelId.akihabara ||
+    message.channel.id === channelId.hornyjail
   ) {
     // #akihabara + #horny-jail
     if (akihabara.includes(command)) {
@@ -717,11 +724,13 @@ client.on('message', (message) => {
     }
   } else if (
     [
-      '462734936177115136', // #anything
-      '843417385444442152', // #composing
-      '877484284519264296', // #gallery
-      '843417452787662848', // #illustrating
-      '843417014756179978', // #writing
+      channelId.anything,
+      channelId.comrades,
+      channelId.composing,
+      channelId.gallery,
+      channelId.illustrating,
+      channelId.releases,
+      channelId.writing,
     ].includes(message.channel.id)
   ) {
     if (
@@ -933,10 +942,7 @@ client.on('message', (message) => {
       const points = matches[0].score === 1 ? 'point' : 'points'
 
       message.channel.send(`You have \`${matches[0].score}\` ${points}.`)
-    } else
-      message.channel.send(
-        `You have not taken any succesful action in a permadeath channel.`
-      )
+    } else message.channel.send(`You have \`0\` points.`)
   } else if (command === 'profile') {
     const embed = new Discord.MessageEmbed()
     const id = authorId(message)
