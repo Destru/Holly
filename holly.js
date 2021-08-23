@@ -174,13 +174,6 @@ const timerFeedbackDelete = 5000
 const version = process.env.npm_package_version || '(Development)'
 
 db.configure({ dir: './db' })
-
-const Avatar = new db.Collection('avatars', {
-  uid: '',
-  name: '',
-  seed: '',
-  style: '',
-})
 const Bio = new db.Collection('bios', {
   uid: '',
   url: '',
@@ -664,13 +657,8 @@ client.on('message', (message) => {
       .setTitle('Commands')
       .addFields(
         {
-          name: 'Anonymous <:anonymous:837247849145303080>',
-          value: '`!avatar`\n`!name`\n`!seed`\n`!style`',
-          inline: true,
-        },
-        {
           name: 'Community <:cscbob:846528128524091422>',
-          value: '`!haikus`\n`!profile`\n`!resurrect`\n`!stats`',
+          value: '`/anon`\n`!haikus`\n`!profile`\n`!resurrect`\n`!stats`',
           inline: true,
         },
         {
@@ -844,24 +832,19 @@ client.on('message', (message) => {
       const admin =
         member.roles.cache.has('412545631228395540') ||
         member.roles.cache.has('832089472337182770')
-      const avatar = Avatar.find().matches('uid', id).limit(1).run()[0] || false
       const bio = Bio.find().matches('uid', id).limit(1).run()[0] || false
       const deaths = Death.find().matches('uid', id).limit(1).run()
-      const entries = Entry.find().matches('uid', id).run()
       const haikus = Haiku.find().matches('uid', id).run()
       const immortal = Immortal.find().matches('uid', id).limit(1).run()
       const patreon = member.roles.cache.has('824015992417419283')
       const twitch = member.roles.cache.has('444074281694003210')
-      const joinedAt = member.joinedAt.getTime()
-      const memberFor = Date.now() - joinedAt
+      const memberFor = Date.now() - member.joinedAt.getTime()
 
       let badges = []
       let description = `Member for \`${prettyMs(memberFor)}\` `
       let permadeath = []
 
       if (admin) badges.push('<:cscalt:837251418247004205>')
-      if (avatar) badges.push('<:anonymous:837247849145303080>')
-
       if (patreon) badges.push('<:patreon:837291787797135360>')
       if (twitch) badges.push('<:twitch:847500070373818379>')
 
