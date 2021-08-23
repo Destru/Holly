@@ -954,22 +954,20 @@ client.on('ready', () => {
   client.api
     .applications(client.user.id)
     .guilds(CSC)
-    .commands.set([
-      {
-        data: {
-          name: 'anon',
-          description: '#anonymous chat',
-          options: [
-            {
-              type: 3,
-              name: 'message',
-              description: 'Message',
-              required: true,
-            },
-          ],
-        },
+    .commands.set({
+      data: {
+        name: 'anon',
+        description: '#anonymous chat',
+        options: [
+          {
+            type: 3,
+            name: 'message',
+            description: 'Message',
+            required: true,
+          },
+        ],
       },
-    ])
+    })
 
   client.user.setPresence({
     status: 'online',
