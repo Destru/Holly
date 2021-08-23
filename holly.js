@@ -1003,8 +1003,6 @@ client.on('ready', () => {
 
 client.ws.on('INTERACTION_CREATE', async (interaction) => {
   if (interaction.data.name === 'anon') {
-    console.log(interaction)
-
     const channel = client.channels.cache.get(channelId.anonymous)
     const message = interaction.data.options[0].value
     const uid = interaction.member.user.id
