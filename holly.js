@@ -901,7 +901,6 @@ client.on('message', (message) => {
     }
     return message.channel.send(embed)
   } else if (command === 'stats') {
-    const countAnon = Avatar.find().run().length
     const countBios = Bio.find().run().length
     const countEntries = Entry.find().run().length
     const deaths = Death.find().run()
@@ -919,8 +918,7 @@ client.on('message', (message) => {
     if (highscore.length > 0) countHighscore = highscore[0].value.split('|')[1]
 
     const statsNumbers =
-      `Anonymous Avatars \`${countAnon}\`` +
-      `\nCounting Highscore \`${countHighscore}\`` +
+      `Counting Highscore \`${countHighscore}\`` +
       `\nDeath Count \`${countDeaths}\``
 
     const statsOriginal =
