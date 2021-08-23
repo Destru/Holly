@@ -122,24 +122,13 @@ const complimentEmoji = [
   ':kissing_smiling_eyes:',
 ]
 const countLeaderboard = 5
-const customAvatar = (avatar, message) => {
-  const api = avatar.style
-    ? anonymousAvatars[avatar.style]
-    : anonymousAvatars.robot
-  const seed = avatar.seed ? avatar.seed : message.author.id
-  let append
+const CSC = '160320676580818951'
 
-  if (avatar.style && 'append' in anonymousAvatars[avatar.style]) {
-    append = apis[avatar.style].append
-  } else append = ''
+const COLORS = {
+  embed: '#FF00FF',
+  embedBlack: '#2F3136',
+}
 
-  return api.url + seed + append
-}
-const customName = (avatar) => {
-  return avatar.name ? avatar.name : 'Anonymous'
-}
-const embedColor = '#FF00FF'
-const embedColorBlack = '#2F3136'
 const timerFeedbackDelete = 5000
 const isImmortal = (id) => {
   const immortal = Immortal.find()
@@ -249,7 +238,7 @@ client.on('message', (message) => {
   const permaDeath = () => {
     const channelGraveyard = client.channels.cache.get(channelId.graveyard)
     const obituary = new Discord.MessageEmbed()
-      .setColor(embedColorBlack)
+      .setColor(COLORS.embedBlack)
       .setThumbnail(message.author.avatarURL())
       .setTitle(`${message.author.username}`)
       .setDescription(`Died in ${message.channel} :headstone:`)
@@ -316,7 +305,7 @@ client.on('message', (message) => {
         ? message.author.username.toUpperCase()
         : message.author.username
     const embed = new Discord.MessageEmbed()
-      .setColor(embedColor)
+      .setColor(COLORS.embed)
       .setDescription(`${formattedHaiku}\n—*${poet}*`)
 
     Haiku.add({
@@ -484,83 +473,6 @@ client.on('message', (message) => {
       message.react('❌')
       permaDeath()
     } else permaDeathScore()
-  } else if (message.channel.id === channelId.anonymous) {
-    message.delete()
-
-    const emojiVR = `<:anonymous:837247849145303080>`
-    const embedColorVR = embedColorBlack
-    const textOnly = /^[a-zA-Z0-9\s-_,./?;:'"‘’“”`~!@#$%^&*()=+|\\<>\[\]{}]+$/gm
-
-    let matches = Avatar.find().matches('uid', message.author.id).run()
-    let avatar, updateVR
-
-    if (matches.length > 0) {
-      avatar = { ...matches[0] }
-    } else {
-      const key = Avatar.add({
-        uid: message.author.id,
-      })
-      avatar = Avatar.get(key)
-    }
-
-    if (message.content.startsWith('!') && message.content.match(textOnly)) {
-      if (command === 'avatar') {
-        const embed = new Discord.MessageEmbed()
-          .setColor(embedColorVR)
-          .setImage(customAvatar(avatar, message))
-          .setTitle(customName(avatar))
-        message.member.send(embed)
-      } else if (command === 'name') {
-        let name = message.content.replace('!name', '').trim()
-        Avatar.update(avatar._id_, {
-          name: name,
-        })
-        updateVR = `Name updated ${emojiVR}`
-      } else if (command === 'seed') {
-        const random = Math.random().toString().slice(2, 11)
-        Avatar.update(avatar._id_, {
-          seed: random,
-        })
-        updateVR = `Seed randomized ${emojiVR}`
-      } else if (command === 'style') {
-        const styles = `\`${Object.keys(anonymousAvatars).join('`, `')}\``
-        let style = message.content.replace('!style', '').trim()
-
-        if (message.member.roles.cache.has('827915811724460062')) {
-          if (style in anonymousAvatars) {
-            Avatar.update(avatar._id_, {
-              style: style,
-            })
-            updateVR = `Style updated ${emojiVR}`
-          } else {
-            message.member.send(`Styles ${emojiVR} ${styles}`)
-          }
-        } else {
-          updateVR = `You must \`!vote\` to access this command ${emojiVR}`
-        }
-      } else if (command === 'reset') {
-        Avatar.remove(avatar._id_)
-        updateVR = `User reset ${emojiVR}`
-      }
-      if (updateVR)
-        message.channel.send(updateVR).then((message) => {
-          setTimeout(() => {
-            if (message) message.delete()
-          }, timerFeedbackDelete)
-        })
-    } else {
-      if (!message.content.match(textOnly) || message.content.length > 2048) {
-        permaDeath()
-      } else {
-        const embed = new Discord.MessageEmbed()
-          .setColor(embedColorVR)
-          .setDescription(`**${customName(avatar)}**\n${message.content}`)
-          .setThumbnail(customAvatar(avatar, message))
-
-        message.channel.send(embed)
-        permaDeathScore()
-      }
-    }
   } else if (message.channel.id === channelId.bandnames) {
     setReactions(message, 'updown')
   } else if (
@@ -568,7 +480,7 @@ client.on('message', (message) => {
     message.channel.id === channelId.contest
   ) {
     const embed = new Discord.MessageEmbed()
-      .setColor(embedColor)
+      .setColor(COLORS.embed)
       .setTitle(`Warning`)
 
     let matches
@@ -742,7 +654,7 @@ client.on('message', (message) => {
     }
   } else if (command === 'bot-info') {
     const embed = new Discord.MessageEmbed()
-      .setColor(embedColor)
+      .setColor(COLORS.embed)
       .setDescription(
         `I have an IQ of 6000; the same IQ as 6000 neoliberals.` +
           `\n[GitHub Repo](https://github.com/destru/holly) :link:`
@@ -766,7 +678,7 @@ client.on('message', (message) => {
     message.channel.send(embed)
   } else if (command === 'commands') {
     const embed = new Discord.MessageEmbed()
-      .setColor(embedColor)
+      .setColor(COLORS.embed)
       .setDescription(quotes[Math.floor(Math.random() * quotes.length)])
       .setTitle('Commands')
       .addFields(
@@ -796,7 +708,7 @@ client.on('message', (message) => {
     })
 
     const embed = new Discord.MessageEmbed()
-      .setColor(embedColorBlack)
+      .setColor(COLORS.embedBlack)
       .setDescription(
         `There have been \`${deathCount}\` recorded deaths :headstone:`
       )
@@ -834,7 +746,7 @@ client.on('message', (message) => {
 
             const embed = new Discord.MessageEmbed()
               .setAuthor(member.user.username, member.user.avatarURL())
-              .setColor(embedColor)
+              .setColor(COLORS.embed)
             const haikuIndex = perPage * page
 
             for (i = haikuIndex; i < haikuIndex + perPage; i++) {
@@ -854,7 +766,7 @@ client.on('message', (message) => {
         message.guild.members.fetch(authorId).then((member) => {
           const embed = new Discord.MessageEmbed()
             .setAuthor(member.user.username, member.user.avatarURL())
-            .setColor(embedColor)
+            .setColor(COLORS.embed)
 
           let displayHaikus = ''
 
@@ -903,7 +815,7 @@ client.on('message', (message) => {
     }
   } else if (command === 'permadeath') {
     const embed = new Discord.MessageEmbed()
-      .setColor(embedColorBlack)
+      .setColor(COLORS.embedBlack)
       .setDescription(
         `Contributing in :skull: channels awards points. ` +
           `Points reset on death. ` +
@@ -990,7 +902,7 @@ client.on('message', (message) => {
         embed.addField('Permadeath', permadeath.join(' '), true)
 
       embed
-        .setColor(member.displayHexColor || embedColor)
+        .setColor(member.displayHexColor || COLORS.embed)
         .setDescription(description)
         .setThumbnail(member.user.avatarURL())
         .setTitle(member.displayName)
@@ -1002,7 +914,7 @@ client.on('message', (message) => {
       return message.channel.send(`You're not dead.`)
 
     const embed = new Discord.MessageEmbed()
-      .setColor(embedColorBlack)
+      .setColor(COLORS.embedBlack)
       .setTitle(`Resurrection`)
     const matches = Resurrection.find().matches('uid', message.author.id).run()
     const hasResurrected = matches.length > 0
@@ -1053,7 +965,7 @@ client.on('message', (message) => {
       `\nContest Entries \`${countEntries}\``
 
     const embed = new Discord.MessageEmbed()
-      .setColor(embedColor)
+      .setColor(COLORS.embed)
       .setDescription(
         `Some more or *less* useful information. ` +
           `It's less, it's definitely less.`
@@ -1076,6 +988,27 @@ client.on('message', (message) => {
 
 client.on('ready', () => {
   console.log(`Holly ${version} is online.`)
+
+  client.api
+    .applications(client.user.id)
+    .guilds(CSC)
+    .commands.set([
+      {
+        data: {
+          name: 'anon',
+          description: '#anonymous chat',
+          options: [
+            {
+              type: 3,
+              name: 'message',
+              description: 'Message',
+              required: true,
+            },
+          ],
+        },
+      },
+    ])
+
   client.user.setPresence({
     status: 'online',
     activity: {
@@ -1085,7 +1018,7 @@ client.on('ready', () => {
   })
 
   cron.schedule('0 */6 * * *', () => {
-    const channel = client.channels.cache.get('866967592622489640')
+    const channel = client.channels.cache.get(channelId.wordwar)
     const matches = Meta.find().matches('name', 'word-war').limit(1).run()
     const random = Math.floor(Math.random() * alphabet.length)
 
@@ -1102,6 +1035,35 @@ client.on('ready', () => {
 
     channel.setTopic(`${alphabetEmoji[random]} :skull:`)
   })
+})
+
+client.ws.on('INTERACTION_CREATE', async (interaction) => {
+  console.log(interaction)
+
+  if (interaction.data.name === 'anon') {
+    const channel = client.channels.cache.get(channelId.anonymous)
+    const message = interaction.data.options[0].value
+    const uid = interaction.member.user.id
+
+    let matches = Avatar.find().matches('uid', uid).run()
+    let avatar
+
+    if (matches.length > 0) {
+      avatar = { ...matches[0] }
+    } else {
+      const key = Avatar.add({
+        uid: uid,
+      })
+      avatar = Avatar.get(key)
+    }
+
+    const embed = new Discord.MessageEmbed()
+      .setColor(COLORS.embedBlack)
+      .setDescription(`**${customName(avatar)}**\n${message}`)
+      .setThumbnail(customAvatar(avatar, uid))
+
+    channel.send(embed)
+  }
 })
 
 client.login()
