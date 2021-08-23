@@ -51,29 +51,6 @@ const alphabetEmoji =
   '🇦 🇧 🇨 🇩 🇪 🇫 🇬 🇭 🇮 🇯 🇰 🇱 🇲 🇳 🇴 🇵 🇶 🇷 🇸 🇹 🇺 🇻 🇼 🇽 🇾 🇿'.split(
     ' '
   )
-const anonymousAvatars = {
-  kitten: {
-    url: 'https://robohash.org/',
-    append: '.png?set=set4',
-  },
-  monster: {
-    url: 'https://robohash.org/',
-    append: '.png?set=set2',
-  },
-  robot: {
-    url: 'https://robohash.org/',
-  },
-  robot2: {
-    url: 'https://robohash.org/',
-    append: '.png?set=set3',
-  },
-}
-const authorId = (message) => {
-  const matches = message.content.match(/<@!(\d+)>/)
-  let id = message.author.id
-  if (matches) id = matches[1]
-  return id
-}
 const capitalize = (string) => {
   if (typeof string !== 'string') return string
   return string.charAt(0).toUpperCase() + string.slice(1)
@@ -123,13 +100,10 @@ const complimentEmoji = [
 ]
 const countLeaderboard = 5
 const CSC = '160320676580818951'
-
 const COLORS = {
   embed: '#FF00FF',
   embedBlack: '#2F3136',
 }
-
-const timerFeedbackDelete = 5000
 const isImmortal = (id) => {
   const immortal = Immortal.find()
     .run()
@@ -190,6 +164,13 @@ const status = [
   'Gunmen of the Apocalypse',
   'Play-by-mail Chess',
 ]
+const subjectId = (message) => {
+  const matches = message.content.match(/<@!(\d+)>/)
+  let id = message.author.id
+  if (matches) id = matches[1]
+  return id
+}
+const timerFeedbackDelete = 5000
 const version = process.env.npm_package_version || '(Development)'
 
 db.configure({ dir: './db' })
@@ -732,7 +713,7 @@ client.on('message', (message) => {
       message.channel.send(embed)
     }
   } else if (command === 'haikus') {
-    const id = authorId(message)
+    const id = subjectId(message)
     const haikus = Haiku.find().matches('uid', id).run()
 
     if (haikus.length > 0) {
@@ -763,7 +744,7 @@ client.on('message', (message) => {
           paginationEmbed(message, pages)
         })
       } else {
-        message.guild.members.fetch(authorId).then((member) => {
+        message.guild.members.fetch(id).then((member) => {
           const embed = new Discord.MessageEmbed()
             .setAuthor(member.user.username, member.user.avatarURL())
             .setColor(COLORS.embed)
@@ -857,7 +838,7 @@ client.on('message', (message) => {
     } else message.channel.send(`You have \`0\` points.`)
   } else if (command === 'profile') {
     const embed = new Discord.MessageEmbed()
-    const id = authorId(message)
+    const id = subjectId(message)
 
     message.guild.members.fetch(id).then((member) => {
       const admin =
@@ -1038,29 +1019,33 @@ client.on('ready', () => {
 })
 
 client.ws.on('INTERACTION_CREATE', async (interaction) => {
-  console.log(interaction)
-
   if (interaction.data.name === 'anon') {
+    console.log(interaction)
+
     const channel = client.channels.cache.get(channelId.anonymous)
     const message = interaction.data.options[0].value
     const uid = interaction.member.user.id
-
-    let matches = Avatar.find().matches('uid', uid).run()
-    let avatar
-
-    if (matches.length > 0) {
-      avatar = { ...matches[0] }
-    } else {
-      const key = Avatar.add({
-        uid: uid,
-      })
-      avatar = Avatar.get(key)
-    }
+    const sets = ['', 'set2', 'set3', 'set4']
+    const set = sets[Math.floor(Math.random() * sets.length)]
 
     const embed = new Discord.MessageEmbed()
       .setColor(COLORS.embedBlack)
-      .setDescription(`**${customName(avatar)}**\n${message}`)
-      .setThumbnail(customAvatar(avatar, uid))
+      .setDescription(`**Anonymous**\n${message}`)
+      .setThumbnail(`https://robohash.org/${uid}.png?set=${set}`)
+
+    client.api.interactions(interaction.id, interaction.token).callback.post({
+      data: {
+        type: 4,
+        data: {
+          content: 'Posting anonymously <:anonymous:837247849145303080>',
+        },
+      },
+    })
+
+    fetch(
+      `https://discordapp.com/api/webhooks/301275924098449408/${interaction.token}/messages/@original`,
+      { method: 'DELETE' }
+    )
 
     channel.send(embed)
   }
