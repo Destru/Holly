@@ -423,7 +423,7 @@ client.on('message', (message) => {
     return
   } else if (message.channel.id === channelId.acronyms) {
     const acronym = /^C.+S.+C\S+$/i
-    const acronyms = 'csc acab cccp cia fbi kgb nasa'.split(' ') // TODO: this
+    const acronyms = 'csc acab cccp cia fbi kgb nasa'.split(' ') // TODO
     const words = message.content.toLowerCase().trim().split(' ')
 
     let fail = false
@@ -441,6 +441,9 @@ client.on('message', (message) => {
       message.react('❌')
       permaDeath()
     }
+  } else if (message.channel.id === channelId.anonymous) {
+    message.react('❌')
+    permaDeath()
   } else if (message.channel.id === channelId.allcaps) {
     const allCaps = /^[A-Z0-9\s-_,./?;:'"‘’“”`~!@#$%^&*()=+|\\<>\[\]{}]+$/gm
 
