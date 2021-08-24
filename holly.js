@@ -70,6 +70,7 @@ const channelId = {
   graveyard: '832394205422026813',
   hornyjail: '841057992890646609',
   illustrating: '843417452787662848',
+  internal: '845382463685132288',
   irl: '414177882865401866',
   memes: '415948136759164928',
   nsfw: '362316618044407819',
@@ -710,9 +711,14 @@ client.on('message', (message) => {
         client.api
           .applications(client.user.id)
           .guilds(CSC)
-          .commands('879208552579874927')
-          .delete()
-        message.channel.send('`/anon` deleted')
+          .commands.get()
+          .then((commands) => {
+            client.api
+              .applications(client.user.id)
+              .guilds(CSC)
+              .commands(commands[0].id)
+              .delete()
+          })
       } else {
         client.api
           .applications(client.user.id)
@@ -720,13 +726,19 @@ client.on('message', (message) => {
           .commands.post({
             data: {
               name: 'anon',
-              description: 'Post in #anonymous chat',
+              description: 'Send #anonymous messages',
               options: [
                 {
                   type: 3,
                   name: 'message',
-                  description: 'Message',
+                  description: 'Text to send',
                   required: true,
+                },
+                {
+                  type: 5,
+                  name: 'random',
+                  description: 'Randomize avatar',
+                  required: false,
                 },
               ],
             },
@@ -1028,14 +1040,39 @@ client.ws.on('INTERACTION_CREATE', async (interaction) => {
   if (interaction.data.name === 'anon') {
     const channel = client.channels.cache.get(channelId.anonymous)
     const message = interaction.data.options[0].value
+    const randomize = interaction.data.options[1]
     const uid = interaction.member.user.id
-    // const sets = ['', 'set2', 'set3', 'set4']
-    // const set = sets[Math.floor(Math.random() * sets.length)]
-
+    const avatar = Meta.find()
+      .matches('name', 'avatar')
+      .matches('uid', uid)
+      .limit(1)
+      .run()
     const embed = new Discord.MessageEmbed()
       .setColor(COLORS.embedBlack)
       .setDescription(`**Anonymous**\n${message}`)
-      .setThumbnail(`https://robohash.org/${uid}.png`)
+
+    if (avatar.length > 0)
+      embed.setThumbnail(`https://robohash.org/${avatar[0].value}.png`)
+
+    if (randomize && randomize.value === true) {
+      const rng = Math.floor(Math.random() * 18)
+
+      if (avatar.length > 0) {
+        Meta.update(avatar[0]._id_, {
+          value: rng,
+        })
+      } else {
+        Meta.add({
+          name: 'avatar',
+          uid: uid,
+          value: rng,
+        })
+      }
+
+      embed.setThumbnail(`https://robohash.org/${rng}.png`)
+    }
+
+    channel.send(embed)
 
     client.api.interactions(interaction.id, interaction.token).callback.post({
       data: {
@@ -1046,8 +1083,6 @@ client.ws.on('INTERACTION_CREATE', async (interaction) => {
         },
       },
     })
-
-    channel.send(embed)
   }
 })
 
