@@ -104,6 +104,7 @@ const COLORS = {
   embed: '#FF00FF',
   embedBlack: '#2F3136',
 }
+const HOLLY = '301275924098449408'
 const isImmortal = (id) => {
   const immortal = Immortal.find()
     .run()
@@ -1042,7 +1043,7 @@ client.ws.on('INTERACTION_CREATE', async (interaction) => {
       },
     })
     await fetch(
-      `https://discordapp.com/api/webhooks/${CSC.id}/${interaction.token}/messages/@original`,
+      `https://discordapp.com/api/webhooks/${HOLLY}/${interaction.token}/messages/@original`,
       { method: 'DELETE' }
     )
     channel.send(embed)
