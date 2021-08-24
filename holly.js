@@ -936,6 +936,12 @@ client.on('message', (message) => {
       const admin =
         member.roles.cache.has('412545631228395540') ||
         member.roles.cache.has('832089472337182770')
+      const avatar =
+        Meta.find()
+          .matches('uid', id)
+          .matches('name', 'avatar')
+          .limit(1)
+          .run()[0] || false
       const bio = Bio.find().matches('uid', id).limit(1).run()[0] || false
       const deaths = Death.find().matches('uid', id).limit(1).run()
       const haikus = Haiku.find().matches('uid', id).run()
@@ -949,6 +955,7 @@ client.on('message', (message) => {
       let permadeath = []
 
       if (admin) badges.push('<:cscalt:837251418247004205>')
+      if (avatar) badges.push('<:anonymous:837247849145303080>')
       if (patreon) badges.push('<:patreon:837291787797135360>')
       if (twitch) badges.push('<:twitch:847500070373818379>')
 
