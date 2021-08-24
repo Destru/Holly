@@ -1036,7 +1036,7 @@ client.ws.on('INTERACTION_CREATE', async (interaction) => {
 
     client.api.interactions(interaction.id, interaction.token).callback.post({
       data: {
-        type: 3,
+        type: 4,
         data: {
           content: '<:anonymous:837247849145303080>',
         },
