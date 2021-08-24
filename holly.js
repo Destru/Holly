@@ -1036,10 +1036,11 @@ client.ws.on('INTERACTION_CREATE', async (interaction) => {
 
     client.api.interactions(interaction.id, interaction.token).callback.post({
       data: {
-        type: 4,
+        type: 3,
         data: {
           content: '<:anonymous:837247849145303080>',
         },
+        flags: 1 << 6,
       },
     })
     await fetch(
