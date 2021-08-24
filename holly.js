@@ -131,6 +131,51 @@ const randomEmoji = () => {
   ]
   return emoji[Math.floor(Math.random() * emoji.length)]
 }
+const randomAcronym = () => {
+  const channel = client.channels.cache.get(channelId.acronyms)
+  const matches = Meta.find().matches('name', 'acronyms').limit(1).run()
+  const acronyms =
+    'csc acab cccp cia fbi kgb nasa nsa' +
+    'lol omg wtf afk brb' +
+    'mcd kfc' +
+    'bbc pbs espn'.split(' ')
+  let acronym = acronyms[Math.floor(Math.random() * acronyms.length)]
+
+  if (matches.length > 0) {
+    while (acronym === matches[0].value) {
+      acronym = acronyms[Math.floor(Math.random() * acronyms.length)]
+    }
+    Meta.update(matches[0]._id_, { value: acronym })
+  } else {
+    Meta.add({ name: 'acronyms', value: acronym })
+  }
+
+  channel.setTopic(
+    `${
+      alphabetEmoji[acronym.charCodeAt(0) - 96] +
+      alphabetEmoji[acronym.charCodeAt(1) - 96] +
+      alphabetEmoji[acronym.charCodeAt(2) - 96]
+    } :skull:`
+  )
+}
+const randomLetter = () => {
+  const channel = client.channels.cache.get(channelId.wordwar)
+  const matches = Meta.find().matches('name', 'word-war').limit(1).run()
+  const random = Math.floor(Math.random() * alphabet.length)
+
+  let randomLetter = alphabet[random]
+
+  if (matches.length > 0) {
+    while (randomLetter === matches[0].value) {
+      randomLetter = alphabet[Math.floor(Math.random() * alphabet.length)]
+    }
+    Meta.update(matches[0]._id_, { value: randomLetter })
+  } else {
+    Meta.add({ name: 'word-war', value: randomLetter })
+  }
+
+  channel.setTopic(`${alphabetEmoji[random]} :skull:`)
+}
 const ranks = {
   5: 'Comrade',
   10: 'Activist',
@@ -423,15 +468,13 @@ client.on('message', (message) => {
     }
     return
   } else if (message.channel.id === channelId.acronyms) {
-    const acronym = /^C.+S.+C\S+$/i
-    const acronyms = 'csc acab cccp cia fbi kgb nasa'.split(' ') // TODO
     const words = message.content.toLowerCase().trim().split(' ')
 
     let fail = false
 
-    if (message.content.match(acronym) && words.length === 3) {
-      words.forEach((word) => {
-        if (!dictionary.check(word)) fail = true
+    if (message.content.match(acronym) && words.length === acronym.length) {
+      words.forEach((word, i) => {
+        if (!dictionary.check(word) || !word.startsWith(acronym[i])) fail = true
       })
     } else fail = true
 
@@ -930,6 +973,15 @@ client.on('message', (message) => {
 
       message.channel.send(embed)
     })
+  } else if (command === 'randomize') {
+    if (message.member.roles.cache.has('832089472337182770')) {
+      randomAcronym()
+      randomLetter()
+      return message.channel.send(`Games have been randomized.`)
+    } else
+      return message.channel.send(
+        `You don't have the clearance for that, I'm afraid.`
+      )
   } else if (command === 'resurrect' || command === 'ressurect') {
     if (!message.member.roles.cache.has(roleGhost))
       return message.channel.send(`You're not dead.`)
@@ -1017,22 +1069,8 @@ client.on('ready', () => {
   })
 
   cron.schedule('0 */6 * * *', () => {
-    const channel = client.channels.cache.get(channelId.wordwar)
-    const matches = Meta.find().matches('name', 'word-war').limit(1).run()
-    const random = Math.floor(Math.random() * alphabet.length)
-
-    let randomCharacter = alphabet[random]
-
-    if (matches.length > 0) {
-      while (randomCharacter === matches[0].value) {
-        randomCharacter = alphabet[Math.floor(Math.random() * alphabet.length)]
-      }
-      Meta.update(matches[0]._id_, { value: randomCharacter })
-    } else {
-      Meta.add({ name: 'word-war', value: randomCharacter })
-    }
-
-    channel.setTopic(`${alphabetEmoji[random]} :skull:`)
+    randomAcronym()
+    randomLetter()
   })
 })
 
