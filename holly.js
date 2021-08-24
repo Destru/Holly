@@ -116,11 +116,10 @@ const isImmortal = (id) => {
 }
 const perPage = 5
 const quotes = [
-  `If you've got a complaint, just come straight out with it. Don't hide behind innuendo and hyperbole.`,
   `Rude alert! Rude alert! An electrical fire has knocked out my voice recognition unicycle! Many Wurlitzers are missing from my database.`,
   `We have enough food to last thirty thousand years, but we've only got one Milk Dud left. And everyone's too polite to take it.`,
   `Our deepest fear is going space crazy through loneliness. The only thing that helps me keep my slender grip on reality is the friendship I have with my collection of anime waifus.`,
-  ` Well, the thing about a black hole, its main distinguishing feature, is it's black. And the thing about space, the colour of space, your basic space colour, is black. So how are you supposed to see them?`,
+  `Well, the thing about a black hole, its main distinguishing feature, is it's black. And the thing about space, the colour of space, your basic space colour, is black. So how are you supposed to see them?`,
 ]
 const randomChance = 0.02
 const randomEmoji = () => {
@@ -134,12 +133,14 @@ const randomEmoji = () => {
 const randomAcronym = () => {
   const channel = client.channels.cache.get(channelId.acronyms)
   const matches = Meta.find().matches('name', 'acronyms').limit(1).run()
+
   const acronyms =
-    'csc acab cccp cia fbi kgb nasa nsa' +
-    'lol omg wtf afk brb' +
-    'mcd kfc' +
-    'bbc pbs espn'.split(' ')
+    'csc acab cccp cia fbi kgb nasa nsa lol omg wtf afk brb mcd kfc bbq lmao'.split(
+      ' '
+    )
   let acronym = acronyms[Math.floor(Math.random() * acronyms.length)]
+
+  console.log(acronym)
 
   if (matches.length > 0) {
     while (acronym === matches[0].value) {
@@ -978,15 +979,11 @@ client.on('message', (message) => {
 
       message.channel.send(embed)
     })
-  } else if (command === 'randomize') {
+  } else if (command === 'random') {
     if (message.member.roles.cache.has('832089472337182770')) {
       randomAcronym()
       randomLetter()
-      return message.channel.send(`Games have been randomized.`)
-    } else
-      return message.channel.send(
-        `You don't have the clearance for that, I'm afraid.`
-      )
+    } else return message.channel.send(`You don't have the clearance for that.`)
   } else if (command === 'resurrect' || command === 'ressurect') {
     if (!message.member.roles.cache.has(roleGhost))
       return message.channel.send(`You're not dead.`)
