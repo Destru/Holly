@@ -152,11 +152,10 @@ const randomAcronym = () => {
   }
 
   channel.setTopic(
-    `${
-      alphabetEmoji[acronym.charCodeAt(0) - 96] +
-      alphabetEmoji[acronym.charCodeAt(1) - 96] +
-      alphabetEmoji[acronym.charCodeAt(2) - 96]
-    } :skull:`
+    `${alphabetEmoji[acronym.charCodeAt(0) - 96]} ${
+      alphabetEmoji[acronym.charCodeAt(1) - 96]
+    } ${alphabetEmoji[acronym.charCodeAt(2) - 96]}
+    :skull:`
   )
 }
 const randomLetter = () => {
