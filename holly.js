@@ -1021,14 +1021,12 @@ client.on('ready', () => {
 })
 
 client.ws.on('INTERACTION_CREATE', async (interaction) => {
-  // console.log(`Interaction ID: ${interaction.data.id}`)
-
   if (interaction.data.name === 'anon') {
     const channel = client.channels.cache.get(channelId.anonymous)
     const message = interaction.data.options[0].value
     const uid = interaction.member.user.id
-    const sets = ['', 'set2', 'set3', 'set4']
-    const set = sets[Math.floor(Math.random() * sets.length)] // TODO
+    // const sets = ['', 'set2', 'set3', 'set4']
+    // const set = sets[Math.floor(Math.random() * sets.length)]
 
     const embed = new Discord.MessageEmbed()
       .setColor(COLORS.embedBlack)
@@ -1039,15 +1037,16 @@ client.ws.on('INTERACTION_CREATE', async (interaction) => {
       data: {
         type: 4,
         data: {
-          content: 'Posting anonymously <:anonymous:837247849145303080>',
+          content: '<:anonymous:837247849145303080>',
+          ephemeral: true,
         },
       },
     })
 
-    fetch(
-      `https://discordapp.com/api/webhooks/301275924098449408/${interaction.token}/messages/@original`,
-      { method: 'DELETE' }
-    )
+    // fetch(
+    //   `https://discordapp.com/api/webhooks/${CSC.id}/${interaction.token}/messages/@original`,
+    //   { method: 'DELETE' }
+    // )
 
     channel.send(embed)
   }
