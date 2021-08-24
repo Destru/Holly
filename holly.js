@@ -1034,19 +1034,19 @@ client.ws.on('INTERACTION_CREATE', async (interaction) => {
       .setDescription(`**Anonymous**\n${message}`)
       .setThumbnail(`https://robohash.org/${uid}.png`)
 
-    client.api.interactions(interaction.id, interaction.token).callback.post({
-      data: {
-        type: 4,
-        data: {
-          content: '<:anonymous:837247849145303080>',
-        },
-        flags: 1 << 6,
-      },
-    })
-    await fetch(
-      `https://discordapp.com/api/webhooks/${HOLLY}/${interaction.token}/messages/@original`,
-      { method: 'DELETE' }
-    )
+    // client.api.interactions(interaction.id, interaction.token).callback.post({
+    //   data: {
+    //     type: 4,
+    //     data: {
+    //       content: '<:anonymous:837247849145303080>',
+    //     },
+    //     flags: 1 << 6,
+    //   },
+    // })
+    // await fetch(
+    //   `https://discordapp.com/api/webhooks/${HOLLY}/${interaction.token}/messages/@original`,
+    //   { method: 'DELETE' }
+    // )
     channel.send(embed)
   }
 })
