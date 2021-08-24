@@ -700,54 +700,95 @@ client.on('message', (message) => {
       embed.addField('Leaderboard', leaderboard.join('\n'), false)
       message.channel.send(embed)
     }
+  } else if (command === 'deploy') {
+    if (message.member.roles.cache.has('832089472337182770')) {
+      if (version === '(Development)') {
+        client.api
+          .applications(client.user.id)
+          .guilds(CSC)
+          .commands('879208552579874927')
+          .delete()
+        message.channel.send('Slash commands updated.')
+      } else {
+        client.api
+          .applications(client.user.id)
+          .guilds(CSC)
+          .commands.post({
+            data: {
+              name: 'anon',
+              description: '#anonymous chat',
+              options: [
+                {
+                  type: 3,
+                  name: 'message',
+                  description: 'Message',
+                  required: true,
+                },
+              ],
+            },
+          })
+        message.channel.send('Deployment successful.')
+      }
+    } else message.channel.send('No access.')
   } else if (command === 'haikus') {
     const id = subjectId(message)
     const haikus = Haiku.find().matches('uid', id).run()
 
-    if (haikus.length > 0) {
-      if (haikus.length > perPage) {
-        const pages = []
-        const pageCount = Math.ceil(haikus.length / perPage)
+    if (args[0] === 'remove') {
+      if (haikus[args[1]]) {
+        Haiku.remove(haikus[args[1] - 1]._id_)
+        message.channel.send(`Haiku removed.`)
+      } else {
+        message.channel.send(`Haiku not found.`)
+      }
+    } else {
+      if (haikus.length > 0) {
+        if (haikus.length > perPage) {
+          const pages = []
+          const pageCount = Math.ceil(haikus.length / perPage)
 
-        message.guild.members.fetch(id).then((member) => {
-          for (let page = 0; page < pageCount; page++) {
-            let displayHaikus = ''
+          message.guild.members.fetch(id).then((member) => {
+            for (let page = 0; page < pageCount; page++) {
+              let displayHaikus = ''
 
+              const embed = new Discord.MessageEmbed()
+                .setAuthor(member.user.username, member.user.avatarURL())
+                .setColor(COLORS.embed)
+              const haikuIndex = perPage * page
+
+              for (i = haikuIndex; i < haikuIndex + perPage; i++) {
+                if (haikus[i]) {
+                  displayHaikus +=
+                    `\`${i + 1}.\`` +
+                    `\n${haikus[i].content}` +
+                    `\n<#${haikus[i].channel}>\n\n`
+                }
+              }
+
+              embed.setDescription(displayHaikus)
+              pages.push(embed)
+            }
+
+            paginationEmbed(message, pages)
+          })
+        } else {
+          message.guild.members.fetch(id).then((member) => {
             const embed = new Discord.MessageEmbed()
               .setAuthor(member.user.username, member.user.avatarURL())
               .setColor(COLORS.embed)
-            const haikuIndex = perPage * page
 
-            for (i = haikuIndex; i < haikuIndex + perPage; i++) {
-              if (haikus[i]) {
-                displayHaikus +=
-                  `${haikus[i].content}` + `\n<#${haikus[i].channel}>\n\n`
-              }
-            }
+            let displayHaikus = ''
+
+            haikus.forEach((haiku) => {
+              displayHaikus += `${haiku.content}` + `\n<#${haiku.channel}>\n\n`
+            })
 
             embed.setDescription(displayHaikus)
-            pages.push(embed)
-          }
-
-          paginationEmbed(message, pages)
-        })
-      } else {
-        message.guild.members.fetch(id).then((member) => {
-          const embed = new Discord.MessageEmbed()
-            .setAuthor(member.user.username, member.user.avatarURL())
-            .setColor(COLORS.embed)
-
-          let displayHaikus = ''
-
-          haikus.forEach((haiku) => {
-            displayHaikus += `${haiku.content}` + `\n<#${haiku.channel}>\n\n`
+            message.channel.send(embed)
           })
-
-          embed.setDescription(displayHaikus)
-          message.channel.send(embed)
-        })
-      }
-    } else return message.channel.send(`No haikus found.`)
+        }
+      } else return message.channel.send(`No haikus found.`)
+    }
   } else if (command === 'letter') {
     const matches = Meta.find().matches('name', 'word-war').limit(1).run()
 
@@ -951,24 +992,6 @@ client.on('message', (message) => {
 client.on('ready', () => {
   console.log(`Holly ${version} is online.`)
 
-  client.api
-    .applications(client.user.id)
-    .guilds(CSC)
-    .commands.set({
-      data: {
-        name: 'anon',
-        description: '#anonymous chat',
-        options: [
-          {
-            type: 3,
-            name: 'message',
-            description: 'Message',
-            required: true,
-          },
-        ],
-      },
-    })
-
   client.user.setPresence({
     status: 'online',
     activity: {
@@ -998,17 +1021,19 @@ client.on('ready', () => {
 })
 
 client.ws.on('INTERACTION_CREATE', async (interaction) => {
+  // console.log(`Interaction ID: ${interaction.data.id}`)
+
   if (interaction.data.name === 'anon') {
     const channel = client.channels.cache.get(channelId.anonymous)
     const message = interaction.data.options[0].value
     const uid = interaction.member.user.id
     const sets = ['', 'set2', 'set3', 'set4']
-    const set = sets[Math.floor(Math.random() * sets.length)]
+    const set = sets[Math.floor(Math.random() * sets.length)] // TODO
 
     const embed = new Discord.MessageEmbed()
       .setColor(COLORS.embedBlack)
       .setDescription(`**Anonymous**\n${message}`)
-      .setThumbnail(`https://robohash.org/${uid}.png?set=${set}`)
+      .setThumbnail(`https://robohash.org/${uid}.png`)
 
     client.api.interactions(interaction.id, interaction.token).callback.post({
       data: {
