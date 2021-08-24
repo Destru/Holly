@@ -709,7 +709,7 @@ client.on('message', (message) => {
           .guilds(CSC)
           .commands('879208552579874927')
           .delete()
-        message.channel.send('Slash commands updated.')
+        message.channel.send('`/anon` deleted')
       } else {
         client.api
           .applications(client.user.id)
@@ -717,7 +717,7 @@ client.on('message', (message) => {
           .commands.post({
             data: {
               name: 'anon',
-              description: '#anonymous chat',
+              description: 'Post in #anonymous chat',
               options: [
                 {
                   type: 3,
@@ -1045,11 +1045,6 @@ client.ws.on('INTERACTION_CREATE', async (interaction) => {
     })
 
     channel.send(embed)
-    await wait(1000)
-    await fetch(
-      `https://discordapp.com/api/webhooks/${HOLLY}/${interaction.token}/messages/@original`,
-      { method: 'DELETE' }
-    )
   }
 })
 
