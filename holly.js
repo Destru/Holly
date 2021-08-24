@@ -76,6 +76,7 @@ const channelId = {
   nsfw: '362316618044407819',
   releases: '352149516885164044',
   stimulus: '419929465989234720',
+  terminal: '405503298951446528',
   wordwar: '866967592622489640',
   writing: '843417014756179978',
 }
@@ -133,11 +134,10 @@ const randomEmoji = () => {
 const randomAcronym = () => {
   const channel = client.channels.cache.get(channelId.acronyms)
   const matches = Meta.find().matches('name', 'acronyms').limit(1).run()
-
-  const acronyms =
-    'csc acab cccp cia fbi kgb nasa nsa lol omg wtf afk brb mcd kfc bbq lmao'.split(
-      ' '
-    )
+  const csc = 'csc '.repeat(10)
+  const rare =
+    'acab cccp cia fbi kgb nasa nsa ' + 'lol omg wtf afk brb mcd kfc bbq lmao '
+  let acronyms = `${csc} ${silly}`.split(' ')
   let acronym = acronyms[Math.floor(Math.random() * acronyms.length)]
 
   console.log(acronym)
@@ -354,8 +354,7 @@ client.on('message', (message) => {
   }
 
   if (message.author.bot) {
-    if (message.channel.id === '405503298951446528') {
-      // #terminal
+    if (message.channel.id === channelId.terminal) {
       if (message.author.id === '844980040579678259') {
         // Queeg
         const matches = message.content.match(/Running daily tasks\./)
@@ -978,11 +977,6 @@ client.on('message', (message) => {
 
       message.channel.send(embed)
     })
-  } else if (command === 'random') {
-    if (message.member.roles.cache.has('832089472337182770')) {
-      randomAcronym()
-      randomLetter()
-    } else return message.channel.send(`You don't have the clearance for that.`)
   } else if (command === 'resurrect' || command === 'ressurect') {
     if (!message.member.roles.cache.has(roleGhost))
       return message.channel.send(`You're not dead.`)
@@ -1092,6 +1086,7 @@ client.ws.on('INTERACTION_CREATE', async (interaction) => {
 
     if (avatar.length > 0)
       embed.setThumbnail(`https://robohash.org/${avatar[0].value}.png`)
+    else embed.setThumbnail(`https://robohash.org/${uid}.png`)
 
     if (randomize && randomize.value === true) {
       const rng = Math.floor(Math.random() * 18)
