@@ -1041,13 +1041,11 @@ client.ws.on('INTERACTION_CREATE', async (interaction) => {
         },
       },
     })
-    await interaction.deleteReply()
+    await fetch(
+      `https://discordapp.com/api/webhooks/${CSC.id}/${interaction.token}/messages/@original`,
+      { method: 'DELETE' }
+    )
     channel.send(embed)
-
-    // fetch(
-    //   `https://discordapp.com/api/webhooks/${CSC.id}/${interaction.token}/messages/@original`,
-    //   { method: 'DELETE' }
-    // )
   }
 })
 
