@@ -468,22 +468,27 @@ client.on('message', (message) => {
     }
     return
   } else if (message.channel.id === channelId.acronyms) {
+    const matches = Meta.find().matches('name', 'acronyms').limit(1).run()
     const words = message.content.toLowerCase().trim().split(' ')
 
-    let fail = false
+    if (matches.length > 0) {
+      const acronym = matches[0].value
+      let fail = false
 
-    if (message.content.match(acronym) && words.length === acronym.length) {
-      words.forEach((word, i) => {
-        if (!dictionary.check(word) || !word.startsWith(acronym[i])) fail = true
-      })
-    } else fail = true
+      if (words.length === acronym.length) {
+        words.forEach((word, i) => {
+          if (!dictionary.check(word) || !word.startsWith(acronym[i]))
+            fail = true
+        })
+      } else fail = true
 
-    if (fail === false) {
-      message.react('✅')
-      permaDeathScore()
-    } else {
-      message.react('❌')
-      permaDeath()
+      if (fail === false) {
+        message.react('✅')
+        permaDeathScore()
+      } else {
+        message.react('❌')
+        permaDeath()
+      }
     }
   } else if (message.channel.id === channelId.anonymous) {
     message.react('❌')
