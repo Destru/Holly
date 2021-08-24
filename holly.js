@@ -1033,6 +1033,8 @@ client.ws.on('INTERACTION_CREATE', async (interaction) => {
       .setDescription(`**Anonymous**\n${message}`)
       .setThumbnail(`https://robohash.org/${uid}.png`)
 
+    channel.send(embed)
+
     client.api.interactions(interaction.id, interaction.token).callback.post({
       data: {
         type: 4,
@@ -1047,8 +1049,6 @@ client.ws.on('INTERACTION_CREATE', async (interaction) => {
     //   `https://discordapp.com/api/webhooks/${CSC.id}/${interaction.token}/messages/@original`,
     //   { method: 'DELETE' }
     // )
-
-    channel.send(embed)
   }
 })
 
