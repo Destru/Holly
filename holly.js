@@ -1057,6 +1057,10 @@ client.on('message', (message) => {
         pronouns = `\` Pronouns: Ask \``
       if (pronouns.length > 0) description = `${pronouns} ${description}`
 
+      if (bio) {
+        badges.push(`[<:comrade:428333024631848980>](${bio.url})`)
+      }
+
       if (admin) {
         let badge = BADGES.find((badge) => {
           return badge.name === 'Operator'
@@ -1089,9 +1093,6 @@ client.on('message', (message) => {
         permadeath.push(points)
       }
 
-      if (bio)
-        description =
-          `[<:comrade:428333024631848980>](${bio.url}) ` + description
       if (haikus.length > 0) {
         const haiku = haikus[Math.floor(Math.random() * haikus.length)]
         embed.addField('Haiku', `*${haiku.content}*`, false)
