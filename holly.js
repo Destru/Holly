@@ -211,7 +211,7 @@ const ranks = {
   50: 'Cyberpunk',
   60: 'Tron',
 }
-const ROLES = {
+const ROLEIDS = {
   tron: '832402366698618941',
   cyberpunk: '419210958603419649',
   replicant: '832401876024295424',
@@ -228,7 +228,9 @@ const ROLES = {
   hehim: '872843239009431664',
   sheher: '872843238657110076',
   theythem: '872843238208319529',
+  patron: '824015992417419283',
   pronons: '872843237344288779',
+  psyop: '444074281694003210',
   voter: '827915811724460062',
 }
 const setReactions = (message, type = false) => {
@@ -318,7 +320,7 @@ client.on('message', (message) => {
 
     if (!isImmortal(message.author.id)) {
       if (message) message.react('💀')
-      message.member.roles.add(ROLES.ghost)
+      message.member.roles.add(ROLEIDS.ghost)
       channelGraveyard.send(obituary)
       permaDeathScore(true)
     } else {
@@ -827,7 +829,7 @@ client.on('message', (message) => {
       })
     }
   } else if (command === 'deploy') {
-    if (message.member.roles.cache.has('832089472337182770')) {
+    if (message.member.roles.cache.has(ROLEIDS.admin)) {
       if (version === '(Development)') {
         client.api
           .applications(client.user.id)
@@ -1011,8 +1013,8 @@ client.on('message', (message) => {
 
     message.guild.members.fetch(id).then((member) => {
       const admin =
-        member.roles.cache.has(ROLES.admin) ||
-        member.roles.cache.has(ROLES.operator)
+        member.roles.cache.has(ROLEIDS.admin) ||
+        member.roles.cache.has(ROLEIDS.operator)
       const avatar =
         Meta.find()
           .matches('uid', id)
@@ -1023,8 +1025,8 @@ client.on('message', (message) => {
       const deaths = Death.find().matches('uid', id).limit(1).run()
       const haikus = Haiku.find().matches('uid', id).run()
       const immortal = Immortal.find().matches('uid', id).limit(1).run()
-      const patron = member.roles.cache.has('824015992417419283')
-      const psyop = member.roles.cache.has('444074281694003210')
+      const patron = member.roles.cache.has(ROLEIDS.patron)
+      const psyop = member.roles.cache.has(ROLEIDS.psyop)
       const memberFor = Date.now() - member.joinedAt.getTime()
 
       let badges = []
@@ -1033,24 +1035,25 @@ client.on('message', (message) => {
         pronouns = '',
         rank = ''
 
-      if (member.roles.cache.has(ROLES.hehim)) pronouns += `\` He/Him \` `
-      if (member.roles.cache.has(ROLES.sheher)) pronouns += `\` She/Her \` `
-      if (member.roles.cache.has(ROLES.theythem)) pronouns += `\` They/Them \` `
-      if (member.roles.cache.has(ROLES.pronouns))
+      if (member.roles.cache.has(ROLEIDS.hehim)) pronouns += `\` He/Him \` `
+      if (member.roles.cache.has(ROLEIDS.sheher)) pronouns += `\` She/Her \` `
+      if (member.roles.cache.has(ROLEIDS.theythem))
+        pronouns += `\` They/Them \` `
+      if (member.roles.cache.has(ROLEIDS.pronouns))
         pronouns = `\` Pronouns: Ask \``
       if (pronouns.length > 0) description = `${pronouns}\n${description}`
 
-      if (member.roles.cache.has(ROLES.tron)) rank = `Tron`
-      else if (member.roles.cache.has(ROLES.cyberpunk)) rank = `Cyberpunk`
-      else if (member.roles.cache.has(ROLES.replicant)) rank = `Replicant`
-      else if (member.roles.cache.has(ROLES.android)) rank = `Android`
-      else if (member.roles.cache.has(ROLES.cyborg)) rank = `Cyborg`
-      else if (member.roles.cache.has(ROLES.augmented)) rank = `Augmented`
-      else if (member.roles.cache.has(ROLES.revolutionary))
+      if (member.roles.cache.has(ROLEIDS.tron)) rank = `Tron`
+      else if (member.roles.cache.has(ROLEIDS.cyberpunk)) rank = `Cyberpunk`
+      else if (member.roles.cache.has(ROLEIDS.replicant)) rank = `Replicant`
+      else if (member.roles.cache.has(ROLEIDS.android)) rank = `Android`
+      else if (member.roles.cache.has(ROLEIDS.cyborg)) rank = `Cyborg`
+      else if (member.roles.cache.has(ROLEIDS.augmented)) rank = `Augmented`
+      else if (member.roles.cache.has(ROLEIDS.revolutionary))
         rank = `Revolutionary`
-      else if (member.roles.cache.has(ROLES.insurgent)) rank = `Insurgent`
-      else if (member.roles.cache.has(ROLES.activist)) rank = `Activist`
-      else if (member.roles.cache.has(ROLES.comrade)) rank = `Comrade`
+      else if (member.roles.cache.has(ROLEIDS.insurgent)) rank = `Insurgent`
+      else if (member.roles.cache.has(ROLEIDS.activist)) rank = `Activist`
+      else if (member.roles.cache.has(ROLEIDS.comrade)) rank = `Comrade`
       if (rank.length > 0) description = `${rank} ${description}`
 
       if (admin) {
@@ -1103,7 +1106,7 @@ client.on('message', (message) => {
       message.channel.send(embed)
     })
   } else if (command === 'resurrect' || command === 'ressurect') {
-    if (!message.member.roles.cache.has(ROLES.ghost))
+    if (!message.member.roles.cache.has(ROLEIDS.ghost))
       return message.channel.send(`You're not dead.`)
 
     const embed = new Discord.MessageEmbed()
@@ -1119,7 +1122,7 @@ client.on('message', (message) => {
     }
 
     if (!timeRemaining) {
-      message.member.roles.remove(ROLES.ghost)
+      message.member.roles.remove(ROLEIDS.ghost)
       if (hasResurrected) Resurrection.remove(matches[0]._id_)
       Resurrection.add({ uid: message.author.id })
       embed.setDescription(`You have been resurrected 🙏`)
