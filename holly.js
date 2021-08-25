@@ -1,6 +1,7 @@
 require('dotenv').config()
 require('discord-reply')
 const Discord = require('discord.js')
+const fs = require('fs')
 const client = new Discord.Client()
 const db = require('flat-db')
 const cron = require('node-cron')
@@ -51,11 +52,29 @@ const alphabetEmoji =
   '🇦 🇧 🇨 🇩 🇪 🇫 🇬 🇭 🇮 🇯 🇰 🇱 🇲 🇳 🇴 🇵 🇶 🇷 🇸 🇹 🇺 🇻 🇼 🇽 🇾 🇿'.split(
     ' '
   )
+const BADGES = [
+  { name: 'Admin', description: 'Administration', emoji: '🕵️‍♀️' },
+  {
+    name: 'Anonymous',
+    description: 'Anonymous Avatar',
+    emoji: '<:anonymous:837247849145303080>',
+  },
+  {
+    name: 'Patreon',
+    description: 'Patreon Supporter',
+    emoji: '<:patreon:837291787797135360>',
+  },
+  {
+    name: 'Twitch',
+    description: 'Twitch Subscriber',
+    emoji: '<:twitch:847500070373818379>',
+  },
+]
 const capitalize = (string) => {
   if (typeof string !== 'string') return string
   return string.charAt(0).toUpperCase() + string.slice(1)
 }
-const channelId = {
+const CHANNELIDS = {
   akihabara: '837824443799175179',
   anything: '462734936177115136',
   acronyms: '866967261092773918',
@@ -75,6 +94,7 @@ const channelId = {
   memes: '415948136759164928',
   nsfw: '362316618044407819',
   releases: '352149516885164044',
+  saferspace: '830131461000658994',
   stimulus: '419929465989234720',
   terminal: '405503298951446528',
   wordwar: '866967592622489640',
@@ -122,25 +142,15 @@ const quotes = [
   `Our deepest fear is going space crazy through loneliness. The only thing that helps me keep my slender grip on reality is the friendship I have with my collection of anime waifus.`,
   `Well, the thing about a black hole, its main distinguishing feature, is it's black. And the thing about space, the colour of space, your basic space colour, is black. So how are you supposed to see them?`,
 ]
-const randomChance = 0.02
-const randomEmoji = () => {
-  const emoji = [
-    '<:cscalt:837251418247004205>',
-    '<:cscbob:846528128524091422>',
-    '<:csc:403256716583632906>',
-  ]
-  return emoji[Math.floor(Math.random() * emoji.length)]
-}
 const randomAcronym = () => {
-  const channel = client.channels.cache.get(channelId.acronyms)
-  const matches = Meta.find().matches('name', 'acronyms').limit(1).run()
+  const channel = client.channels.cache.get(CHANNELIDS.acronyms)
   const csc = 'csc '.repeat(10)
+  const matches = Meta.find().matches('name', 'acronyms').limit(1).run()
   const rare =
     'acab cccp cia fbi kgb nasa nsa ' + 'lol omg wtf afk brb mcd kfc bbq lmao '
-  let acronyms = `${csc} ${silly}`.split(' ')
-  let acronym = acronyms[Math.floor(Math.random() * acronyms.length)]
 
-  console.log(acronym)
+  let acronyms = `${csc} ${rare}`.split(' ')
+  let acronym = acronyms[Math.floor(Math.random() * acronyms.length)]
 
   if (matches.length > 0) {
     while (acronym === matches[0].value) {
@@ -158,8 +168,17 @@ const randomAcronym = () => {
     :skull:`
   )
 }
+const randomChance = 0.025
+const randomEmoji = () => {
+  const emoji = [
+    '<:cscalt:837251418247004205>',
+    '<:cscbob:846528128524091422>',
+    '<:csc:403256716583632906>',
+  ]
+  return emoji[Math.floor(Math.random() * emoji.length)]
+}
 const randomLetter = () => {
-  const channel = client.channels.cache.get(channelId.wordwar)
+  const channel = client.channels.cache.get(CHANNELIDS.wordwar)
   const matches = Meta.find().matches('name', 'word-war').limit(1).run()
   const random = Math.floor(Math.random() * alphabet.length)
 
@@ -196,7 +215,7 @@ const setReactions = (message, type = false) => {
       message.react('875259618119536701')
       break
     case 'updown':
-      if (message.channel.id === channelId.memes)
+      if (message.channel.id === CHANNELIDS.memes)
         message.react('830114281168699412')
       else message.react('462126280704262144')
       message.react('462126761098870784')
@@ -220,7 +239,17 @@ const subjectId = (message) => {
 const timerFeedbackDelete = 5000
 const version = process.env.npm_package_version || '(Development)'
 
+let KEY
+fs.readFile('./key.md', 'utf8', (err, data) => {
+  if (err) {
+    console.error(err)
+    return
+  }
+  KEY = data.trim()
+})
+
 db.configure({ dir: './db' })
+
 const Bio = new db.Collection('bios', {
   uid: '',
   url: '',
@@ -257,7 +286,7 @@ client.on('message', (message) => {
   const { isHaiku, formattedHaiku } = findahaiku.analyzeText(message.content)
 
   const permaDeath = () => {
-    const channelGraveyard = client.channels.cache.get(channelId.graveyard)
+    const channelGraveyard = client.channels.cache.get(CHANNELIDS.graveyard)
     const obituary = new Discord.MessageEmbed()
       .setColor(COLORS.embedBlack)
       .setThumbnail(message.author.avatarURL())
@@ -320,7 +349,11 @@ client.on('message', (message) => {
     }
   }
 
-  if (!message.author.bot && isHaiku) {
+  if (
+    !message.author.bot &&
+    isHaiku &&
+    message.channel.id !== CHANNELIDS.saferspace
+  ) {
     const poet =
       message.channel.id === '412714197399371788'
         ? message.author.username.toUpperCase()
@@ -354,7 +387,7 @@ client.on('message', (message) => {
   }
 
   if (message.author.bot) {
-    if (message.channel.id === channelId.terminal) {
+    if (message.channel.id === CHANNELIDS.terminal) {
       if (message.author.id === '844980040579678259') {
         // Queeg
         const matches = message.content.match(/Running daily tasks\./)
@@ -466,7 +499,7 @@ client.on('message', (message) => {
       }
     }
     return
-  } else if (message.channel.id === channelId.acronyms) {
+  } else if (message.channel.id === CHANNELIDS.acronyms) {
     const matches = Meta.find().matches('name', 'acronyms').limit(1).run()
     const words = message.content.toLowerCase().trim().split(' ')
 
@@ -489,21 +522,21 @@ client.on('message', (message) => {
         permaDeath()
       }
     }
-  } else if (message.channel.id === channelId.anonymous) {
+  } else if (message.channel.id === CHANNELIDS.anonymous) {
     message.react('❌')
     permaDeath()
-  } else if (message.channel.id === channelId.allcaps) {
+  } else if (message.channel.id === CHANNELIDS.allcaps) {
     const allCaps = /^[A-Z0-9\s-_,./?;:'"‘’“”`~!@#$%^&*()=+|\\<>\[\]{}]+$/gm
 
     if (!message.content.match(allCaps)) {
       message.react('❌')
       permaDeath()
     } else permaDeathScore()
-  } else if (message.channel.id === channelId.bandnames) {
+  } else if (message.channel.id === CHANNELIDS.bandnames) {
     setReactions(message, 'updown')
   } else if (
-    message.channel.id === channelId.comrades ||
-    message.channel.id === channelId.contest
+    message.channel.id === CHANNELIDS.comrades ||
+    message.channel.id === CHANNELIDS.contest
   ) {
     const embed = new Discord.MessageEmbed()
       .setColor(COLORS.embed)
@@ -511,7 +544,7 @@ client.on('message', (message) => {
 
     let matches
 
-    if (message.channel.id === channelId.comrades) {
+    if (message.channel.id === CHANNELIDS.comrades) {
       matches = Bio.find().matches('uid', message.author.id).limit(1).run()
     } else {
       matches = Entry.find().matches('uid', message.author.id).limit(3).run()
@@ -531,7 +564,7 @@ client.on('message', (message) => {
         }, timerFeedbackDelete)
       })
     } else {
-      if (message.channel.id === channelId.comrades) {
+      if (message.channel.id === CHANNELIDS.comrades) {
         setReactions(message, 'csc')
         Bio.add({
           uid: message.author.id,
@@ -545,7 +578,7 @@ client.on('message', (message) => {
         })
       }
     }
-  } else if (message.channel.id === channelId.counting) {
+  } else if (message.channel.id === CHANNELIDS.counting) {
     const matches = Meta.find().matches('name', 'counting').limit(1).run()
     const numOnly = /^\d+$/
 
@@ -595,8 +628,8 @@ client.on('message', (message) => {
       permaDeath()
     }
   } else if (
-    message.channel.id === channelId.memes ||
-    message.channel.id === channelId.stimulus
+    message.channel.id === CHANNELIDS.memes ||
+    message.channel.id === CHANNELIDS.stimulus
   ) {
     if (
       message.content.includes('http://') ||
@@ -606,11 +639,11 @@ client.on('message', (message) => {
       setReactions(message, 'updown')
     }
   } else if (
-    message.channel.id === channelId.nsfw ||
-    message.channel.id === channelId.irl
+    message.channel.id === CHANNELIDS.nsfw ||
+    message.channel.id === CHANNELIDS.irl
   ) {
     setReactions(message)
-  } else if (message.channel.id === channelId.wordwar) {
+  } else if (message.channel.id === CHANNELIDS.wordwar) {
     const matches = Meta.find().matches('name', 'word-war').limit(1).run()
     const word = message.content.toLowerCase().trim()
 
@@ -633,8 +666,8 @@ client.on('message', (message) => {
       }
     }
   } else if (
-    message.channel.id === channelId.akihabara ||
-    message.channel.id === channelId.hornyjail
+    message.channel.id === CHANNELIDS.akihabara ||
+    message.channel.id === CHANNELIDS.hornyjail
   ) {
     // #akihabara + #horny-jail
     if (akihabara.includes(command)) {
@@ -662,13 +695,13 @@ client.on('message', (message) => {
     }
   } else if (
     [
-      channelId.anything,
-      channelId.comrades,
-      channelId.composing,
-      channelId.gallery,
-      channelId.illustrating,
-      channelId.releases,
-      channelId.writing,
+      CHANNELIDS.anything,
+      CHANNELIDS.comrades,
+      CHANNELIDS.composing,
+      CHANNELIDS.gallery,
+      CHANNELIDS.illustrating,
+      CHANNELIDS.releases,
+      CHANNELIDS.writing,
     ].includes(message.channel.id)
   ) {
     if (
@@ -678,6 +711,22 @@ client.on('message', (message) => {
     ) {
       setReactions(message, 'csc')
     }
+  } else if (command === 'badges') {
+    const embed = new Discord.MessageEmbed()
+      .setColor(COLORS.embed)
+      .setDescription(
+        `These are *not* all of the available badges; ` +
+          `because where's the fun in that? ` +
+          `Watch out for rabbit holes [:rabbit2:](https://github.com/Destru/Holly/blob/master/key.md)`
+      )
+      .setTitle('Badges')
+
+    BADGES.forEach((badge) => {
+      embed.addField(`${badge.name} ${badge.emoji}`, badge.description, true)
+    })
+
+    message.channel.send(embed)
+    // badges
   } else if (command === 'bot-info') {
     const embed = new Discord.MessageEmbed()
       .setColor(COLORS.embed)
@@ -750,7 +799,10 @@ client.on('message', (message) => {
         leaderboard.push(`\`${i + 1}.\` ${user} \`${score}\``)
       }
       embed.addField('Leaderboard', leaderboard.join('\n'), false)
-      message.channel.send(embed)
+      message.guild.members.fetch(deathsRanked[0].uid).then((member) => {
+        embed.setThumbnail(member.user.avatarURL())
+        message.channel.send(embed)
+      })
     }
   } else if (command === 'deploy') {
     if (message.member.roles.cache.has('832089472337182770')) {
@@ -915,7 +967,10 @@ client.on('message', (message) => {
         leaderboard.push(`\`${i + 1}.\` ${user} \`${score}\``)
       }
       embed.addField('Leaderboard', leaderboard.join('\n'), false)
-      message.channel.send(embed)
+      message.guild.members.fetch(immortalRanked[0].uid).then((member) => {
+        embed.setThumbnail(member.user.avatarURL())
+        message.channel.send(embed)
+      })
     }
   } else if (command === 'points') {
     const matches = Immortal.find()
@@ -1056,11 +1111,20 @@ client.on('message', (message) => {
     message.channel.send(embed)
   } else if (command === 'version') {
     message.channel.send(version)
+  } else if (message.content.includes(KEY)) {
+    // rabbit hole 🐇
+    message.channel
+      .send(`Attempting connection with \`${KEY}\`...`)
+      .then((message) => {
+        setTimeout(() => {
+          message.channel.send(`Timed out.`)
+        }, 5000)
+      })
   }
 })
 
 client.on('ready', () => {
-  console.log(`Holly ${version} is online.`)
+  console.log(`Holly ${version} is online.` + `\nKey: ${KEY}`)
 
   client.user.setPresence({
     status: 'online',
@@ -1078,7 +1142,7 @@ client.on('ready', () => {
 
 client.ws.on('INTERACTION_CREATE', async (interaction) => {
   if (interaction.data.name === 'anon') {
-    const channel = client.channels.cache.get(channelId.anonymous)
+    const channel = client.channels.cache.get(CHANNELIDS.anonymous)
     const message = interaction.data.options[0].value
     const randomize = interaction.data.options[1]
     const uid = interaction.member.user.id
