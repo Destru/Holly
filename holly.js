@@ -1195,7 +1195,7 @@ client.on('message', (message) => {
     message.channel.send(version)
   } else if (message.content.includes(KEY)) {
     message.delete()
-    if (message.member.roles.has(ROLEIDS.blackop)) {
+    if (message.member.roles.cache.has(ROLEIDS.blackop)) {
       message.channel.send('🐇').then((message) => {
         message.delete()
       }, timerFeedbackDelete)
