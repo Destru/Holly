@@ -224,9 +224,9 @@ const ROLEIDS = {
   comrade: '422282829494484992',
 
   admin: '832089472337182770',
-  blackop: '879993290877984818',
   ghost: '832393909988491304',
   hehim: '872843239009431664',
+  leet: '879993290877984818',
   operator: '412545631228395540',
   sheher: '872843238657110076',
   theythem: '872843238208319529',
@@ -741,16 +741,20 @@ client.on('message', (message) => {
   } else if (command === 'badges') {
     const embed = new Discord.MessageEmbed()
       .setColor(COLORS.embed)
-      .setDescription(
-        `These are *not* all of the available badges; ` +
-          `because where's the fun in that? ` +
-          `Watch out for rabbit holes [:rabbit2:](https://github.com/Destru/Holly/blob/master/key.md)`
-      )
       .setTitle('Badges')
 
+    let badges = []
+
     BADGES.forEach((badge) => {
-      embed.addField(badge.emoji, badge.name, true)
+      badges.push(`${badge.name} ${badge.emoji}`)
     })
+
+    embed.setDescription(
+      `These are *not* all of the available badges; ` +
+        `because where's the fun in that? ` +
+        `Watch out for rabbit holes [:rabbit2:](https://github.com/Destru/Holly/blob/master/key.md)` +
+        `\n\n${badges.join('\n')}`
+    )
 
     return message.channel.send(embed)
   } else if (command === 'bot-info') {
@@ -1195,7 +1199,7 @@ client.on('message', (message) => {
     message.channel.send(version)
   } else if (message.content.includes(KEY)) {
     message.delete()
-    if (message.member.roles.cache.has(ROLEIDS.blackop)) {
+    if (message.member.roles.cache.has(ROLEIDS.leet)) {
       message.channel.send('🐇').then((message) => {
         setTimeout(() => {
           message.delete()
