@@ -53,21 +53,25 @@ const alphabetEmoji =
     ' '
   )
 const BADGES = [
-  { name: 'Admin', description: 'Administration', emoji: '🕵️‍♀️' },
   {
     name: 'Anonymous',
-    description: 'Anonymous Avatar',
+    description: 'Custom avatar for anonymous chat',
     emoji: '<:anonymous:837247849145303080>',
   },
   {
-    name: 'Patreon',
-    description: 'Patreon Supporter',
+    name: 'Operator',
+    description: 'Member of the *CSC* administration',
+    emoji: '<:cscbob:846528128524091422>',
+  },
+  {
+    name: 'Patron',
+    description: 'Super cool *Patreon* supporter',
     emoji: '<:patreon:837291787797135360>',
   },
   {
-    name: 'Twitch',
-    description: 'Twitch Subscriber',
-    emoji: '<:twitch:847500070373818379>',
+    name: 'PSYOP',
+    description: 'Awesome and rad *Twitch* subscriber',
+    emoji: '<:twitch:879932370210414703>',
   },
 ]
 const capitalize = (string) => {
@@ -207,7 +211,26 @@ const ranks = {
   50: 'Cyberpunk',
   60: 'Tron',
 }
-const roleGhost = '832393909988491304'
+const ROLES = {
+  tron: '832402366698618941',
+  cyberpunk: '419210958603419649',
+  replicant: '832401876024295424',
+  android: '832401705039691817',
+  cyborg: '349225708821676033',
+  augmented: '832400605947363360',
+  revolutionary: '414205618077827102',
+  insurgent: '832400140651462656',
+  activist: '348980130292695040',
+  comrade: '422282829494484992',
+  admin: '832089472337182770',
+  ghost: '832393909988491304',
+  operator: '412545631228395540',
+  hehim: '872843239009431664',
+  sheher: '872843238657110076',
+  theythem: '872843238208319529',
+  pronons: '872843237344288779',
+  voter: '827915811724460062',
+}
 const setReactions = (message, type = false) => {
   switch (type) {
     case 'csc':
@@ -295,7 +318,7 @@ client.on('message', (message) => {
 
     if (!isImmortal(message.author.id)) {
       if (message) message.react('💀')
-      message.member.roles.add(roleGhost)
+      message.member.roles.add(ROLES.ghost)
       channelGraveyard.send(obituary)
       permaDeathScore(true)
     } else {
@@ -722,11 +745,10 @@ client.on('message', (message) => {
       .setTitle('Badges')
 
     BADGES.forEach((badge) => {
-      embed.addField(`${badge.name} ${badge.emoji}`, badge.description, true)
+      embed.addField(badge.emoji, badge.name, true)
     })
 
     message.channel.send(embed)
-    // badges
   } else if (command === 'bot-info') {
     const embed = new Discord.MessageEmbed()
       .setColor(COLORS.embed)
@@ -919,7 +941,7 @@ client.on('message', (message) => {
 
       if (immortal && immortal.uid && immortal.score) {
         embed.setDescription(
-          `\`${immortal.score}\` points <:baphomet:866887258892140574>` +
+          `\`${immortal.score}\` points <:tst:866886790920405032>` +
             `\n\nBow before our ruler; an immortal being. ` +
             `Bathe in their light and unfathomable beauty, ` +
             `and *accept* their judgement.`
@@ -989,8 +1011,8 @@ client.on('message', (message) => {
 
     message.guild.members.fetch(id).then((member) => {
       const admin =
-        member.roles.cache.has('412545631228395540') ||
-        member.roles.cache.has('832089472337182770')
+        member.roles.cache.has(ROLES.admin) ||
+        member.roles.cache.has(ROLES.operator)
       const avatar =
         Meta.find()
           .matches('uid', id)
@@ -1001,28 +1023,69 @@ client.on('message', (message) => {
       const deaths = Death.find().matches('uid', id).limit(1).run()
       const haikus = Haiku.find().matches('uid', id).run()
       const immortal = Immortal.find().matches('uid', id).limit(1).run()
-      const patreon = member.roles.cache.has('824015992417419283')
-      const twitch = member.roles.cache.has('444074281694003210')
+      const patron = member.roles.cache.has('824015992417419283')
+      const psyop = member.roles.cache.has('444074281694003210')
       const memberFor = Date.now() - member.joinedAt.getTime()
 
       let badges = []
       let description = `Member for \`${prettyMs(memberFor)}\` `
-      let permadeath = []
+      let permadeath = [],
+        pronouns = '',
+        rank = ''
 
-      if (admin) badges.push('<:cscalt:837251418247004205>')
-      if (avatar) badges.push('<:anonymous:837247849145303080>')
-      if (patreon) badges.push('<:patreon:837291787797135360>')
-      if (twitch) badges.push('<:twitch:847500070373818379>')
+      if (member.roles.cache.has(ROLES.hehim)) pronouns += `\` He/Him \` `
+      if (member.roles.cache.has(ROLES.sheher)) pronouns += `\` She/Her \` `
+      if (member.roles.cache.has(ROLES.theythem)) pronouns += `\` They/Them \` `
+      if (member.roles.cache.has(ROLES.pronouns))
+        pronouns = `\` Pronouns: Ask \``
+      if (pronouns.length > 0) description = `${pronouns}\n${description}`
+
+      if (member.roles.cache.has(ROLES.tron)) rank = `Tron`
+      else if (member.roles.cache.has(ROLES.cyberpunk)) rank = `Cyberpunk`
+      else if (member.roles.cache.has(ROLES.replicant)) rank = `Replicant`
+      else if (member.roles.cache.has(ROLES.android)) rank = `Android`
+      else if (member.roles.cache.has(ROLES.cyborg)) rank = `Cyborg`
+      else if (member.roles.cache.has(ROLES.augmented)) rank = `Augmented`
+      else if (member.roles.cache.has(ROLES.revolutionary))
+        rank = `Revolutionary`
+      else if (member.roles.cache.has(ROLES.insurgent)) rank = `Insurgent`
+      else if (member.roles.cache.has(ROLES.activist)) rank = `Activist`
+      else if (member.roles.cache.has(ROLES.comrade)) rank = `Comrade`
+      if (rank.length > 0) description = `${rank} ${description}`
+
+      if (admin) {
+        let badge = BADGES.find((badge) => {
+          return badge.name === 'Operator'
+        })
+        badges.push(badge.emoji)
+      }
+      if (avatar) {
+        let badge = BADGES.find((badge) => {
+          return badge.name === 'Anonymous'
+        })
+        badges.push(badge.emoji)
+      }
+      if (patron) {
+        let badge = BADGES.find((badge) => {
+          return badge.name === 'Patron'
+        })
+        badges.push(badge.emoji)
+      }
+      if (psyop) {
+        let badge = BADGES.find((badge) => {
+          return badge.name === 'PSYOP'
+        })
+        badges.push(badge.emoji)
+      }
 
       if (deaths.length > 0) permadeath.push(`Deaths \`${deaths[0].deaths}\``)
       if (immortal.length > 0) {
         let points = `Points \`${immortal[0].score}\``
-        if (isImmortal(immortal[0].uid))
-          points += ' <:baphomet:866887258892140574>'
+        if (isImmortal(immortal[0].uid)) points += ' <:tst:866886790920405032>'
         permadeath.push(points)
       }
 
-      if (bio) description += `\n[Mini Biography](${bio.url})`
+      if (bio) description += `\n[Biography](${bio.url})`
       if (haikus.length > 0) {
         const haiku = haikus[Math.floor(Math.random() * haikus.length)]
         embed.addField('Haiku', `*${haiku.content}*`, false)
@@ -1040,7 +1103,7 @@ client.on('message', (message) => {
       message.channel.send(embed)
     })
   } else if (command === 'resurrect' || command === 'ressurect') {
-    if (!message.member.roles.cache.has(roleGhost))
+    if (!message.member.roles.cache.has(ROLES.ghost))
       return message.channel.send(`You're not dead.`)
 
     const embed = new Discord.MessageEmbed()
@@ -1056,7 +1119,7 @@ client.on('message', (message) => {
     }
 
     if (!timeRemaining) {
-      message.member.roles.remove(roleGhost)
+      message.member.roles.remove(ROLES.ghost)
       if (hasResurrected) Resurrection.remove(matches[0]._id_)
       Resurrection.add({ uid: message.author.id })
       embed.setDescription(`You have been resurrected 🙏`)
