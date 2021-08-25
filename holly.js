@@ -1030,18 +1030,12 @@ client.on('message', (message) => {
       const memberFor = Date.now() - member.joinedAt.getTime()
 
       let badges = []
-      let description = `Member for \`${prettyMs(memberFor)}\` `
+      let description = `\` ${prettyMs(memberFor, {
+        compact: true,
+      })} \` `
       let permadeath = [],
         pronouns = '',
         rank = ''
-
-      if (member.roles.cache.has(ROLEIDS.hehim)) pronouns += `\` He/Him \` `
-      if (member.roles.cache.has(ROLEIDS.sheher)) pronouns += `\` She/Her \` `
-      if (member.roles.cache.has(ROLEIDS.theythem))
-        pronouns += `\` They/Them \` `
-      if (member.roles.cache.has(ROLEIDS.pronouns))
-        pronouns = `\` Pronouns: Ask \``
-      if (pronouns.length > 0) description = `${pronouns}\n${description}`
 
       if (member.roles.cache.has(ROLEIDS.tron)) rank = `Tron`
       else if (member.roles.cache.has(ROLEIDS.cyberpunk)) rank = `Cyberpunk`
@@ -1054,7 +1048,14 @@ client.on('message', (message) => {
       else if (member.roles.cache.has(ROLEIDS.insurgent)) rank = `Insurgent`
       else if (member.roles.cache.has(ROLEIDS.activist)) rank = `Activist`
       else if (member.roles.cache.has(ROLEIDS.comrade)) rank = `Comrade`
-      if (rank.length > 0) description = `${rank} ${description}`
+
+      if (member.roles.cache.has(ROLEIDS.hehim)) pronouns += `\` He/Him \` `
+      if (member.roles.cache.has(ROLEIDS.sheher)) pronouns += `\` She/Her \` `
+      if (member.roles.cache.has(ROLEIDS.theythem))
+        pronouns += `\` They/Them \` `
+      if (member.roles.cache.has(ROLEIDS.pronouns))
+        pronouns = `\` Pronouns: Ask \``
+      if (pronouns.length > 0) description = `${pronouns} ${description}`
 
       if (admin) {
         let badge = BADGES.find((badge) => {
@@ -1088,7 +1089,9 @@ client.on('message', (message) => {
         permadeath.push(points)
       }
 
-      if (bio) description += `\n[Biography](${bio.url})`
+      if (bio)
+        description =
+          `[<:comrade:428333024631848980>](${bio.url}) ` + description
       if (haikus.length > 0) {
         const haiku = haikus[Math.floor(Math.random() * haikus.length)]
         embed.addField('Haiku', `*${haiku.content}*`, false)
@@ -1102,6 +1105,8 @@ client.on('message', (message) => {
         .setDescription(description)
         .setThumbnail(member.user.avatarURL())
         .setTitle(member.displayName)
+
+      if (rank.length > 0) embed.setTitle(`${rank} ${member.displayName}`)
 
       message.channel.send(embed)
     })
