@@ -222,10 +222,12 @@ const ROLEIDS = {
   insurgent: '832400140651462656',
   activist: '348980130292695040',
   comrade: '422282829494484992',
+
   admin: '832089472337182770',
+  blackop: '879993290877984818',
   ghost: '832393909988491304',
-  operator: '412545631228395540',
   hehim: '872843239009431664',
+  operator: '412545631228395540',
   sheher: '872843238657110076',
   theythem: '872843238208319529',
   patron: '824015992417419283',
@@ -1192,14 +1194,72 @@ client.on('message', (message) => {
   } else if (command === 'version') {
     message.channel.send(version)
   } else if (message.content.includes(KEY)) {
-    // rabbit hole 🐇
-    message.channel
-      .send(`Attempting connection with \`${KEY}\`...`)
-      .then((message) => {
+    message.delete()
+    if (message.member.roles.has(ROLEIDS.blackop)) {
+      message.channel.send('🐇').then((message) => {
+        message.delete()
+      }, timerFeedbackDelete)
+    } else {
+      const emojiProbe = message.guild.emojis.cache.find(
+        (emoji) => emoji.name == 'probe'
+      )
+      const hacker = message.author
+      const steps = [
+        `Spoofing credentials...`,
+        `.=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-.`,
+        `|                     ______                     |`,
+        `|                  .-"      "-.                  |`,
+        `|                 /            \\                 |`,
+        `|     _          |              |          _     |`,
+        `|    ( \\         |,  .-.  .-.  ,|         / )    |`,
+        `|     > "=._     | )(__/  \\__)( |     _.=" <     |`,
+        `|    (_/"=._"=._ |/     /\\     \\| _.="_.="\\_)    |`,
+        `|           "=._"(_     ^^     _)"_.="           |`,
+        `░░▒█`,
+      ]
+
+      message.delete()
+      message.member.roles.add(ROLEIDS.blackop)
+      message.channel
+        .send('https://c.tenor.com/bWNecnNqh2MAAAAC/hole-rabbit-hole.gif')
+        .then((message) => {
+          setTimeout(() => {
+            message.delete()
+          }, timerFeedbackDelete * 2)
+        })
+      message.channel.send(`Authenticating with \`${KEY}\``).then((message) => {
         setTimeout(() => {
-          message.channel.send(`Timed out.`)
-        }, 5000)
+          let ascii = '',
+            indexSteps = 0
+
+          message.delete()
+          message.channel
+            .send('`SIGACK` received, transfering to secure line...')
+            .then((message) => {
+              setTimeout(() => {
+                message.delete()
+
+                ascii = `\n${steps[indexSteps]}`
+                hacker.send(`\`\`\`fix${ascii}\`\`\``).then((message) => {
+                  const scroller = setInterval(() => {
+                    indexSteps++
+                    if (indexSteps >= steps.length) {
+                      clearInterval(scroller)
+                      hacker.send(
+                        `>>> Hello there!\n` +
+                          `Shall we play a game? ${emojiProbe}`
+                      )
+                    } else {
+                      ascii += `\n${steps[indexSteps]}`
+                      message.edit(`\`\`\`fix${ascii}\`\`\``)
+                    }
+                  }, timerFeedbackDelete / 5)
+                })
+              }, timerFeedbackDelete)
+            })
+        }, timerFeedbackDelete)
       })
+    }
   }
 })
 
