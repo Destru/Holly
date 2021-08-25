@@ -1197,8 +1197,10 @@ client.on('message', (message) => {
     message.delete()
     if (message.member.roles.cache.has(ROLEIDS.blackop)) {
       message.channel.send('🐇').then((message) => {
-        message.delete()
-      }, timerFeedbackDelete)
+        setTimeout(() => {
+          message.delete()
+        }, timerFeedbackDelete)
+      })
     } else {
       const emojiProbe = message.guild.emojis.cache.find(
         (emoji) => emoji.name == 'probe'
