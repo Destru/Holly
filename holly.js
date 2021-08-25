@@ -750,7 +750,7 @@ client.on('message', (message) => {
       embed.addField(badge.emoji, badge.name, true)
     })
 
-    message.channel.send(embed)
+    return message.channel.send(embed)
   } else if (command === 'bot-info') {
     const embed = new Discord.MessageEmbed()
       .setColor(COLORS.embed)
@@ -774,7 +774,7 @@ client.on('message', (message) => {
         },
         { name: 'Version', value: version, inline: true }
       )
-    message.channel.send(embed)
+    return message.channel.send(embed)
   } else if (command === 'commands') {
     const embed = new Discord.MessageEmbed()
       .setColor(COLORS.embed)
@@ -793,7 +793,7 @@ client.on('message', (message) => {
         }
       )
 
-    message.channel.send(embed)
+    return message.channel.send(embed)
   } else if (command === 'deaths') {
     const deaths = Death.find().run()
     let deathCount = 0
@@ -825,7 +825,7 @@ client.on('message', (message) => {
       embed.addField('Leaderboard', leaderboard.join('\n'), false)
       message.guild.members.fetch(deathsRanked[0].uid).then((member) => {
         embed.setThumbnail(member.user.avatarURL())
-        message.channel.send(embed)
+        return message.channel.send(embed)
       })
     }
   } else if (command === 'deploy') {
@@ -868,7 +868,7 @@ client.on('message', (message) => {
           })
         message.channel.send('Deployment successful.')
       }
-    } else message.channel.send('No access.')
+    }
   } else if (command === 'haikus') {
     const id = subjectId(message)
     const haikus = Haiku.find().matches('uid', id).run()
@@ -908,7 +908,7 @@ client.on('message', (message) => {
               pages.push(embed)
             }
 
-            paginationEmbed(message, pages)
+            return paginationEmbed(message, pages)
           })
         } else {
           message.guild.members.fetch(id).then((member) => {
@@ -923,16 +923,11 @@ client.on('message', (message) => {
             })
 
             embed.setDescription(displayHaikus)
-            message.channel.send(embed)
+            return message.channel.send(embed)
           })
         }
       } else return message.channel.send(`No haikus found.`)
     }
-  } else if (command === 'letter') {
-    const matches = Meta.find().matches('name', 'word-war').limit(1).run()
-
-    if (matches.length > 0)
-      message.channel.send(alphabetEmoji[alphabet.indexOf(matches[0].value)])
   } else if (command === 'immortal') {
     const embed = new Discord.MessageEmbed()
     const immortals = Immortal.find().run()
@@ -962,6 +957,20 @@ client.on('message', (message) => {
         `There is currently no immortal being present on the server ${randomEmoji()}`
       )
     }
+  } else if (command === 'letter') {
+    const matches = Meta.find().matches('name', 'word-war').limit(1).run()
+
+    if (matches.length > 0)
+      return message.channel.send(
+        alphabetEmoji[alphabet.indexOf(matches[0].value)]
+      )
+  } else if (command === 'age') {
+    const id = subjectId(message)
+
+    message.guild.members.fetch(id).then((member) => {
+      const memberFor = Date.now() - member.joinedAt.getTime()
+      return message.lineReply(`Member age \`${prettyMs(memberFor)}\``)
+    })
   } else if (command === 'permadeath') {
     const embed = new Discord.MessageEmbed()
       .setColor(COLORS.embedBlack)
@@ -1030,9 +1039,9 @@ client.on('message', (message) => {
       const memberFor = Date.now() - member.joinedAt.getTime()
 
       let badges = []
-      let description = `\` ${prettyMs(memberFor, {
+      let description = `\`${prettyMs(memberFor, {
         compact: true,
-      })} \` `
+      })}\` `
       let permadeath = [],
         pronouns = '',
         rank = ''
@@ -1049,12 +1058,11 @@ client.on('message', (message) => {
       else if (member.roles.cache.has(ROLEIDS.activist)) rank = `Activist`
       else if (member.roles.cache.has(ROLEIDS.comrade)) rank = `Comrade`
 
-      if (member.roles.cache.has(ROLEIDS.hehim)) pronouns += `\` He/Him \` `
-      if (member.roles.cache.has(ROLEIDS.sheher)) pronouns += `\` She/Her \` `
-      if (member.roles.cache.has(ROLEIDS.theythem))
-        pronouns += `\` They/Them \` `
+      if (member.roles.cache.has(ROLEIDS.hehim)) pronouns += `\`He/Him\` `
+      if (member.roles.cache.has(ROLEIDS.sheher)) pronouns += `\`She/Her\` `
+      if (member.roles.cache.has(ROLEIDS.theythem)) pronouns += `\`They/Them\` `
       if (member.roles.cache.has(ROLEIDS.pronouns))
-        pronouns = `\` Pronouns: Ask \``
+        pronouns = `\`Pronouns: Ask\``
       if (pronouns.length > 0) description = `${pronouns} ${description}`
 
       if (bio) {
