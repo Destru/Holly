@@ -409,13 +409,13 @@ client.on('message', (message) => {
     isHaiku &&
     message.channel.id !== CHANNELIDS.saferspace
   ) {
-    const poet =
-      message.channel.id === '412714197399371788'
+    const author =
+      message.channel.id === CHANNELIDS.allcaps
         ? message.author.username.toUpperCase()
         : message.author.username
     const embed = new Discord.MessageEmbed()
       .setColor(COLORS.embed)
-      .setDescription(`${formattedHaiku}\n—*${poet}*`)
+      .setDescription(`${formattedHaiku}\n—*${author}*`)
 
     Haiku.add({
       uid: message.author.id,
@@ -735,7 +735,7 @@ client.on('message', (message) => {
         command === 'trap' ||
         command === 'waifu'
       ) {
-        if (message.channel.id === '841057992890646609') type = 'nsfw'
+        if (message.channel.id === CHANNELIDS.hornyjail) type = 'nsfw'
         else {
           if (command === 'blowjob' || command === 'trap') {
             command = 'bonk'
