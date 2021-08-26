@@ -86,6 +86,7 @@ const CHANNELIDS = {
   allcaps: '412714197399371788',
   anonymous: '848997740767346699',
   bandnames: '867179976444870696',
+  chat: '160320676580818951',
   comrades: '865757944552488960',
   composing: '843417385444442152',
   contest: '875207790468153386',
@@ -97,6 +98,7 @@ const CHANNELIDS = {
   illustrating: '843417452787662848',
   internal: '845382463685132288',
   irl: '414177882865401866',
+  jeopardy: '833098945668186182',
   memes: '415948136759164928',
   nsfw: '362316618044407819',
   releases: '352149516885164044',
@@ -139,7 +141,10 @@ const EMOJIIDS = {
 }
 const IDS = {
   csc: '160320676580818951',
+  hal9000: '836661328374267997',
   holly: '301275924098449408',
+  queeg: '844980040579678259',
+  trebek: '400786664861204481',
 }
 const isImmortal = (id) => {
   const immortal = Immortal.find()
@@ -438,8 +443,7 @@ client.on('message', (message) => {
 
   if (message.author.bot) {
     if (message.channel.id === CHANNELIDS.terminal) {
-      if (message.author.id === '844980040579678259') {
-        // Queeg
+      if (message.author.id === IDS.queeg) {
         const matches = message.content.match(/Running daily tasks\./)
         if (matches) {
           const immortal = Immortal.find()
@@ -455,17 +459,21 @@ client.on('message', (message) => {
           Immortal.update(immortal._id_, {
             score: `${currentScore - penalty}`,
           })
+
+          let points = 'points'
+          if (pentalty === 1) points = 'point'
+
           message.channel.send(
-            `The \`!immortal\` has been found and wounded for \`${penalty}\` points.`
+            `The \`!immortal\` has been found and wounded for \`${penalty}\` ${points}.`
           )
         }
-      } else if (message.author.id === '836661328374267997') {
-        // HAL9000
+      } else if (message.author.id === IDS.hal9000) {
         const matches = message.content.match(
           /<@(\d+)> has reached level (\d+)/
         )
-        const promotionChannel =
-          message.client.channels.cache.get('160320676580818951')
+        const promotionChannel = message.client.channels.cache.get(
+          CHANNELIDS.chat
+        )
 
         if (matches) {
           const level = parseInt(matches[2])
@@ -535,18 +543,16 @@ client.on('message', (message) => {
           }
         }
       }
-    } else if (message.channel.id === '833098945668186182') {
-      // #jeopardy
-      if (
-        message.author.id === '400786664861204481' &&
-        Math.random() < randomChance
-      ) {
-        fetch('https://insult.mattbas.org/api/insult.json')
-          .then((response) => response.json())
-          .then((data) => {
-            message.channel.send(`${data.insult}, ${message.author}`)
-          })
-      }
+    } else if (
+      message.channel.id === CHANNELIDS.jeopardy &&
+      message.author.id === IDS.trebek &&
+      Math.random() < randomChance
+    ) {
+      fetch('https://insult.mattbas.org/api/insult.json')
+        .then((response) => response.json())
+        .then((data) => {
+          message.channel.send(`${data.insult}, ${message.author}`)
+        })
     }
     return
   } else if (message.channel.id === CHANNELIDS.acronyms) {
