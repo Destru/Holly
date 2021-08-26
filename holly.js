@@ -181,7 +181,7 @@ const randomAcronym = () => {
     topic += `${alphabetEmoji[acronym.charCodeAt(i) - 97]} `
   }
 
-  channel.setTopic(`$topic :skull:`)
+  channel.setTopic(`${topic} :skull:`)
 }
 const randomChance = 0.03
 const randomEmoji = () => {
