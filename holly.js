@@ -156,6 +156,7 @@ const quotes = [
   `Our deepest fear is going space crazy through loneliness. The only thing that helps me keep my slender grip on reality is the friendship I have with my collection of anime waifus.`,
   `Well, the thing about a black hole, its main distinguishing feature, is it's black. And the thing about space, the colour of space, your basic space colour, is black. So how are you supposed to see them?`,
 ]
+const rabbithole = `[:rabbit2:](https://github.com/Destru/Holly/blob/master/key.md)`
 const randomAcronym = () => {
   const channel = client.channels.cache.get(CHANNELIDS.acronyms)
   const csc = 'csc '.repeat(50)
@@ -393,7 +394,7 @@ client.on('message', (message) => {
       .members.fetch(message.author.id)
       .then((member) => {
         if (member.roles.cache.has(ROLEIDS.leet)) {
-          terminal(message)
+          terminal(message, client)
         } else {
           return message.author.send(`No access. :rabbit2:`)
         }
@@ -774,7 +775,6 @@ client.on('message', (message) => {
     embed.setDescription(
       `These are *not* all of the available badges; ` +
         `because where's the fun in that? ` +
-        `Watch out for rabbit holes [:rabbit2:](https://github.com/Destru/Holly/blob/master/key.md)` +
         `\n\n${badges.join('\n')}`
     )
 
@@ -1234,17 +1234,17 @@ client.on('message', (message) => {
         .send('https://c.tenor.com/bWNecnNqh2MAAAAC/hole-rabbit-hole.gif')
         .then((message) => {
           setTimeout(() => {
-            if (message) message.delete()
+            message.delete()
           }, timerFeedbackDelete * 2)
         })
       message.channel.send(`Authenticating with \`${KEY}\``).then((message) => {
         setTimeout(() => {
-          if (message) message.delete()
+          message.delete()
           message.channel
             .send('`SIGACK` received, terminal unlocked...')
             .then((message) => {
               setTimeout(() => {
-                if (message) message.delete()
+                message.delete()
                 authenticate(message.member)
               }, timerFeedbackDelete / 2)
             })

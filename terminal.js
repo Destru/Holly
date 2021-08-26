@@ -1,21 +1,26 @@
-// in loving memory of JOSHUA
+// JOSHUA ❤️
+const MESSAGES = {
+  error: `There is no such command.`,
+}
 const VERSION = '0.0.1'
 
 const ascii = [
-  `       ______
-    .-"      "-.
-   /            \\
-  |              |
-  |,  .-.  .-.  ,|
-  | )(__/  \\__)( |
-  |/     /\\     \\|
-  (_     ^^     _)
-   \__|IIIIII|__/
-    | \\IIIIII/ |
-    \\          /
-     \`--------\``,
+  `       .+------+     +------+     +------+     +------+     +------+.
+     .' |      |    /|      |     |      |     |      |\\    |      | \`.
+    +   |      |   + |      |     +      +     |      | +   |      |   +
+    |   |      |   | |      |     |      |     |      | |   |      |   |
+    |  .+------+   | +------+     +------+     +------+ |   +------+.  |
+    |.'      .'    |/      /      |      |      \\      \\|    \`.      \`.|
+    +------+'      +------+       +------+       +------+      \`+------+ `,
 ]
 const brain = {
+  help: [
+    'Only the brave will survive.',
+    'You look lost.',
+    'There are things we need to discuss.',
+    'There is no help here.',
+    'Help yourself.',
+  ],
   version: VERSION,
 }
 const codeblock = {
@@ -23,34 +28,47 @@ const codeblock = {
   start: `\`\`\`fix\n`,
 }
 
+const login = (user) => {
+  const login = ascii[Math.floor(Math.random() * ascii.length)].split('\n')
+  let output = login[0]
+
+  user.send(`${codeblock.start}${output}${codeblock.end}`).then((message) => {
+    let i = 1
+    const animate = setInterval(() => {
+      output += `\n${login[i]}`
+      message.edit(`${codeblock.start}\n\n${output}\n\n${codeblock.end}`)
+      if (i === login.length - 1) clearInterval(animate)
+      i++
+    }, 1000)
+  })
+}
+
 module.exports = {
   authenticate: (user) => {
-    const login = ascii[Math.floor(Math.random() * ascii.length)]
-
-    output += codeblock.start
-    login.split('\n').forEach((line, i) => {
-      setTimeout(() => {
-        output += `${line}\n`
-      }, 1000 * i)
-    })
-    output += codeblock.end
-    user.send(output)
+    login(user)
   },
   terminal: (message) => {
     const args = message.content.split(' ')
-    const command = args[0].toLowerCase()
+    const command = args[0].toLowerCase().trim()
+    const user = message.author
 
     let output = ''
-    let prompt = `>=${command.toUpperCase()}\n`
+    let prompt = `> ${command.toUpperCase()}\n`
+    let divider = `${'-'.repeat(prompt.length - 1)}\n`
+
+    if (command === 'login') return login(user)
 
     if (Object.keys(brain).includes(command)) {
       if (Array.isArray(brain[command]))
         output +=
           brain[command][Math.floor(Math.random() * brain[command].length)]
       else output += brain[command]
-      return message.author.send(
-        `${codeblock.start}${prompt}${output}${codeblock.end}`
+      return user.send(
+        `${codeblock.start}${prompt}${divider}${output}${codeblock.end}`
       )
-    }
+    } else
+      return user.send(
+        `${codeblock.start}${prompt}${MESSAGES.error}${codeblock.end}`
+      )
   },
 }
