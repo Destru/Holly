@@ -54,7 +54,6 @@ module.exports = {
 
     let output = ''
     let prompt = `> ${command.toUpperCase()}\n`
-    let divider = `${'-'.repeat(prompt.length - 1)}\n`
 
     if (command === 'login') return login(user)
 
@@ -63,9 +62,7 @@ module.exports = {
         output +=
           brain[command][Math.floor(Math.random() * brain[command].length)]
       else output += brain[command]
-      return user.send(
-        `${codeblock.start}${prompt}${divider}${output}${codeblock.end}`
-      )
+      return user.send(`${codeblock.start}${prompt}${output}${codeblock.end}`)
     } else
       return user.send(
         `${codeblock.start}${prompt}${MESSAGES.error}${codeblock.end}`
