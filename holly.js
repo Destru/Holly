@@ -60,6 +60,16 @@ const BADGES = [
     emoji: '<:anonymous:837247849145303080>',
   },
   {
+    name: 'Comrade',
+    description: 'Written a mini biography.',
+    emoji: '<:cscalt:837251418247004205>',
+  },
+  {
+    name: 'Immortal',
+    description: 'An immortal being.',
+    emoji: '<:tst:866886790920405032>',
+  },
+  {
     name: 'Operator',
     description: 'Member of the *CSC* administration',
     emoji: '<:cscbob:846528128524091422>',
@@ -73,6 +83,11 @@ const BADGES = [
     name: 'PSYOP',
     description: 'Awesome and rad *Twitch* subscriber',
     emoji: '<:twitch:879932370210414703>',
+  },
+  {
+    name: 'Rabbit',
+    description: 'Jrag qbja gur enoovg ubyr',
+    emoji: '[🐰](https://github.com/Destru/Holly/blob/master/key.md)',
   },
 ]
 const capitalize = (string) => {
@@ -161,7 +176,6 @@ const quotes = [
   `Our deepest fear is going space crazy through loneliness. The only thing that helps me keep my slender grip on reality is the friendship I have with my collection of anime waifus.`,
   `Well, the thing about a black hole, its main distinguishing feature, is it's black. And the thing about space, the colour of space, your basic space colour, is black. So how are you supposed to see them?`,
 ]
-const rabbithole = `[:rabbit2:](https://github.com/Destru/Holly/blob/master/key.md)`
 const randomAcronym = () => {
   const channel = client.channels.cache.get(CHANNELIDS.acronyms)
   const csc = 'csc '.repeat(50)
@@ -1070,6 +1084,7 @@ client.on('message', (message) => {
       const immortal = Immortal.find().matches('uid', id).limit(1).run()
       const patron = member.roles.cache.has(ROLEIDS.patron)
       const psyop = member.roles.cache.has(ROLEIDS.psyop)
+      const rabbit = member.roles.cache.has(ROLEIDS.leet)
       const memberFor = Date.now() - member.joinedAt.getTime()
 
       let badges = []
@@ -1100,9 +1115,11 @@ client.on('message', (message) => {
       if (pronouns.length > 0) description = `${pronouns} ${description}`
 
       if (bio) {
-        badges.push(`[<:comrade:428333024631848980>](${bio.url})`)
+        let badge = BADGES.find((badge) => {
+          return badge.name === 'Comrade'
+        })
+        badges.push(`[${badge.emoji}](${bio.url})`)
       }
-
       if (admin) {
         let badge = BADGES.find((badge) => {
           return badge.name === 'Operator'
@@ -1127,18 +1144,28 @@ client.on('message', (message) => {
         })
         badges.push(badge.emoji)
       }
+      if (rabbit) {
+        let badge = BADGES.find((badge) => {
+          return badge.name === 'Rabbit'
+        })
+        badges.push(badge.emoji)
+      }
 
       if (deaths.length > 0) permadeath.push(`Deaths \`${deaths[0].deaths}\``)
       if (immortal.length > 0) {
-        let points = `Points \`${immortal[0].score}\``
-        if (isImmortal(immortal[0].uid)) points += ' <:tst:866886790920405032>'
-        permadeath.push(points)
+        if (isImmortal(id)) {
+          let badge = BADGES.find((badge) => {
+            return badge.name === 'Immortal'
+          })
+          badges.push(badge.emoji)
+        }
+        permadeath.push(`Points \`${immortal[0].score}\``)
       }
-
       if (haikus.length > 0) {
         const haiku = haikus[Math.floor(Math.random() * haikus.length)]
         embed.addField('Haiku', `*${haiku.content}*`, false)
       }
+
       if (badges.length > 0) embed.addField('Badges', badges.join(' '), true)
       if (permadeath.length > 0)
         embed.addField('Permadeath', permadeath.join(' '), true)
