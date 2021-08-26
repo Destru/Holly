@@ -510,8 +510,8 @@ client.on('message', (message) => {
                   .setThumbnail(member.user.avatarURL())
                 promotionChannel.send(embed).then((message) => {
                   setReactions(message, 'csc')
-                }, 5 * 60 * 1000)
-              })
+                })
+              }, 5 * 60 * 1000)
             })
           }
         }
