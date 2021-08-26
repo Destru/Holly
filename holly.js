@@ -165,6 +165,7 @@ const randomAcronym = () => {
 
   let acronyms = `${csc} ${rare}`.split(' ')
   let acronym = acronyms[Math.floor(Math.random() * acronyms.length)]
+  let topic = ``
 
   if (matches.length > 0) {
     while (acronym === matches[0].value) {
@@ -175,12 +176,11 @@ const randomAcronym = () => {
     Meta.add({ name: 'acronyms', value: acronym })
   }
 
-  channel.setTopic(
-    `${alphabetEmoji[acronym.charCodeAt(0) - 97]} ${
-      alphabetEmoji[acronym.charCodeAt(1) - 97]
-    } ${alphabetEmoji[acronym.charCodeAt(2) - 97]}
-    :skull:`
-  )
+  for (i = 0; i < acronym.length; i++) {
+    topic += `${alphabetEmoji[acronym.charCodeAt(i) - 97]} `
+  }
+
+  channel.setTopic(`$topic :skull:`)
 }
 const randomChance = 0.03
 const randomEmoji = () => {

@@ -1,3 +1,4 @@
+// in loving memory of JOSHUA
 const VERSION = '0.0.1'
 
 const ascii = [
@@ -40,15 +41,16 @@ module.exports = {
     const command = args[0].toLowerCase()
 
     let output = ''
-    let prompt =
-      `${codeblock.start}` + `>=${command.toUpperCase()}\n` + `${codeblock.end}`
+    let prompt = `>=${command.toUpperCase()}\n`
 
     if (Object.keys(brain).includes(command)) {
       if (Array.isArray(brain[command]))
         output +=
           brain[command][Math.floor(Math.random() * brain[command].length)]
       else output += brain[command]
-      return message.author.send(prompt + output)
+      return message.author.send(
+        `${codeblock.start}${prompt}${output}${codeblock.end}`
+      )
     }
   },
 }
