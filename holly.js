@@ -10,6 +10,7 @@ const findahaiku = require('findahaiku')
 const paginationEmbed = require('discord.js-pagination')
 const prettyMs = require('pretty-ms')
 const checkWord = require('check-word')
+const { terminal, terminalLogin } = require('./terminal')
 const dictionary = checkWord('en')
 
 const akihabara = [
@@ -91,6 +92,7 @@ const CHANNELIDS = {
   counting: '827487959241457694',
   gallery: '877484284519264296',
   graveyard: '832394205422026813',
+  halloffame: '880299507936534598',
   hornyjail: '841057992890646609',
   illustrating: '843417452787662848',
   internal: '845382463685132288',
@@ -125,7 +127,6 @@ const complimentEmoji = [
   ':kissing_smiling_eyes:',
 ]
 const countLeaderboard = 5
-const CSC = '160320676580818951'
 const COLORS = {
   embed: '#FF00FF',
   embedBlack: '#2F3136',
@@ -136,7 +137,10 @@ const EMOJIIDS = {
   heart: '875259618119536701',
   upvote: '462126280704262144',
 }
-const HOLLY = '301275924098449408'
+const IDS = {
+  csc: '160320676580818951',
+  holly: '301275924098449408',
+}
 const isImmortal = (id) => {
   const immortal = Immortal.find()
     .run()
@@ -154,7 +158,7 @@ const quotes = [
 ]
 const randomAcronym = () => {
   const channel = client.channels.cache.get(CHANNELIDS.acronyms)
-  const csc = 'csc '.repeat(10)
+  const csc = 'csc '.repeat(50)
   const matches = Meta.find().matches('name', 'acronyms').limit(1).run()
   const rare =
     'acab cccp cia fbi kgb nasa nsa ' + 'lol omg wtf afk brb mcd kfc bbq lmao '
@@ -178,7 +182,7 @@ const randomAcronym = () => {
     :skull:`
   )
 }
-const randomChance = 0.025
+const randomChance = 0.03
 const randomEmoji = () => {
   const emoji = [
     '<:cscalt:837251418247004205>',
@@ -244,7 +248,10 @@ const setReactions = (message, type = false) => {
   switch (type) {
     case 'csc':
       message.react(EMOJIIDS.csc)
-      message.react(EMOJIIDS.heart)
+      message.react(EMOJIIDS.heart).then((reaction) => {
+        console.log(reaction)
+        // TODO reactionController
+      })
       break
     case 'upvote':
       if (message.channel.id === CHANNELIDS.memes) message.react(EMOJIIDS.kekw)
@@ -843,19 +850,19 @@ client.on('message', (message) => {
       if (version === '(Development)') {
         client.api
           .applications(client.user.id)
-          .guilds(CSC)
+          .guilds(IDS.csc)
           .commands.get()
           .then((commands) => {
             client.api
               .applications(client.user.id)
-              .guilds(CSC)
+              .guilds(IDS.csc)
               .commands(commands[0].id)
               .delete()
           })
       } else {
         client.api
           .applications(client.user.id)
-          .guilds(CSC)
+          .guilds(IDS.csc)
           .commands.post({
             data: {
               name: 'anon',
@@ -1210,66 +1217,40 @@ client.on('message', (message) => {
         }, timerFeedbackDelete)
       })
     } else {
-      const emojiProbe = message.guild.emojis.cache.find(
-        (emoji) => emoji.name == 'probe'
-      )
-      const hacker = message.author
-      const steps = [
-        `Spoofing credentials...`,
-        `.=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-.`,
-        `|                     ______                     |`,
-        `|                  .-"      "-.                  |`,
-        `|                 /            \\                 |`,
-        `|     _          |              |          _     |`,
-        `|    ( \\         |,  .-.  .-.  ,|         / )    |`,
-        `|     > "=._     | )(__/  \\__)( |     _.=" <     |`,
-        `|    (_/"=._"=._ |/     /\\     \\| _.="_.="\\_)    |`,
-        `|           "=._"(_     ^^     _)"_.="           |`,
-        `░░▒█`,
-      ]
-
       message.delete()
-      message.member.roles.add(ROLEIDS.blackop)
+      message.member.roles.add(ROLEIDS.leet)
       message.channel
         .send('https://c.tenor.com/bWNecnNqh2MAAAAC/hole-rabbit-hole.gif')
         .then((message) => {
           setTimeout(() => {
-            message.delete()
+            if (message) message.delete()
           }, timerFeedbackDelete * 2)
         })
       message.channel.send(`Authenticating with \`${KEY}\``).then((message) => {
         setTimeout(() => {
-          let ascii = '',
-            indexSteps = 0
-
-          message.delete()
+          if (message) message.delete()
           message.channel
-            .send('`SIGACK` received, transfering to secure line...')
+            .send('`SIGACK` received, terminal unlocked...')
             .then((message) => {
               setTimeout(() => {
-                message.delete()
-
-                ascii = `\n${steps[indexSteps]}`
-                hacker.send(`\`\`\`fix${ascii}\`\`\``).then((message) => {
-                  const scroller = setInterval(() => {
-                    indexSteps++
-                    if (indexSteps >= steps.length) {
-                      clearInterval(scroller)
-                      hacker.send(
-                        `>>> Hello there!\n` +
-                          `Shall we play a game? ${emojiProbe}`
-                      )
-                    } else {
-                      ascii += `\n${steps[indexSteps]}`
-                      message.edit(`\`\`\`fix${ascii}\`\`\``)
-                    }
-                  }, timerFeedbackDelete / 5)
-                })
-              }, timerFeedbackDelete)
+                if (message) message.delete()
+                terminalLogin(message.member)
+              }, timerFeedbackDelete / 2)
             })
         }, timerFeedbackDelete)
       })
     }
+  } else if (message.guild === null) {
+    client.guilds.cache
+      .get(IDS.csc)
+      .members.fetch(message.author.id)
+      .then((member) => {
+        if (member.roles.cache.has(ROLEIDS.leet)) {
+          terminal(message)
+        } else {
+          message.author.send(`No access. :rabbit2:`)
+        }
+      })
   }
 })
 
