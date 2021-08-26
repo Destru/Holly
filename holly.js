@@ -130,6 +130,12 @@ const COLORS = {
   embed: '#FF00FF',
   embedBlack: '#2F3136',
 }
+const EMOJIIDS = {
+  creative: '837251418247004205',
+  kekw: '830114281168699412',
+  heart: '875259618119536701',
+  upvote: '462126280704262144',
+}
 const HOLLY = '301275924098449408'
 const isImmortal = (id) => {
   const immortal = Immortal.find()
@@ -222,7 +228,6 @@ const ROLEIDS = {
   insurgent: '832400140651462656',
   activist: '348980130292695040',
   comrade: '422282829494484992',
-
   admin: '832089472337182770',
   ghost: '832393909988491304',
   hehim: '872843239009431664',
@@ -238,17 +243,16 @@ const ROLEIDS = {
 const setReactions = (message, type = false) => {
   switch (type) {
     case 'csc':
-      message.react('837251418247004205')
-      message.react('875259618119536701')
+      message.react(EMOJIIDS.csc)
+      message.react(EMOJIIDS.heart)
       break
-    case 'updown':
-      if (message.channel.id === CHANNELIDS.memes)
-        message.react('830114281168699412')
-      else message.react('462126280704262144')
-      message.react('462126761098870784')
+    case 'upvote':
+      if (message.channel.id === CHANNELIDS.memes) message.react(EMOJIIDS.kekw)
+      else message.react(EMOJIIDS.upvote)
       break
+    case 'heart':
     default:
-      message.react('875259618119536701')
+      message.react(EMOJIIDS.heart)
   }
 }
 const status = [
@@ -501,6 +505,7 @@ client.on('message', (message) => {
             embed.setDescription(description).setTitle('Promotion')
 
             message.guild.members.fetch(id).then((member) => {
+              set
               embed
                 .setAuthor(member.user.username, member.user.avatarURL())
                 .setColor(member.displayHexColor)
@@ -560,7 +565,7 @@ client.on('message', (message) => {
       permaDeath()
     } else permaDeathScore()
   } else if (message.channel.id === CHANNELIDS.bandnames) {
-    setReactions(message, 'updown')
+    setReactions(message, 'upvote')
   } else if (
     message.channel.id === CHANNELIDS.comrades ||
     message.channel.id === CHANNELIDS.contest
@@ -592,13 +597,13 @@ client.on('message', (message) => {
       })
     } else {
       if (message.channel.id === CHANNELIDS.comrades) {
-        setReactions(message, 'csc')
+        setReactions(message, 'heart')
         Bio.add({
           uid: message.author.id,
           url: message.url,
         })
       } else {
-        message.react('462126280704262144')
+        setReactions(message, 'upvote')
         Entry.add({
           uid: message.author.id,
           url: message.url,
@@ -663,13 +668,13 @@ client.on('message', (message) => {
       message.content.includes('https://') ||
       message.attachments.size > 0
     ) {
-      setReactions(message, 'updown')
+      setReactions(message, 'upvote')
     }
   } else if (
     message.channel.id === CHANNELIDS.nsfw ||
     message.channel.id === CHANNELIDS.irl
   ) {
-    setReactions(message)
+    setReactions(message, 'heart')
   } else if (message.channel.id === CHANNELIDS.wordwar) {
     const matches = Meta.find().matches('name', 'word-war').limit(1).run()
     const word = message.content.toLowerCase().trim()
