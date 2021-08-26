@@ -1157,7 +1157,7 @@ client.on('message', (message) => {
           let badge = BADGES.find((badge) => {
             return badge.name === 'Immortal'
           })
-          badges.push(badge.emoji)
+          description = description += badge.emoji
         }
         permadeath.push(`Points \`${immortal[0].score}\``)
       }
