@@ -23,6 +23,18 @@ const codeblock = {
 }
 
 module.exports = {
+  authenticate: (user) => {
+    const login = ascii[Math.floor(Math.random() * ascii.length)]
+
+    output += codeblock.start
+    login.split('\n').forEach((line, i) => {
+      setTimeout(() => {
+        output += `${line}\n`
+      }, 1000 * i)
+    })
+    output += codeblock.end
+    user.send(output)
+  },
   terminal: (message) => {
     const args = message.content.split(' ')
     const command = args[0].toLowerCase()
@@ -38,17 +50,5 @@ module.exports = {
       else output += brain[command]
       return message.author.send(prompt + output)
     }
-  },
-  terminalLogin: (user) => {
-    const login = ascii[Math.floor(Math.random() * ascii.length)]
-
-    output += codeblock.start
-    login.split('\n').forEach((line, i) => {
-      setTimeout(() => {
-        output += `${line}\n`
-      }, 1000 * i)
-    })
-    output += codeblock.end
-    user.send(output)
   },
 }

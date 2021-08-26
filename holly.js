@@ -10,7 +10,7 @@ const findahaiku = require('findahaiku')
 const paginationEmbed = require('discord.js-pagination')
 const prettyMs = require('pretty-ms')
 const checkWord = require('check-word')
-const { terminal, terminalLogin } = require('./terminal')
+const { authenticate, terminal } = require('./terminal')
 const dictionary = checkWord('en')
 
 const akihabara = [
@@ -387,7 +387,18 @@ client.on('message', (message) => {
     }
   }
 
-  if (
+  if (message.guild === null) {
+    client.guilds.cache
+      .get(IDS.csc)
+      .members.fetch(message.author.id)
+      .then((member) => {
+        if (member.roles.cache.has(ROLEIDS.leet)) {
+          terminal(message)
+        } else {
+          return message.author.send(`No access. :rabbit2:`)
+        }
+      })
+  } else if (
     !message.author.bot &&
     isHaiku &&
     message.channel.id !== CHANNELIDS.saferspace
@@ -1234,23 +1245,12 @@ client.on('message', (message) => {
             .then((message) => {
               setTimeout(() => {
                 if (message) message.delete()
-                terminalLogin(message.member)
+                authenticate(message.member)
               }, timerFeedbackDelete / 2)
             })
         }, timerFeedbackDelete)
       })
     }
-  } else if (message.guild === null) {
-    client.guilds.cache
-      .get(IDS.csc)
-      .members.fetch(message.author.id)
-      .then((member) => {
-        if (member.roles.cache.has(ROLEIDS.leet)) {
-          terminal(message)
-        } else {
-          message.author.send(`No access. :rabbit2:`)
-        }
-      })
   }
 })
 
