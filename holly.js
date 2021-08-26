@@ -502,16 +502,15 @@ client.on('message', (message) => {
                 description += `Enjoy your new color, comrade.`
             }
 
-            embed.setDescription(description).setTitle('Promotion')
-
             message.guild.members.fetch(id).then((member) => {
-              set
-              embed
-                .setAuthor(member.user.username, member.user.avatarURL())
-                .setColor(member.displayHexColor)
-                .setThumbnail(member.user.avatarURL())
-              promotionChannel.send(embed).then((message) => {
-                setReactions(message, 'csc')
+              setTimeout(() => {
+                embed
+                  .setAuthor(member.user.username, member.user.avatarURL())
+                  .setColor(member.displayHexColor)
+                  .setThumbnail(member.user.avatarURL())
+                promotionChannel.send(embed).then((message) => {
+                  setReactions(message, 'csc')
+                }, 5 * 60 * 1000)
               })
             })
           }
