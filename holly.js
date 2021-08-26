@@ -792,11 +792,7 @@ client.on('message', (message) => {
       badges.push(`${badge.name} ${badge.emoji}`)
     })
 
-    embed.setDescription(
-      `These are *not* all of the available badges; ` +
-        `because where's the fun in that? ` +
-        `\n\n${badges.join('\n')}`
-    )
+    embed.setDescription(badges.join('\n'))
 
     return message.channel.send(embed)
   } else if (command === 'bot-info') {
