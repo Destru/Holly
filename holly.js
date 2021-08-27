@@ -1084,9 +1084,7 @@ client.on('message', (message) => {
       const memberFor = Date.now() - member.joinedAt.getTime()
 
       let badges = []
-      let description = `\`${prettyMs(memberFor, {
-        compact: true,
-      })}\` `
+      let description = ''
       let permadeath = [],
         pronouns = '',
         rank = ''
@@ -1108,7 +1106,13 @@ client.on('message', (message) => {
       if (member.roles.cache.has(ROLEIDS.theythem)) pronouns += `\`They/Them\` `
       if (member.roles.cache.has(ROLEIDS.pronouns))
         pronouns = `\`Pronouns: Ask\``
-      if (pronouns.length > 0) description = `${pronouns} ${description}`
+      if (pronouns.length > 0) {
+        description += `${pronouns} ${prettyMs(memberFor, {
+          compact: true,
+        })}`
+      } else {
+        description += `\`${prettyMs(memberFor)}\``
+      }
 
       if (bio) {
         let badge = BADGES.find((badge) => {
