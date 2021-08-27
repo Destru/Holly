@@ -149,7 +149,7 @@ const COLORS = {
   embedBlack: '#2F3136',
 }
 const EMOJIIDS = {
-  creative: '837251418247004205',
+  csc: '837251418247004205',
   kekw: '830114281168699412',
   heart: '875259618119536701',
   upvote: '462126280704262144',
@@ -268,10 +268,7 @@ const setReactions = (message, type = false) => {
   switch (type) {
     case 'csc':
       message.react(EMOJIIDS.csc)
-      message.react(EMOJIIDS.heart).then((reaction) => {
-        console.log(reaction)
-        // TODO reactionController
-      })
+      message.react(EMOJIIDS.heart)
       break
     case 'upvote':
       if (message.channel.id === CHANNELIDS.memes) message.react(EMOJIIDS.kekw)
