@@ -472,7 +472,7 @@ client.on('message', (message) => {
           })
 
           let points = 'points'
-          if (pentalty === 1) points = 'point'
+          if (penalty === 1) points = 'point'
 
           message.channel.send(
             `The \`!immortal\` has been found and wounded for \`${penalty}\` ${points}.`
