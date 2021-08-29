@@ -1104,9 +1104,9 @@ client.on('message', (message) => {
       if (member.roles.cache.has(ROLEIDS.pronouns))
         pronouns = `\`Pronouns: Ask\``
       if (pronouns.length > 0) {
-        description += `${pronouns} ${prettyMs(memberFor, {
+        description += `${pronouns} \`${prettyMs(memberFor, {
           compact: true,
-        })}`
+        })}\``
       } else {
         description += `\`${prettyMs(memberFor)}\``
       }
