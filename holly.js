@@ -545,6 +545,7 @@ client.on('message', (message) => {
                 embed
                   .setAuthor(member.user.username, member.user.avatarURL())
                   .setColor(member.displayHexColor)
+                  .setDescription(description)
                   .setThumbnail(member.user.avatarURL())
                 promotionChannel.send(embed).then((message) => {
                   setReactions(message, 'csc')
