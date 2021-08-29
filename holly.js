@@ -1145,7 +1145,7 @@ client.on('message', (message) => {
         let badge = BADGES.find((badge) => {
           return badge.name === 'Rabbit'
         })
-        badges.push(badge.emoji)
+        description = `${description} ${badge.emoji}`
       }
 
       if (deaths.length > 0) permadeath.push(`Deaths \`${deaths[0].deaths}\``)
@@ -1154,8 +1154,7 @@ client.on('message', (message) => {
           let badge = BADGES.find((badge) => {
             return badge.name === 'Immortal'
           })
-          description = description += badge.emoji
-        }
+          badges.push(badge.emoji)
         permadeath.push(`Points \`${immortal[0].score}\``)
       }
       if (haikus.length > 0) {
