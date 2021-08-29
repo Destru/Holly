@@ -1155,6 +1155,7 @@ client.on('message', (message) => {
             return badge.name === 'Immortal'
           })
           badges.push(badge.emoji)
+        }
         permadeath.push(`Points \`${immortal[0].score}\``)
       }
       if (haikus.length > 0) {
