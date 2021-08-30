@@ -181,7 +181,7 @@ const randomAcronym = () => {
   const csc = 'csc '.repeat(50)
   const matches = Meta.find().matches('name', 'acronyms').limit(1).run()
   const rare =
-    'acab cccp cia fbi kgb nasa nsa ' + 'lol omg wtf afk brb mcd kfc bbq lmao '
+    'acab cccp cia fbi kgb nasa nsa ' + 'lol omg wtf afk brb mcd kfc bbq lmao'
 
   let acronyms = `${csc} ${rare}`.split(' ')
   let acronym = acronyms[Math.floor(Math.random() * acronyms.length)]
