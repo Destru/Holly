@@ -116,6 +116,7 @@ const CHANNELIDS = {
   jeopardy: '833098945668186182',
   memes: '415948136759164928',
   nsfw: '362316618044407819',
+  patrons: '824006200306958367',
   releases: '352149516885164044',
   saferspace: '830131461000658994',
   stimulus: '419929465989234720',
@@ -768,6 +769,7 @@ client.on('message', (message) => {
       CHANNELIDS.composing,
       CHANNELIDS.gallery,
       CHANNELIDS.illustrating,
+      CHANNELIDS.patrons,
       CHANNELIDS.releases,
       CHANNELIDS.writing,
     ].includes(message.channel.id)
