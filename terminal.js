@@ -1,4 +1,6 @@
 // JOSHUA ❤️
+const prettyMs = require('pretty-ms')
+
 const MESSAGES = {
   error: `There is no such command.`,
 }
@@ -21,6 +23,7 @@ const brain = {
     'There is no help here.',
     'Help yourself.',
   ],
+  how: 'https://c.tenor.com/bxHQ4KcM8eMAAAAC/magic-meme.gif',
   version: VERSION,
 }
 const codeblock = {
@@ -56,16 +59,15 @@ module.exports = {
     let prompt = `> ${command.toUpperCase()}\n`
 
     if (command === 'login') return login(user)
-
-    if (Object.keys(brain).includes(command)) {
+    else if (command === 'uptime') output = prettyMs(message.client.uptime)
+    else if (Object.keys(brain).includes(command)) {
       if (Array.isArray(brain[command]))
-        output +=
+        output =
           brain[command][Math.floor(Math.random() * brain[command].length)]
-      else output += brain[command]
+      else output = brain[command]
+    } else output = MESSAGES.error
+    if (output.startsWith('http')) return user.send(output)
+    else
       return user.send(`${codeblock.start}${prompt}${output}${codeblock.end}`)
-    } else
-      return user.send(
-        `${codeblock.start}${prompt}${MESSAGES.error}${codeblock.end}`
-      )
   },
 }
