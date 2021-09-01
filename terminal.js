@@ -2,7 +2,7 @@
 const prettyMs = require('pretty-ms')
 
 const MESSAGES = {
-  error: `There is no such command.`,
+  error: `Nothing found.`,
 }
 const VERSION = '0.0.1'
 
@@ -68,6 +68,10 @@ module.exports = {
     } else output = MESSAGES.error
     if (output.startsWith('http')) return user.send(output)
     else
-      return user.send(`${codeblock.start}${prompt}${output}${codeblock.end}`)
+      return user
+        .send(`${codeblock.start}${prompt}${output}${codeblock.end}`)
+        .catch((error) => {
+          console.log(error)
+        })
   },
 }
