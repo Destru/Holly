@@ -13,6 +13,124 @@ const checkWord = require('check-word')
 const { authenticate, terminal } = require('./terminal')
 const dictionary = checkWord('en')
 
+const BADGES = [
+  {
+    name: 'Anonymous',
+    description: 'Custom avatar for anonymous chat',
+    emoji: '<:anonymous:837247849145303080>',
+  },
+  {
+    name: 'Comrade',
+    description: 'Written a mini biography.',
+    emoji: '<:cscalt:837251418247004205>',
+  },
+  {
+    name: 'Immortal',
+    description: 'An immortal being.',
+    emoji: '<:tst:866886790920405032>',
+  },
+  {
+    name: 'Operator',
+    description: 'Member of the *CSC* administration',
+    emoji: '<:cscbob:846528128524091422>',
+  },
+  {
+    name: 'Patron',
+    description: 'Super cool *Patreon* supporter',
+    emoji: '<:patreon:837291787797135360>',
+  },
+  {
+    name: 'PSYOP',
+    description: 'Awesome and rad *Twitch* subscriber',
+    emoji: '<:twitch:879932370210414703>',
+  },
+  {
+    name: 'Rabbit',
+    description: 'Jrag qbja gur enoovg ubyr',
+    emoji: '[🐰](https://github.com/Destru/Holly/blob/master/key.md)',
+  },
+]
+const CHANNELIDS = {
+  akihabara: '837824443799175179',
+  anything: '462734936177115136',
+  acronyms: '866967261092773918',
+  allcaps: '412714197399371788',
+  anonymous: '848997740767346699',
+  bandnames: '867179976444870696',
+  chat: '160320676580818951',
+  comrades: '865757944552488960',
+  composing: '843417385444442152',
+  contest: '875207790468153386',
+  counting: '827487959241457694',
+  gallery: '877484284519264296',
+  graveyard: '832394205422026813',
+  halloffame: '880299507936534598',
+  hornyjail: '841057992890646609',
+  illustrating: '843417452787662848',
+  internal: '845382463685132288',
+  irl: '414177882865401866',
+  jeopardy: '833098945668186182',
+  memes: '415948136759164928',
+  nsfw: '362316618044407819',
+  patrons: '824006200306958367',
+  releases: '352149516885164044',
+  saferspace: '830131461000658994',
+  stimulus: '419929465989234720',
+  terminal: '405503298951446528',
+  wordwar: '866967592622489640',
+  writing: '843417014756179978',
+}
+const COLORS = {
+  embed: '#FF00FF',
+  embedBlack: '#2F3136',
+}
+const EMOJIIDS = {
+  csc: '837251418247004205',
+  kekw: '830114281168699412',
+  heart: '875259618119536701',
+  upvote: '462126280704262144',
+}
+const IDS = {
+  csc: '160320676580818951',
+  hal9000: '836661328374267997',
+  holly: '301275924098449408',
+  queeg: '844980040579678259',
+  trebek: '400786664861204481',
+}
+const PREFIX = '!'
+const ROLEIDS = {
+  tron: '832402366698618941',
+  cyberpunk: '419210958603419649',
+  replicant: '832401876024295424',
+  android: '832401705039691817',
+  cyborg: '349225708821676033',
+  augmented: '832400605947363360',
+  revolutionary: '414205618077827102',
+  insurgent: '832400140651462656',
+  activist: '348980130292695040',
+  comrade: '422282829494484992',
+  admin: '832089472337182770',
+  ghost: '832393909988491304',
+  hehim: '872843239009431664',
+  leet: '879993290877984818',
+  operator: '412545631228395540',
+  sheher: '872843238657110076',
+  theythem: '872843238208319529',
+  patron: '824015992417419283',
+  pronons: '872843237344288779',
+  psyop: '444074281694003210',
+  voter: '827915811724460062',
+}
+
+let KEY
+fs.readFile('./key.md', 'utf8', (err, data) => {
+  if (err) {
+    console.error(err)
+    return
+  }
+  KEY = data.trim()
+})
+
 const akihabara = [
   'awoo',
   'bite',
@@ -53,77 +171,11 @@ const alphabetEmoji =
   '🇦 🇧 🇨 🇩 🇪 🇫 🇬 🇭 🇮 🇯 🇰 🇱 🇲 🇳 🇴 🇵 🇶 🇷 🇸 🇹 🇺 🇻 🇼 🇽 🇾 🇿'.split(
     ' '
   )
-const BADGES = [
-  {
-    name: 'Anonymous',
-    description: 'Custom avatar for anonymous chat',
-    emoji: '<:anonymous:837247849145303080>',
-  },
-  {
-    name: 'Comrade',
-    description: 'Written a mini biography.',
-    emoji: '<:cscalt:837251418247004205>',
-  },
-  {
-    name: 'Immortal',
-    description: 'An immortal being.',
-    emoji: '<:tst:866886790920405032>',
-  },
-  {
-    name: 'Operator',
-    description: 'Member of the *CSC* administration',
-    emoji: '<:cscbob:846528128524091422>',
-  },
-  {
-    name: 'Patron',
-    description: 'Super cool *Patreon* supporter',
-    emoji: '<:patreon:837291787797135360>',
-  },
-  {
-    name: 'PSYOP',
-    description: 'Awesome and rad *Twitch* subscriber',
-    emoji: '<:twitch:879932370210414703>',
-  },
-  {
-    name: 'Rabbit',
-    description: 'Jrag qbja gur enoovg ubyr',
-    emoji: '[🐰](https://github.com/Destru/Holly/blob/master/key.md)',
-  },
-]
 const capitalize = (string) => {
   if (typeof string !== 'string') return string
   return string.charAt(0).toUpperCase() + string.slice(1)
 }
-const CHANNELIDS = {
-  akihabara: '837824443799175179',
-  anything: '462734936177115136',
-  acronyms: '866967261092773918',
-  allcaps: '412714197399371788',
-  anonymous: '848997740767346699',
-  bandnames: '867179976444870696',
-  chat: '160320676580818951',
-  comrades: '865757944552488960',
-  composing: '843417385444442152',
-  contest: '875207790468153386',
-  counting: '827487959241457694',
-  gallery: '877484284519264296',
-  graveyard: '832394205422026813',
-  halloffame: '880299507936534598',
-  hornyjail: '841057992890646609',
-  illustrating: '843417452787662848',
-  internal: '845382463685132288',
-  irl: '414177882865401866',
-  jeopardy: '833098945668186182',
-  memes: '415948136759164928',
-  nsfw: '362316618044407819',
-  patrons: '824006200306958367',
-  releases: '352149516885164044',
-  saferspace: '830131461000658994',
-  stimulus: '419929465989234720',
-  terminal: '405503298951446528',
-  wordwar: '866967592622489640',
-  writing: '843417014756179978',
-}
+
 const complimentChannels = ['836963196916858902', '841057992890646609']
 const complimentEmoji = [
   ':heart:',
@@ -145,23 +197,6 @@ const complimentEmoji = [
   ':kissing_smiling_eyes:',
 ]
 const countLeaderboard = 5
-const COLORS = {
-  embed: '#FF00FF',
-  embedBlack: '#2F3136',
-}
-const EMOJIIDS = {
-  csc: '837251418247004205',
-  kekw: '830114281168699412',
-  heart: '875259618119536701',
-  upvote: '462126280704262144',
-}
-const IDS = {
-  csc: '160320676580818951',
-  hal9000: '836661328374267997',
-  holly: '301275924098449408',
-  queeg: '844980040579678259',
-  trebek: '400786664861204481',
-}
 const isImmortal = (id) => {
   const immortal = Immortal.find()
     .run()
@@ -242,29 +277,7 @@ const ranks = {
   50: 'Cyberpunk',
   60: 'Tron',
 }
-const ROLEIDS = {
-  tron: '832402366698618941',
-  cyberpunk: '419210958603419649',
-  replicant: '832401876024295424',
-  android: '832401705039691817',
-  cyborg: '349225708821676033',
-  augmented: '832400605947363360',
-  revolutionary: '414205618077827102',
-  insurgent: '832400140651462656',
-  activist: '348980130292695040',
-  comrade: '422282829494484992',
-  admin: '832089472337182770',
-  ghost: '832393909988491304',
-  hehim: '872843239009431664',
-  leet: '879993290877984818',
-  operator: '412545631228395540',
-  sheher: '872843238657110076',
-  theythem: '872843238208319529',
-  patron: '824015992417419283',
-  pronons: '872843237344288779',
-  psyop: '444074281694003210',
-  voter: '827915811724460062',
-}
+
 const setReactions = (message, type = false) => {
   switch (type) {
     case 'csc':
@@ -294,15 +307,6 @@ const subjectId = (message) => {
 }
 const timerFeedbackDelete = 5000
 const version = process.env.npm_package_version || '(Development)'
-
-let KEY
-fs.readFile('./key.md', 'utf8', (err, data) => {
-  if (err) {
-    console.error(err)
-    return
-  }
-  KEY = data.trim()
-})
 
 db.configure({ dir: './db' })
 
@@ -436,21 +440,6 @@ client.on('message', (message) => {
     })
 
     message.lineReply(embed)
-  }
-
-  if (
-    complimentChannels.includes(message.channel.id) &&
-    Math.random() < randomChance
-  ) {
-    fetch('https://complimentr.com/api')
-      .then((response) => response.json())
-      .then((data) => {
-        let compliment =
-          data.compliment.charAt(0).toUpperCase() + data.compliment.slice(1)
-        let emoji = complimentEmoji[Math.floor(Math.random() * status.length)]
-
-        message.channel.send(`${compliment}, ${message.author} ${emoji}`)
-      })
   }
 
   if (message.author.bot) {
@@ -781,509 +770,531 @@ client.on('message', (message) => {
     ) {
       setReactions(message, 'csc')
     }
-  } else if (command === 'badges') {
-    const embed = new Discord.MessageEmbed()
-      .setColor(COLORS.embed)
-      .setTitle('Badges')
+  } else if (message.content.startsWith(PREFIX)) {
+    if (command === 'badges') {
+      const embed = new Discord.MessageEmbed()
+        .setColor(COLORS.embed)
+        .setTitle('Badges')
 
-    let badges = []
+      let badges = []
 
-    BADGES.forEach((badge) => {
-      badges.push(`${badge.name} ${badge.emoji}`)
-    })
-
-    embed.setDescription(badges.join('\n'))
-
-    return message.channel.send(embed)
-  } else if (command === 'bot-info') {
-    const embed = new Discord.MessageEmbed()
-      .setColor(COLORS.embed)
-      .setDescription(
-        `I have an IQ of 6000; the same IQ as 6000 neoliberals.` +
-          `\n[GitHub Repo](https://github.com/destru/holly) :link:`
-      )
-      .setTitle('Holly')
-      .addFields(
-        {
-          name: 'Latency',
-          value:
-            `${Date.now() - message.createdTimestamp}ms /` +
-            `${Math.round(message.client.ws.ping)}ms`,
-          inline: true,
-        },
-        {
-          name: 'Uptime',
-          value: prettyMs(message.client.uptime),
-          inline: true,
-        },
-        { name: 'Version', value: version, inline: true }
-      )
-    return message.channel.send(embed)
-  } else if (command === 'commands') {
-    const embed = new Discord.MessageEmbed()
-      .setColor(COLORS.embed)
-      .setDescription(quotes[Math.floor(Math.random() * quotes.length)])
-      .setTitle('Commands')
-      .addFields(
-        {
-          name: 'Community <:cscbob:846528128524091422>',
-          value: '`/anon`\n`!haikus`\n`!profile`\n`!resurrect`\n`!stats`',
-          inline: true,
-        },
-        {
-          name: 'Permadeath :skull:',
-          value: '`!deaths`\n`!immortal`\n`!permadeath`\n`!points`',
-          inline: true,
-        }
-      )
-
-    return message.channel.send(embed)
-  } else if (command === 'deaths') {
-    const deaths = Death.find().run()
-    let deathCount = 0
-    deaths.forEach((death) => {
-      deathCount = deathCount + parseInt(death.deaths)
-    })
-
-    const embed = new Discord.MessageEmbed()
-      .setColor(COLORS.embedBlack)
-      .setDescription(
-        `There have been \`${deathCount}\` recorded deaths :headstone:`
-      )
-      .setTitle(`Deaths`)
-
-    if (deaths.length > 0) {
-      const deathsSorted = deaths.sort((a, b) => a.deaths - b.deaths)
-      const deathsRanked = deathsSorted.reverse()
-
-      let entries =
-        deaths.length > countLeaderboard ? countLeaderboard : deaths.length
-      let leaderboard = []
-
-      for (let i = 0; i < entries; i++) {
-        const score = deathsRanked[i].deaths
-        const user = `<@${deathsRanked[i].uid}>`
-
-        leaderboard.push(`\`${i + 1}.\` ${user} \`${score}\``)
-      }
-      embed.addField('Leaderboard', leaderboard.join('\n'), false)
-      message.guild.members.fetch(deathsRanked[0].uid).then((member) => {
-        embed.setThumbnail(member.user.avatarURL())
-        return message.channel.send(embed)
+      BADGES.forEach((badge) => {
+        badges.push(`${badge.name} ${badge.emoji}`)
       })
-    }
-  } else if (command === 'deploy') {
-    if (message.member.roles.cache.has(ROLEIDS.admin)) {
-      if (version === '(Development)') {
-        client.api
-          .applications(client.user.id)
-          .guilds(IDS.csc)
-          .commands.get()
-          .then((commands) => {
-            client.api
-              .applications(client.user.id)
-              .guilds(IDS.csc)
-              .commands(commands[0].id)
-              .delete()
-          })
-      } else {
-        client.api
-          .applications(client.user.id)
-          .guilds(IDS.csc)
-          .commands.post({
-            data: {
-              name: 'anon',
-              description: 'Send #anonymous messages',
-              options: [
-                {
-                  type: 3,
-                  name: 'message',
-                  description: 'Text to send',
-                  required: true,
-                },
-                {
-                  type: 5,
-                  name: 'random',
-                  description: 'Randomize avatar',
-                  required: false,
-                },
-              ],
-            },
-          })
-        message.channel.send('Deployment successful.')
+
+      embed.setDescription(badges.join('\n'))
+
+      return message.channel.send(embed)
+    } else if (command === 'bot-info') {
+      const embed = new Discord.MessageEmbed()
+        .setColor(COLORS.embed)
+        .setDescription(
+          `I have an IQ of 6000; the same IQ as 6000 neoliberals.` +
+            `\n[GitHub Repo](https://github.com/destru/holly) :link:`
+        )
+        .setTitle('Holly')
+        .addFields(
+          {
+            name: 'Latency',
+            value:
+              `${Date.now() - message.createdTimestamp}ms /` +
+              `${Math.round(message.client.ws.ping)}ms`,
+            inline: true,
+          },
+          {
+            name: 'Uptime',
+            value: prettyMs(message.client.uptime),
+            inline: true,
+          },
+          { name: 'Version', value: version, inline: true }
+        )
+      return message.channel.send(embed)
+    } else if (command === 'commands') {
+      const embed = new Discord.MessageEmbed()
+        .setColor(COLORS.embed)
+        .setDescription(quotes[Math.floor(Math.random() * quotes.length)])
+        .setTitle('Commands')
+        .addFields(
+          {
+            name: 'Community <:cscbob:846528128524091422>',
+            value: '`/anon`\n`!haikus`\n`!profile`\n`!resurrect`\n`!stats`',
+            inline: true,
+          },
+          {
+            name: 'Permadeath :skull:',
+            value: '`!deaths`\n`!immortal`\n`!permadeath`\n`!points`',
+            inline: true,
+          }
+        )
+
+      return message.channel.send(embed)
+    } else if (command === 'deaths') {
+      const deaths = Death.find().run()
+      let deathCount = 0
+      deaths.forEach((death) => {
+        deathCount = deathCount + parseInt(death.deaths)
+      })
+
+      const embed = new Discord.MessageEmbed()
+        .setColor(COLORS.embedBlack)
+        .setDescription(
+          `There have been \`${deathCount}\` recorded deaths :headstone:`
+        )
+        .setTitle(`Deaths`)
+
+      if (deaths.length > 0) {
+        const deathsSorted = deaths.sort((a, b) => a.deaths - b.deaths)
+        const deathsRanked = deathsSorted.reverse()
+
+        let entries =
+          deaths.length > countLeaderboard ? countLeaderboard : deaths.length
+        let leaderboard = []
+
+        for (let i = 0; i < entries; i++) {
+          const score = deathsRanked[i].deaths
+          const user = `<@${deathsRanked[i].uid}>`
+
+          leaderboard.push(`\`${i + 1}.\` ${user} \`${score}\``)
+        }
+        embed.addField('Leaderboard', leaderboard.join('\n'), false)
+        message.guild.members.fetch(deathsRanked[0].uid).then((member) => {
+          embed.setThumbnail(member.user.avatarURL())
+          return message.channel.send(embed)
+        })
       }
-    }
-  } else if (command === 'haikus') {
-    const id = subjectId(message)
-    const haikus = Haiku.find().matches('uid', id).run()
-
-    if (args[0] === 'remove') {
-      if (haikus[args[1]]) {
-        Haiku.remove(haikus[args[1] - 1]._id_)
-        message.channel.send(`Haiku removed.`)
-      } else {
-        message.channel.send(`Haiku not found.`)
+    } else if (command === 'deploy') {
+      if (message.member.roles.cache.has(ROLEIDS.admin)) {
+        if (version === '(Development)') {
+          client.api
+            .applications(client.user.id)
+            .guilds(IDS.csc)
+            .commands.get()
+            .then((commands) => {
+              client.api
+                .applications(client.user.id)
+                .guilds(IDS.csc)
+                .commands(commands[0].id)
+                .delete()
+            })
+        } else {
+          client.api
+            .applications(client.user.id)
+            .guilds(IDS.csc)
+            .commands.post({
+              data: {
+                name: 'anon',
+                description: 'Send #anonymous messages',
+                options: [
+                  {
+                    type: 3,
+                    name: 'message',
+                    description: 'Text to send',
+                    required: true,
+                  },
+                  {
+                    type: 5,
+                    name: 'random',
+                    description: 'Randomize avatar',
+                    required: false,
+                  },
+                ],
+              },
+            })
+          message.channel.send('Deployment successful.')
+        }
       }
-    } else {
-      if (haikus.length > 0) {
-        if (haikus.length > perPage) {
-          const pages = []
-          const pageCount = Math.ceil(haikus.length / perPage)
+    } else if (command === 'haikus') {
+      const id = subjectId(message)
+      const haikus = Haiku.find().matches('uid', id).run()
 
-          message.guild.members.fetch(id).then((member) => {
-            for (let page = 0; page < pageCount; page++) {
-              let displayHaikus = ''
+      if (args[0] === 'remove') {
+        if (haikus[args[1]]) {
+          Haiku.remove(haikus[args[1] - 1]._id_)
+          message.channel.send(`Haiku removed.`)
+        } else {
+          message.channel.send(`Haiku not found.`)
+        }
+      } else {
+        if (haikus.length > 0) {
+          if (haikus.length > perPage) {
+            const pages = []
+            const pageCount = Math.ceil(haikus.length / perPage)
 
+            message.guild.members.fetch(id).then((member) => {
+              for (let page = 0; page < pageCount; page++) {
+                let displayHaikus = ''
+
+                const embed = new Discord.MessageEmbed()
+                  .setAuthor(member.user.username, member.user.avatarURL())
+                  .setColor(COLORS.embed)
+                const haikuIndex = perPage * page
+
+                for (i = haikuIndex; i < haikuIndex + perPage; i++) {
+                  if (haikus[i]) {
+                    displayHaikus +=
+                      `\`${i + 1}.\`` +
+                      `\n${haikus[i].content}` +
+                      `\n<#${haikus[i].channel}>\n\n`
+                  }
+                }
+
+                embed.setDescription(displayHaikus)
+                pages.push(embed)
+              }
+
+              return paginationEmbed(message, pages)
+            })
+          } else {
+            message.guild.members.fetch(id).then((member) => {
               const embed = new Discord.MessageEmbed()
                 .setAuthor(member.user.username, member.user.avatarURL())
                 .setColor(COLORS.embed)
-              const haikuIndex = perPage * page
 
-              for (i = haikuIndex; i < haikuIndex + perPage; i++) {
-                if (haikus[i]) {
-                  displayHaikus +=
-                    `\`${i + 1}.\`` +
-                    `\n${haikus[i].content}` +
-                    `\n<#${haikus[i].channel}>\n\n`
-                }
-              }
+              let displayHaikus = ''
+
+              haikus.forEach((haiku) => {
+                displayHaikus +=
+                  `${haiku.content}` + `\n<#${haiku.channel}>\n\n`
+              })
 
               embed.setDescription(displayHaikus)
-              pages.push(embed)
-            }
-
-            return paginationEmbed(message, pages)
-          })
-        } else {
-          message.guild.members.fetch(id).then((member) => {
-            const embed = new Discord.MessageEmbed()
-              .setAuthor(member.user.username, member.user.avatarURL())
-              .setColor(COLORS.embed)
-
-            let displayHaikus = ''
-
-            haikus.forEach((haiku) => {
-              displayHaikus += `${haiku.content}` + `\n<#${haiku.channel}>\n\n`
+              return message.channel.send(embed)
             })
+          }
+        } else return message.channel.send(`No haikus found.`)
+      }
+    } else if (command === 'immortal') {
+      const embed = new Discord.MessageEmbed()
+      const immortals = Immortal.find().run()
 
-            embed.setDescription(displayHaikus)
-            return message.channel.send(embed)
+      if (immortals.length > 0) {
+        const immortalsSorted = immortals.sort((a, b) => a.score - b.score)
+        const immortal = immortalsSorted.pop()
+
+        if (immortal && immortal.uid && immortal.score) {
+          embed.setDescription(
+            `\`${immortal.score}\` points <:tst:866886790920405032>` +
+              `\n\nBow before our ruler; an immortal being. ` +
+              `Bathe in their light and unfathomable beauty, ` +
+              `and *accept* their judgement.`
+          )
+
+          message.guild.members.fetch(immortal.uid).then((member) => {
+            embed
+              .setColor(member.displayHexColor)
+              .setThumbnail(member.user.avatarURL())
+              .setTitle(member.displayName)
+            message.channel.send(embed)
           })
         }
-      } else return message.channel.send(`No haikus found.`)
-    }
-  } else if (command === 'immortal') {
-    const embed = new Discord.MessageEmbed()
-    const immortals = Immortal.find().run()
-
-    if (immortals.length > 0) {
-      const immortalsSorted = immortals.sort((a, b) => a.score - b.score)
-      const immortal = immortalsSorted.pop()
-
-      if (immortal && immortal.uid && immortal.score) {
-        embed.setDescription(
-          `\`${immortal.score}\` points <:tst:866886790920405032>` +
-            `\n\nBow before our ruler; an immortal being. ` +
-            `Bathe in their light and unfathomable beauty, ` +
-            `and *accept* their judgement.`
+      } else {
+        return message.channel.send(
+          `There is currently no immortal being present on the server ${randomEmoji()}`
         )
+      }
+    } else if (command === 'letter') {
+      const matches = Meta.find().matches('name', 'word-war').limit(1).run()
 
-        message.guild.members.fetch(immortal.uid).then((member) => {
-          embed
-            .setColor(member.displayHexColor)
-            .setThumbnail(member.user.avatarURL())
-            .setTitle(member.displayName)
+      if (matches.length > 0)
+        return message.channel.send(
+          alphabetEmoji[alphabet.indexOf(matches[0].value)]
+        )
+    } else if (command === 'age') {
+      const id = subjectId(message)
+
+      message.guild.members.fetch(id).then((member) => {
+        const memberFor = Date.now() - member.joinedAt.getTime()
+        return message.lineReply(`Member age \`${prettyMs(memberFor)}\``)
+      })
+    } else if (command === 'permadeath') {
+      const embed = new Discord.MessageEmbed()
+        .setColor(COLORS.embedBlack)
+        .setDescription(
+          `Contributing in :skull: channels awards points. ` +
+            `Points reset on death. ` +
+            `Whoever has the most points is \`!immortal\` and will be hunted.`
+        )
+        .setTitle(`Permadeath`)
+
+      const immortals = Immortal.find().run()
+
+      if (immortals.length > 0) {
+        const immortalsSorted = immortals.sort((a, b) => a.score - b.score)
+        const immortalRanked = immortalsSorted.reverse()
+
+        let entries =
+          immortals.length > countLeaderboard
+            ? countLeaderboard
+            : immortals.length
+        let leaderboard = []
+
+        for (let i = 0; i < entries; i++) {
+          const user = `<@${immortalRanked[i].uid}>`
+          const score = immortalRanked[i].score
+
+          leaderboard.push(`\`${i + 1}.\` ${user} \`${score}\``)
+        }
+        embed.addField('Leaderboard', leaderboard.join('\n'), false)
+        message.guild.members.fetch(immortalRanked[0].uid).then((member) => {
+          embed.setThumbnail(member.user.avatarURL())
           message.channel.send(embed)
         })
       }
-    } else {
-      return message.channel.send(
-        `There is currently no immortal being present on the server ${randomEmoji()}`
-      )
-    }
-  } else if (command === 'letter') {
-    const matches = Meta.find().matches('name', 'word-war').limit(1).run()
+    } else if (command === 'points') {
+      const matches = Immortal.find()
+        .matches('uid', message.author.id)
+        .limit(1)
+        .run()
 
-    if (matches.length > 0)
-      return message.channel.send(
-        alphabetEmoji[alphabet.indexOf(matches[0].value)]
-      )
-  } else if (command === 'age') {
-    const id = subjectId(message)
+      if (matches.length > 0) {
+        const points = matches[0].score === 1 ? 'point' : 'points'
 
-    message.guild.members.fetch(id).then((member) => {
-      const memberFor = Date.now() - member.joinedAt.getTime()
-      return message.lineReply(`Member age \`${prettyMs(memberFor)}\``)
-    })
-  } else if (command === 'permadeath') {
-    const embed = new Discord.MessageEmbed()
-      .setColor(COLORS.embedBlack)
-      .setDescription(
-        `Contributing in :skull: channels awards points. ` +
-          `Points reset on death. ` +
-          `Whoever has the most points is \`!immortal\` and will be hunted.`
-      )
-      .setTitle(`Permadeath`)
+        message.channel.send(`You have \`${matches[0].score}\` ${points}.`)
+      } else message.channel.send(`You have \`0\` points.`)
+    } else if (command === 'profile') {
+      const embed = new Discord.MessageEmbed()
+      const id = subjectId(message)
 
-    const immortals = Immortal.find().run()
+      message.guild.members.fetch(id).then((member) => {
+        const admin =
+          member.roles.cache.has(ROLEIDS.admin) ||
+          member.roles.cache.has(ROLEIDS.operator)
+        const avatar =
+          Meta.find()
+            .matches('uid', id)
+            .matches('name', 'avatar')
+            .limit(1)
+            .run()[0] || false
+        const bio = Bio.find().matches('uid', id).limit(1).run()[0] || false
+        const deaths = Death.find().matches('uid', id).limit(1).run()
+        const haikus = Haiku.find().matches('uid', id).run()
+        const immortal = Immortal.find().matches('uid', id).limit(1).run()
+        const patron = member.roles.cache.has(ROLEIDS.patron)
+        const psyop = member.roles.cache.has(ROLEIDS.psyop)
+        const rabbit = member.roles.cache.has(ROLEIDS.leet)
+        const memberFor = Date.now() - member.joinedAt.getTime()
 
-    if (immortals.length > 0) {
-      const immortalsSorted = immortals.sort((a, b) => a.score - b.score)
-      const immortalRanked = immortalsSorted.reverse()
+        let badges = []
+        let description = ''
+        let permadeath = [],
+          pronouns = '',
+          rank = ''
 
-      let entries =
-        immortals.length > countLeaderboard
-          ? countLeaderboard
-          : immortals.length
-      let leaderboard = []
+        if (member.roles.cache.has(ROLEIDS.tron)) rank = `Tron`
+        else if (member.roles.cache.has(ROLEIDS.cyberpunk)) rank = `Cyberpunk`
+        else if (member.roles.cache.has(ROLEIDS.replicant)) rank = `Replicant`
+        else if (member.roles.cache.has(ROLEIDS.android)) rank = `Android`
+        else if (member.roles.cache.has(ROLEIDS.cyborg)) rank = `Cyborg`
+        else if (member.roles.cache.has(ROLEIDS.augmented)) rank = `Augmented`
+        else if (member.roles.cache.has(ROLEIDS.revolutionary))
+          rank = `Revolutionary`
+        else if (member.roles.cache.has(ROLEIDS.insurgent)) rank = `Insurgent`
+        else if (member.roles.cache.has(ROLEIDS.activist)) rank = `Activist`
+        else if (member.roles.cache.has(ROLEIDS.comrade)) rank = `Comrade`
 
-      for (let i = 0; i < entries; i++) {
-        const user = `<@${immortalRanked[i].uid}>`
-        const score = immortalRanked[i].score
+        if (member.roles.cache.has(ROLEIDS.hehim)) pronouns += `\`He/Him\` `
+        if (member.roles.cache.has(ROLEIDS.sheher)) pronouns += `\`She/Her\` `
+        if (member.roles.cache.has(ROLEIDS.theythem))
+          pronouns += `\`They/Them\` `
+        if (member.roles.cache.has(ROLEIDS.pronouns))
+          pronouns = `\`Pronouns: Ask\``
+        if (pronouns.length > 0) {
+          description += `${pronouns} \`${prettyMs(memberFor, {
+            compact: true,
+          })}\``
+        } else {
+          description += `\`${prettyMs(memberFor)}\``
+        }
 
-        leaderboard.push(`\`${i + 1}.\` ${user} \`${score}\``)
-      }
-      embed.addField('Leaderboard', leaderboard.join('\n'), false)
-      message.guild.members.fetch(immortalRanked[0].uid).then((member) => {
-        embed.setThumbnail(member.user.avatarURL())
-        message.channel.send(embed)
-      })
-    }
-  } else if (command === 'points') {
-    const matches = Immortal.find()
-      .matches('uid', message.author.id)
-      .limit(1)
-      .run()
-
-    if (matches.length > 0) {
-      const points = matches[0].score === 1 ? 'point' : 'points'
-
-      message.channel.send(`You have \`${matches[0].score}\` ${points}.`)
-    } else message.channel.send(`You have \`0\` points.`)
-  } else if (command === 'profile') {
-    const embed = new Discord.MessageEmbed()
-    const id = subjectId(message)
-
-    message.guild.members.fetch(id).then((member) => {
-      const admin =
-        member.roles.cache.has(ROLEIDS.admin) ||
-        member.roles.cache.has(ROLEIDS.operator)
-      const avatar =
-        Meta.find()
-          .matches('uid', id)
-          .matches('name', 'avatar')
-          .limit(1)
-          .run()[0] || false
-      const bio = Bio.find().matches('uid', id).limit(1).run()[0] || false
-      const deaths = Death.find().matches('uid', id).limit(1).run()
-      const haikus = Haiku.find().matches('uid', id).run()
-      const immortal = Immortal.find().matches('uid', id).limit(1).run()
-      const patron = member.roles.cache.has(ROLEIDS.patron)
-      const psyop = member.roles.cache.has(ROLEIDS.psyop)
-      const rabbit = member.roles.cache.has(ROLEIDS.leet)
-      const memberFor = Date.now() - member.joinedAt.getTime()
-
-      let badges = []
-      let description = ''
-      let permadeath = [],
-        pronouns = '',
-        rank = ''
-
-      if (member.roles.cache.has(ROLEIDS.tron)) rank = `Tron`
-      else if (member.roles.cache.has(ROLEIDS.cyberpunk)) rank = `Cyberpunk`
-      else if (member.roles.cache.has(ROLEIDS.replicant)) rank = `Replicant`
-      else if (member.roles.cache.has(ROLEIDS.android)) rank = `Android`
-      else if (member.roles.cache.has(ROLEIDS.cyborg)) rank = `Cyborg`
-      else if (member.roles.cache.has(ROLEIDS.augmented)) rank = `Augmented`
-      else if (member.roles.cache.has(ROLEIDS.revolutionary))
-        rank = `Revolutionary`
-      else if (member.roles.cache.has(ROLEIDS.insurgent)) rank = `Insurgent`
-      else if (member.roles.cache.has(ROLEIDS.activist)) rank = `Activist`
-      else if (member.roles.cache.has(ROLEIDS.comrade)) rank = `Comrade`
-
-      if (member.roles.cache.has(ROLEIDS.hehim)) pronouns += `\`He/Him\` `
-      if (member.roles.cache.has(ROLEIDS.sheher)) pronouns += `\`She/Her\` `
-      if (member.roles.cache.has(ROLEIDS.theythem)) pronouns += `\`They/Them\` `
-      if (member.roles.cache.has(ROLEIDS.pronouns))
-        pronouns = `\`Pronouns: Ask\``
-      if (pronouns.length > 0) {
-        description += `${pronouns} \`${prettyMs(memberFor, {
-          compact: true,
-        })}\``
-      } else {
-        description += `\`${prettyMs(memberFor)}\``
-      }
-
-      if (bio) {
-        let badge = BADGES.find((badge) => {
-          return badge.name === 'Comrade'
-        })
-        badges.push(`[${badge.emoji}](${bio.url})`)
-      }
-      if (admin) {
-        let badge = BADGES.find((badge) => {
-          return badge.name === 'Operator'
-        })
-        badges.push(badge.emoji)
-      }
-      if (avatar) {
-        let badge = BADGES.find((badge) => {
-          return badge.name === 'Anonymous'
-        })
-        badges.push(badge.emoji)
-      }
-      if (patron) {
-        let badge = BADGES.find((badge) => {
-          return badge.name === 'Patron'
-        })
-        badges.push(badge.emoji)
-      }
-      if (psyop) {
-        let badge = BADGES.find((badge) => {
-          return badge.name === 'PSYOP'
-        })
-        badges.push(badge.emoji)
-      }
-      if (rabbit) {
-        let badge = BADGES.find((badge) => {
-          return badge.name === 'Rabbit'
-        })
-        description = `${description} ${badge.emoji}`
-      }
-
-      if (deaths.length > 0) permadeath.push(`Deaths \`${deaths[0].deaths}\``)
-      if (immortal.length > 0) {
-        if (isImmortal(id)) {
+        if (bio) {
           let badge = BADGES.find((badge) => {
-            return badge.name === 'Immortal'
+            return badge.name === 'Comrade'
+          })
+          badges.push(`[${badge.emoji}](${bio.url})`)
+        }
+        if (admin) {
+          let badge = BADGES.find((badge) => {
+            return badge.name === 'Operator'
           })
           badges.push(badge.emoji)
         }
-        permadeath.push(`Points \`${immortal[0].score}\``)
+        if (avatar) {
+          let badge = BADGES.find((badge) => {
+            return badge.name === 'Anonymous'
+          })
+          badges.push(badge.emoji)
+        }
+        if (patron) {
+          let badge = BADGES.find((badge) => {
+            return badge.name === 'Patron'
+          })
+          badges.push(badge.emoji)
+        }
+        if (psyop) {
+          let badge = BADGES.find((badge) => {
+            return badge.name === 'PSYOP'
+          })
+          badges.push(badge.emoji)
+        }
+        if (rabbit) {
+          let badge = BADGES.find((badge) => {
+            return badge.name === 'Rabbit'
+          })
+          description = `${description} ${badge.emoji}`
+        }
+
+        if (deaths.length > 0) permadeath.push(`Deaths \`${deaths[0].deaths}\``)
+        if (immortal.length > 0) {
+          if (isImmortal(id)) {
+            let badge = BADGES.find((badge) => {
+              return badge.name === 'Immortal'
+            })
+            badges.push(badge.emoji)
+          }
+          permadeath.push(`Points \`${immortal[0].score}\``)
+        }
+        if (haikus.length > 0) {
+          const haiku = haikus[Math.floor(Math.random() * haikus.length)]
+          embed.addField('Haiku', `*${haiku.content}*`, false)
+        }
+
+        if (badges.length > 0) embed.addField('Badges', badges.join(' '), true)
+        if (permadeath.length > 0)
+          embed.addField('Permadeath', permadeath.join(' '), true)
+
+        embed
+          .setColor(member.displayHexColor || COLORS.embed)
+          .setDescription(description)
+          .setThumbnail(member.user.avatarURL())
+          .setTitle(member.displayName)
+
+        if (rank.length > 0) embed.setTitle(`${rank} ${member.displayName}`)
+
+        message.channel.send(embed)
+      })
+    } else if (command === 'resurrect' || command === 'ressurect') {
+      if (!message.member.roles.cache.has(ROLEIDS.ghost))
+        return message.channel.send(`You're not dead.`)
+
+      const embed = new Discord.MessageEmbed()
+        .setColor(COLORS.embedBlack)
+        .setTitle(`Resurrection`)
+      const matches = Resurrection.find()
+        .matches('uid', message.author.id)
+        .run()
+      const hasResurrected = matches.length > 0
+      let timeRemaining
+
+      if (hasResurrected) {
+        const expires = matches[0]._ts_ + 3 * 24 * 60 * 60 * 1000
+        if (Date.now() < expires) timeRemaining = expires - Date.now()
       }
-      if (haikus.length > 0) {
-        const haiku = haikus[Math.floor(Math.random() * haikus.length)]
-        embed.addField('Haiku', `*${haiku.content}*`, false)
+
+      if (!timeRemaining) {
+        message.member.roles.remove(ROLEIDS.ghost)
+        if (hasResurrected) Resurrection.remove(matches[0]._id_)
+        Resurrection.add({ uid: message.author.id })
+        embed.setDescription(`You have been resurrected 🙏`)
+      } else {
+        embed.setDescription(
+          `You have to wait \`${prettyMs(timeRemaining)}\` to resurrect.`
+        )
       }
+      return message.channel.send(embed)
+    } else if (command === 'stats') {
+      const countBios = Bio.find().run().length
+      const countEntries = Entry.find().run().length
+      const deaths = Death.find().run()
 
-      if (badges.length > 0) embed.addField('Badges', badges.join(' '), true)
-      if (permadeath.length > 0)
-        embed.addField('Permadeath', permadeath.join(' '), true)
+      let countDeaths = 0
+      deaths.forEach((death) => {
+        countDeaths = countDeaths + parseInt(death.deaths)
+      })
 
-      embed
-        .setColor(member.displayHexColor || COLORS.embed)
-        .setDescription(description)
-        .setThumbnail(member.user.avatarURL())
-        .setTitle(member.displayName)
+      const countHaikus = Haiku.find().run().length
+      const highscore = Meta.find().matches('name', 'counting').limit(1).run()
 
-      if (rank.length > 0) embed.setTitle(`${rank} ${member.displayName}`)
+      let countHighscore = 1
+
+      if (highscore.length > 0)
+        countHighscore = highscore[0].value.split('|')[1]
+
+      const statsNumbers =
+        `Counting Highscore \`${countHighscore}\`` +
+        `\nDeath Count \`${countDeaths}\``
+
+      const statsOriginal =
+        `Accidental Haikus \`${countHaikus}\`` +
+        `\nBiographies \`${countBios}\`` +
+        `\nContest Entries \`${countEntries}\``
+
+      const embed = new Discord.MessageEmbed()
+        .setColor(COLORS.embed)
+        .setDescription(
+          `Some more or *less* useful information. ` +
+            `It's less, it's definitely less.`
+        )
+        .setTitle('Statistics')
+        .addFields(
+          { name: 'Numbers', value: statsNumbers, inline: true },
+          {
+            name: 'Original Content',
+            value: statsOriginal,
+            inline: true,
+          }
+        )
 
       message.channel.send(embed)
-    })
-  } else if (command === 'resurrect' || command === 'ressurect') {
-    if (!message.member.roles.cache.has(ROLEIDS.ghost))
-      return message.channel.send(`You're not dead.`)
-
-    const embed = new Discord.MessageEmbed()
-      .setColor(COLORS.embedBlack)
-      .setTitle(`Resurrection`)
-    const matches = Resurrection.find().matches('uid', message.author.id).run()
-    const hasResurrected = matches.length > 0
-    let timeRemaining
-
-    if (hasResurrected) {
-      const expires = matches[0]._ts_ + 3 * 24 * 60 * 60 * 1000
-      if (Date.now() < expires) timeRemaining = expires - Date.now()
-    }
-
-    if (!timeRemaining) {
-      message.member.roles.remove(ROLEIDS.ghost)
-      if (hasResurrected) Resurrection.remove(matches[0]._id_)
-      Resurrection.add({ uid: message.author.id })
-      embed.setDescription(`You have been resurrected 🙏`)
-    } else {
-      embed.setDescription(
-        `You have to wait \`${prettyMs(timeRemaining)}\` to resurrect.`
-      )
-    }
-    return message.channel.send(embed)
-  } else if (command === 'stats') {
-    const countBios = Bio.find().run().length
-    const countEntries = Entry.find().run().length
-    const deaths = Death.find().run()
-
-    let countDeaths = 0
-    deaths.forEach((death) => {
-      countDeaths = countDeaths + parseInt(death.deaths)
-    })
-
-    const countHaikus = Haiku.find().run().length
-    const highscore = Meta.find().matches('name', 'counting').limit(1).run()
-
-    let countHighscore = 1
-
-    if (highscore.length > 0) countHighscore = highscore[0].value.split('|')[1]
-
-    const statsNumbers =
-      `Counting Highscore \`${countHighscore}\`` +
-      `\nDeath Count \`${countDeaths}\``
-
-    const statsOriginal =
-      `Accidental Haikus \`${countHaikus}\`` +
-      `\nBiographies \`${countBios}\`` +
-      `\nContest Entries \`${countEntries}\``
-
-    const embed = new Discord.MessageEmbed()
-      .setColor(COLORS.embed)
-      .setDescription(
-        `Some more or *less* useful information. ` +
-          `It's less, it's definitely less.`
-      )
-      .setTitle('Statistics')
-      .addFields(
-        { name: 'Numbers', value: statsNumbers, inline: true },
-        {
-          name: 'Original Content',
-          value: statsOriginal,
-          inline: true,
-        }
-      )
-
-    message.channel.send(embed)
-  } else if (command === 'version') {
-    message.channel.send(version)
-  } else if (message.content.includes(KEY)) {
-    message.delete()
-    if (message.member.roles.cache.has(ROLEIDS.leet)) {
-      message.channel.send('🐇').then((message) => {
-        setTimeout(() => {
-          message.delete()
-        }, timerFeedbackDelete)
-      })
-    } else {
+    } else if (command === 'version') {
+      message.channel.send(version)
+    } else if (message.content.includes(KEY)) {
       message.delete()
-      message.member.roles.add(ROLEIDS.leet)
-      message.channel
-        .send('https://c.tenor.com/bWNecnNqh2MAAAAC/hole-rabbit-hole.gif')
-        .then((message) => {
+      if (message.member.roles.cache.has(ROLEIDS.leet)) {
+        message.channel.send('🐇').then((message) => {
           setTimeout(() => {
             message.delete()
-          }, timerFeedbackDelete * 2)
+          }, timerFeedbackDelete)
         })
-      message.channel.send(`Authenticating with \`${KEY}\``).then((message) => {
-        setTimeout(() => {
-          message.delete()
-          message.channel
-            .send('`SIGACK` received, terminal unlocked...')
-            .then((message) => {
-              setTimeout(() => {
-                message.delete()
-                authenticate(message.member)
-              }, timerFeedbackDelete / 2)
-            })
-        }, timerFeedbackDelete)
-      })
+      } else {
+        message.delete()
+        message.member.roles.add(ROLEIDS.leet)
+        message.channel
+          .send('https://c.tenor.com/bWNecnNqh2MAAAAC/hole-rabbit-hole.gif')
+          .then((message) => {
+            setTimeout(() => {
+              message.delete()
+            }, timerFeedbackDelete * 2)
+          })
+        message.channel
+          .send(`Authenticating with \`${KEY}\``)
+          .then((message) => {
+            setTimeout(() => {
+              message.delete()
+              message.channel
+                .send('`SIGACK` received, terminal unlocked...')
+                .then((message) => {
+                  setTimeout(() => {
+                    message.delete()
+                    authenticate(message.member)
+                  }, timerFeedbackDelete / 2)
+                })
+            }, timerFeedbackDelete)
+          })
+      }
     }
+  } else if (
+    complimentChannels.includes(message.channel.id) &&
+    Math.random() < randomChance
+  ) {
+    fetch('https://complimentr.com/api')
+      .then((response) => response.json())
+      .then((data) => {
+        let compliment =
+          data.compliment.charAt(0).toUpperCase() + data.compliment.slice(1)
+        let emoji = complimentEmoji[Math.floor(Math.random() * status.length)]
+
+        message.channel.send(`${compliment}, ${message.author} ${emoji}`)
+      })
   }
 })
 
