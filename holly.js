@@ -16,7 +16,7 @@ const dictionary = checkWord('en')
 const BADGES = [
   {
     name: 'Anonymous',
-    description: 'Custom avatar for anonymous chat',
+    description: 'Used a custom avatar for anonymous chat.',
     emoji: '<:anonymous:837247849145303080>',
   },
   {
@@ -31,22 +31,22 @@ const BADGES = [
   },
   {
     name: 'Operator',
-    description: 'Member of the *CSC* administration',
+    description: 'Member of the *CSC* admin team.',
     emoji: '<:cscbob:846528128524091422>',
   },
   {
     name: 'Patron',
-    description: 'Super cool *Patreon* supporter',
+    description: 'Super cool and awesome *Patreon* supporter.',
     emoji: '<:patreon:837291787797135360>',
   },
   {
     name: 'PSYOP',
-    description: 'Awesome and rad *Twitch* subscriber',
+    description: 'Rad to the max *Twitch* subscriber.',
     emoji: '<:twitch:879932370210414703>',
   },
   {
-    name: 'Rabbit',
-    description: 'Jrag qbja gur enoovg ubyr',
+    name: '?',
+    description: 'Jrag qbja gur enoovg ubyr.',
     emoji: '[🐰](https://github.com/Destru/Holly/blob/master/key.md)',
   },
 ]
@@ -774,15 +774,29 @@ client.on('message', (message) => {
       setReactions(message, 'csc')
     }
   } else if (message.content.startsWith(PREFIX)) {
-    if (command === 'badges') {
-      const embed = new Discord.MessageEmbed()
-        .setColor(COLORS.embed)
-        .setTitle('Badges')
+    if (command === 'badges' || command === 'badge') {
+      const embed = new Discord.MessageEmbed().setColor(COLORS.embed)
+      if (args[0]) {
+        let badge = BADGES.find((badge) => {
+          return badge.name.toLowerCase() === args[0].toLowerCase()
+        })
+        let output = `No such badge.`
+
+        if (badge) {
+          embed
+            .setDescription(badge.description)
+            .setTitle(`${badge.name} ${badge.emoji}`)
+          output = embed
+        }
+
+        return message.channel.send(output)
+      }
+
+      embed.setTitle('Badges')
 
       let badges = []
-
       BADGES.forEach((badge) => {
-        badges.push(`${badge.name} ${badge.emoji}`)
+        if (badge.name !== '?') badges.push(`${badge.name} ${badge.emoji}`)
       })
 
       embed.setDescription(badges.join('\n'))
