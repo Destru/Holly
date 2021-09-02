@@ -1155,7 +1155,7 @@ client.on('message', (message) => {
         }
         if (rabbit) {
           let badge = BADGES.find((badge) => {
-            return badge.name === 'Rabbit'
+            return badge.name === '?'
           })
           description = `${description} ${badge.emoji}`
         }
