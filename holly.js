@@ -1342,13 +1342,13 @@ client.ws.on('INTERACTION_CREATE', async (interaction) => {
 
       if (avatar.length > 0) {
         Meta.update(avatar[0]._id_, {
-          value: rng,
+          value: `${rng}`,
         })
       } else {
         Meta.add({
           name: 'avatar',
           uid: uid,
-          value: rng,
+          value: `${rng}`,
         })
       }
 
