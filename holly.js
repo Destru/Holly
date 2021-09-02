@@ -175,8 +175,11 @@ const capitalize = (string) => {
   if (typeof string !== 'string') return string
   return string.charAt(0).toUpperCase() + string.slice(1)
 }
-
-const complimentChannels = ['836963196916858902', '841057992890646609']
+const complimentChannels = [
+  '836963196916858902',
+  '841057992890646609',
+  '832419005993189406',
+]
 const complimentEmoji = [
   ':heart:',
   ':heart_eyes:',
@@ -1335,7 +1338,7 @@ client.ws.on('INTERACTION_CREATE', async (interaction) => {
     else embed.setThumbnail(`https://robohash.org/${uid}.png`)
 
     if (randomize && randomize.value === true) {
-      const rng = Math.floor(Math.random() * 18)
+      const rng = Math.floor(Math.random() * 900000000000000000)
 
       if (avatar.length > 0) {
         Meta.update(avatar[0]._id_, {
