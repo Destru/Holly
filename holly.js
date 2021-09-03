@@ -401,6 +401,7 @@ client.on('message', (message) => {
       Immortal.remove(immortal._id_)
     } else {
       if (penalty > 0) {
+        if (penalty > immortal.score) penalty = immortal.score
         Immortal.update(immortal._id_, {
           score: `${parseInt(immortal.score) - penalty}`,
         })
@@ -456,7 +457,7 @@ client.on('message', (message) => {
             .pop()
 
           const currentScore = parseInt(immortal.score)
-          const penalty = Math.floor(Math.random() * (currentScore / 2)) + 1
+          let penalty = Math.floor(Math.random() * (currentScore / 2)) + 1
 
           if (penalty > currentScore) penalty = currentScore - 1
 
