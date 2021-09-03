@@ -1120,12 +1120,11 @@ client.on('message', (message) => {
           rank = ''
 
         metaStats.forEach((stat) => {
-          const match =
-            Meta.find()
-              .matches('uid', id)
-              .matches('name', stat)
-              .limit(1)
-              .run()[0] || false
+          const match = Meta.find()
+            .matches('uid', id)
+            .matches('name', stat)
+            .limit(1)
+            .run()
           if (match.length > 0)
             stats.push(`${match[0].name} \`${match[0].value}\``)
         })
