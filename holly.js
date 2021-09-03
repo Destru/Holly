@@ -152,7 +152,7 @@ const akihabara = [
   'kiss',
   'lick',
   'megumin',
-  'neku',
+  'neko',
   'nom',
   'pat',
   'poke',
@@ -748,7 +748,8 @@ client.on('message', (message) => {
     }
   } else if (
     message.channel.id === CHANNELIDS.akihabara ||
-    message.channel.id === CHANNELIDS.hornyjail
+    message.channel.id === CHANNELIDS.hornyjail ||
+    message.channel.id === CHANNELIDS.internal
   ) {
     // #akihabara + #horny-jail
     if (akihabara.includes(command)) {
@@ -760,7 +761,11 @@ client.on('message', (message) => {
         command === 'trap' ||
         command === 'waifu'
       ) {
-        if (message.channel.id === CHANNELIDS.hornyjail) type = 'nsfw'
+        if (
+          message.channel.id === CHANNELIDS.hornyjail ||
+          message.channel.id === CHANNELIDS.internal
+        )
+          type = 'nsfw'
         else {
           if (command === 'blowjob' || command === 'trap') {
             command = 'bonk'
