@@ -309,6 +309,24 @@ const subjectId = (message) => {
   return id
 }
 const timerFeedbackDelete = 5000
+const trackByName = (name) => {
+  let oc = Meta.find()
+    .matches('uid', message.author.id)
+    .matches('name', name)
+    .limit(1)
+    .run()
+  if (oc.length > 0) {
+    Meta.update(oc[0]._id_, {
+      value: `${oc[0].value + 1}`,
+    })
+  } else {
+    Meta.add({
+      name: name,
+      uid: message.author.id,
+      value: '1',
+    })
+  }
+}
 const version = process.env.npm_package_version || '(Development)'
 
 db.configure({ dir: './db' })
@@ -579,6 +597,7 @@ client.on('message', (message) => {
       if (fail === false) {
         message.react('✅')
         permaDeathScore()
+        trackByName('acronyms')
       } else {
         message.react('❌')
         permaDeath()
@@ -596,6 +615,7 @@ client.on('message', (message) => {
     } else permaDeathScore()
   } else if (message.channel.id === CHANNELIDS.bandnames) {
     setReactions(message, 'upvote')
+    trackByName('bandnames')
   } else if (
     message.channel.id === CHANNELIDS.comrades ||
     message.channel.id === CHANNELIDS.contest
@@ -699,6 +719,8 @@ client.on('message', (message) => {
       message.attachments.size > 0
     ) {
       setReactions(message, 'upvote')
+      if (message.channel.id === CHANNELIDS.memes) trackByName('memes')
+      else trackByName('stimulus')
     }
   } else if (
     message.channel.id === CHANNELIDS.nsfw ||
@@ -773,6 +795,7 @@ client.on('message', (message) => {
       message.attachments.size > 0
     ) {
       setReactions(message, 'csc')
+      trackByName('oc')
     }
   } else if (message.content.startsWith(PREFIX)) {
     if (command === 'badges' || command === 'badge') {
@@ -1091,12 +1114,24 @@ client.on('message', (message) => {
         const psyop = member.roles.cache.has(ROLEIDS.psyop)
         const rabbit = member.roles.cache.has(ROLEIDS.leet)
         const memberFor = Date.now() - member.joinedAt.getTime()
+        const metaStats = ['oc', 'memes', 'stimulus', 'acronyms', 'bandnames']
 
         let badges = []
         let description = ''
         let stats = [],
           pronouns = '',
           rank = ''
+
+        metaStats.forEach((stat) => {
+          const match =
+            Meta.find()
+              .matches('uid', id)
+              .matches('name', stat)
+              .limit(1)
+              .run()[0] || false
+          if (match.length > 0)
+            stats.push(`${match[0].name} \`${match[0].value}\``)
+        })
 
         if (member.roles.cache.has(ROLEIDS.tron)) rank = `Tron`
         else if (member.roles.cache.has(ROLEIDS.cyberpunk)) rank = `Cyberpunk`
