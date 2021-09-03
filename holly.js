@@ -748,8 +748,7 @@ client.on('message', (message) => {
     }
   } else if (
     message.channel.id === CHANNELIDS.akihabara ||
-    message.channel.id === CHANNELIDS.hornyjail ||
-    message.channel.id === CHANNELIDS.internal
+    message.channel.id === CHANNELIDS.hornyjail
   ) {
     // #akihabara + #horny-jail
     if (akihabara.includes(command)) {
@@ -761,11 +760,7 @@ client.on('message', (message) => {
         command === 'trap' ||
         command === 'waifu'
       ) {
-        if (
-          message.channel.id === CHANNELIDS.hornyjail ||
-          message.channel.id === CHANNELIDS.internal
-        )
-          type = 'nsfw'
+        if (message.channel.id === CHANNELIDS.hornyjail) type = 'nsfw'
         else {
           if (command === 'blowjob' || command === 'trap') {
             command = 'bonk'
