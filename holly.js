@@ -1126,7 +1126,9 @@ client.on('message', (message) => {
             .limit(1)
             .run()
           if (match.length > 0)
-            stats.push(`${match[0].name} \`${match[0].value}\``)
+            let name = capitalize(match[0].name)
+            if (name.length <= 2) name = name.toUpperCase()
+            stats.push(`${name} \`${match[0].value}\``)
         })
 
         if (member.roles.cache.has(ROLEIDS.tron)) rank = `Tron`
@@ -1208,8 +1210,10 @@ client.on('message', (message) => {
         }
 
         if (badges.length > 0) embed.addField('Badges', badges.join(' '), true)
-        if (stats.length > 0) embed.addField('Stats', stats.join('\n'), true)
-
+        if (stats.length > 0) {
+          stats.sort()
+          embed.addField('Stats', stats.join('\n'), true)
+        }
         embed
           .setColor(member.displayHexColor || COLORS.embed)
           .setDescription(description)
