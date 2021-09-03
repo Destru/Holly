@@ -1093,7 +1093,7 @@ client.on('message', (message) => {
 
         let badges = []
         let description = ''
-        let permadeath = [],
+        let stats = [],
           pronouns = '',
           rank = ''
 
@@ -1160,7 +1160,12 @@ client.on('message', (message) => {
           description = `${description} ${badge.emoji}`
         }
 
-        if (deaths.length > 0) permadeath.push(`Deaths \`${deaths[0].deaths}\``)
+        if (deaths.length > 0) stats.push(`Deaths \`${deaths[0].deaths}\``)
+        if (haikus.length > 0) {
+          const haiku = haikus[Math.floor(Math.random() * haikus.length)]
+          embed.addField('Haiku', `*${haiku.content}*`, false)
+          stats.push(`Haikus \`${haikus.length}\``)
+        }
         if (immortal.length > 0) {
           if (isImmortal(id)) {
             let badge = BADGES.find((badge) => {
@@ -1168,16 +1173,10 @@ client.on('message', (message) => {
             })
             badges.push(badge.emoji)
           }
-          permadeath.push(`Points \`${immortal[0].score}\``)
-        }
-        if (haikus.length > 0) {
-          const haiku = haikus[Math.floor(Math.random() * haikus.length)]
-          embed.addField('Haiku', `*${haiku.content}*`, false)
         }
 
         if (badges.length > 0) embed.addField('Badges', badges.join(' '), true)
-        if (permadeath.length > 0)
-          embed.addField('Permadeath', permadeath.join(' '), true)
+        if (stats.length > 0) embed.addField('Stats', stats.join('\n'), true)
 
         embed
           .setColor(member.displayHexColor || COLORS.embed)
