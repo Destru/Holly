@@ -1125,10 +1125,11 @@ client.on('message', (message) => {
             .matches('name', stat)
             .limit(1)
             .run()
-          if (match.length > 0)
+          if (match.length > 0) {
             let name = capitalize(match[0].name)
             if (name.length <= 2) name = name.toUpperCase()
             stats.push(`${name} \`${match[0].value}\``)
+          }
         })
 
         if (member.roles.cache.has(ROLEIDS.tron)) rank = `Tron`
