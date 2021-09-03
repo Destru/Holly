@@ -309,12 +309,8 @@ const subjectId = (message) => {
   return id
 }
 const timerFeedbackDelete = 5000
-const trackByName = (name) => {
-  let oc = Meta.find()
-    .matches('uid', message.author.id)
-    .matches('name', name)
-    .limit(1)
-    .run()
+const trackByName = (id, name) => {
+  let oc = Meta.find().matches('uid', id).matches('name', name).limit(1).run()
   if (oc.length > 0) {
     Meta.update(oc[0]._id_, {
       value: `${oc[0].value + 1}`,
@@ -597,7 +593,7 @@ client.on('message', (message) => {
       if (fail === false) {
         message.react('✅')
         permaDeathScore()
-        trackByName('acronyms')
+        trackByName(message.author.id, 'acronyms')
       } else {
         message.react('❌')
         permaDeath()
@@ -615,7 +611,7 @@ client.on('message', (message) => {
     } else permaDeathScore()
   } else if (message.channel.id === CHANNELIDS.bandnames) {
     setReactions(message, 'upvote')
-    trackByName('bandnames')
+    trackByName(message.author.id, 'bandnames')
   } else if (
     message.channel.id === CHANNELIDS.comrades ||
     message.channel.id === CHANNELIDS.contest
@@ -719,8 +715,9 @@ client.on('message', (message) => {
       message.attachments.size > 0
     ) {
       setReactions(message, 'upvote')
-      if (message.channel.id === CHANNELIDS.memes) trackByName('memes')
-      else trackByName('stimulus')
+      if (message.channel.id === CHANNELIDS.memes)
+        trackByName(message.author.id, 'memes')
+      else trackByName(message.author.id, 'stimulus')
     }
   } else if (
     message.channel.id === CHANNELIDS.nsfw ||
@@ -795,7 +792,7 @@ client.on('message', (message) => {
       message.attachments.size > 0
     ) {
       setReactions(message, 'csc')
-      trackByName('oc')
+      trackByName(message.author.id, 'oc')
     }
   } else if (message.content.startsWith(PREFIX)) {
     if (command === 'badges' || command === 'badge') {
