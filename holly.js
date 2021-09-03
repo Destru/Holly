@@ -318,7 +318,7 @@ const trackByName = (id, name) => {
   } else {
     Meta.add({
       name: name,
-      uid: message.author.id,
+      uid: id,
       value: '1',
     })
   }
