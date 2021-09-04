@@ -946,14 +946,17 @@ client.on('message', (message) => {
           //       ],
           //     },
           //   })
-          METASTATS.forEach((stat) => {
-            const matches = Meta.find().matches('name', stat).run()
-            if (matches.length > 0) {
-              matches.forEach((match) => {
-                Meta.remove(match._id_)
-              })
-            }
-          })
+          // METASTATS.forEach((stat) => {
+          //   const matches = Meta.find().matches('name', stat).run()
+          //   if (matches.length > 0) {
+          //     matches.forEach((match) => {
+          //       Meta.remove(match._id_)
+          //     })
+          //   }
+          // })
+
+          randomAcronym()
+          randomLetter()
 
           message.channel.send('Deployment successful.')
         }
