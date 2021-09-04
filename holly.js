@@ -97,6 +97,8 @@ const IDS = {
   queeg: '844980040579678259',
   trebek: '400786664861204481',
 }
+const METASTATS = ['oc', 'memes', 'stimulus', 'acronyms', 'bandnames']
+
 const PREFIX = '!'
 const ROLEIDS = {
   tron: '832402366698618941',
@@ -921,29 +923,38 @@ client.on('message', (message) => {
                 .delete()
             })
         } else {
-          client.api
-            .applications(client.user.id)
-            .guilds(IDS.csc)
-            .commands.post({
-              data: {
-                name: 'anon',
-                description: 'Send #anonymous messages',
-                options: [
-                  {
-                    type: 3,
-                    name: 'message',
-                    description: 'Text to send',
-                    required: true,
-                  },
-                  {
-                    type: 5,
-                    name: 'random',
-                    description: 'Randomize avatar',
-                    required: false,
-                  },
-                ],
-              },
-            })
+          // client.api
+          //   .applications(client.user.id)
+          //   .guilds(IDS.csc)
+          //   .commands.post({
+          //     data: {
+          //       name: 'anon',
+          //       description: 'Send #anonymous messages',
+          //       options: [
+          //         {
+          //           type: 3,
+          //           name: 'message',
+          //           description: 'Text to send',
+          //           required: true,
+          //         },
+          //         {
+          //           type: 5,
+          //           name: 'random',
+          //           description: 'Randomize avatar',
+          //           required: false,
+          //         },
+          //       ],
+          //     },
+          //   })
+          METASTATS.forEach((stat) => {
+            const matches = Meta.find().matches('name', stat).run()
+            if (matches.length > 0) {
+              matches.forEach((match) => {
+                Meta.remove(match._id_)
+              })
+            }
+          })
+
           message.channel.send('Deployment successful.')
         }
       }
@@ -1117,7 +1128,6 @@ client.on('message', (message) => {
         const psyop = member.roles.cache.has(ROLEIDS.psyop)
         const rabbit = member.roles.cache.has(ROLEIDS.leet)
         const memberFor = Date.now() - member.joinedAt.getTime()
-        const metaStats = ['oc', 'memes', 'stimulus', 'acronyms', 'bandnames']
 
         let badges = []
         let description = ''
@@ -1125,7 +1135,7 @@ client.on('message', (message) => {
           pronouns = '',
           rank = ''
 
-        metaStats.forEach((stat) => {
+        METASTATS.forEach((stat) => {
           const match = Meta.find()
             .matches('uid', id)
             .matches('name', stat)
