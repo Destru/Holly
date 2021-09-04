@@ -310,10 +310,14 @@ const subjectId = (message) => {
 }
 const timerFeedbackDelete = 5000
 const trackByName = (id, name) => {
-  let oc = Meta.find().matches('uid', id).matches('name', name).limit(1).run()
-  if (oc.length > 0) {
-    Meta.update(oc[0]._id_, {
-      value: `${oc[0].value + 1}`,
+  let match = Meta.find()
+    .matches('uid', id)
+    .matches('name', name)
+    .limit(1)
+    .run()
+  if (match.length > 0) {
+    Meta.update(match[0]._id_, {
+      value: `${parseInt(match[0].value) + 1}`,
     })
   } else {
     Meta.add({
@@ -794,7 +798,9 @@ client.on('message', (message) => {
       setReactions(message, 'csc')
       trackByName(message.author.id, 'oc')
     }
-  } else if (message.content.startsWith(PREFIX)) {
+  }
+
+  if (message.content.startsWith(PREFIX)) {
     if (command === 'badges' || command === 'badge') {
       const embed = new Discord.MessageEmbed().setColor(COLORS.embed)
       if (args[0]) {
