@@ -1409,11 +1409,11 @@ client.on('ready', () => {
 })
 
 client.ws.on('INTERACTION_CREATE', async (interaction) => {
-  if (interaction.data.name === 'anon') {
-    const channel = client.channels.cache.get(interaction.channel_id)
-    const guild = client.guilds.cache.get(interaction.guild_id)
-    const member = guild.members.cache.get(interaction.member.user.id)
+  const channel = client.channels.cache.get(interaction.channel_id)
+  const guild = client.guilds.cache.get(interaction.guild_id)
+  const member = guild.members.cache.get(interaction.member.user.id)
 
+  if (interaction.data.name === 'anon') {
     if (member.roles.cache.has(ROLEIDS.leet)) {
       const message = interaction.data.options[0].value
       const randomize = interaction.data.options[1]
