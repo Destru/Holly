@@ -85,6 +85,7 @@ const COLORS = {
   embedBlack: '#2F3136',
 }
 const EMOJIIDS = {
+  anonymous: '837247849145303080',
   csc: '837251418247004205',
   kekw: '830114281168699412',
   heart: '875259618119536701',
@@ -1384,13 +1385,14 @@ client.on('ready', () => {
 })
 
 client.ws.on('INTERACTION_CREATE', async (interaction) => {
-  const member = client.members.cache.get(interaction.member.user.id)
+  const channel = client.channels.cache.get(interaction.channel.id)
+  const member = interaction.guild.members.cache.get(interaction.member.user.id)
 
   if (interaction.data.name === 'anon') {
     if (member.roles.cache.has(ROLEIDS.leet)) {
       const message = interaction.data.options[0].value
       const randomize = interaction.data.options[1]
-      const uid = interaction.member.user.id
+      const uid = member.id
       const avatar = Meta.find()
         .matches('name', 'avatar')
         .matches('uid', uid)
@@ -1422,11 +1424,14 @@ client.ws.on('INTERACTION_CREATE', async (interaction) => {
         embed.setThumbnail(`https://robohash.org/${rng}.png`)
       }
 
+      channel.send(embed)
+
       client.api.interactions(interaction.id, interaction.token).callback.post({
         data: {
           type: 4,
           data: {
-            content: embed,
+            content: `Message sent <:anonymous:${EMOJIIDS.anonymous}>`,
+            flags: 1 << 6,
           },
         },
       })
