@@ -931,6 +931,7 @@ client.on('message', (message) => {
           //       ],
           //     },
           //   })
+
           client.api
             .applications(client.user.id)
             .guilds(IDS.csc)
@@ -966,6 +967,7 @@ client.on('message', (message) => {
           //       ],
           //     },
           //   })
+
           // METASTATS.forEach((stat) => {
           //   const matches = Meta.find().matches('name', stat).run()
           //   if (matches.length > 0) {
@@ -1407,7 +1409,7 @@ client.on('ready', () => {
 })
 
 client.ws.on('INTERACTION_CREATE', async (interaction) => {
-  if (interaction.data.name === 'anon-dev') {
+  if (interaction.data.name === 'anon') {
     const channel = client.channels.cache.get(interaction.channel_id)
     const guild = client.guilds.cache.get(interaction.guild_id)
     const member = guild.members.cache.get(interaction.member.user.id)
