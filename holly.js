@@ -908,6 +908,29 @@ client.on('message', (message) => {
     } else if (command === 'deploy') {
       if (message.member.roles.cache.has(ROLEIDS.admin)) {
         if (version === '(Development)') {
+          // client.api
+          //   .applications(client.user.id)
+          //   .guilds(IDS.csc)
+          //   .commands.post({
+          //     data: {
+          //       name: 'anon-dev',
+          //       description: 'Send #anonymous messages',
+          //       options: [
+          //         {
+          //           type: 3,
+          //           name: 'message',
+          //           description: 'Text to send',
+          //           required: true,
+          //         },
+          //         {
+          //           type: 5,
+          //           name: 'random',
+          //           description: 'Randomize avatar',
+          //           required: false,
+          //         },
+          //       ],
+          //     },
+          //   })
           client.api
             .applications(client.user.id)
             .guilds(IDS.csc)
@@ -954,9 +977,8 @@ client.on('message', (message) => {
 
           randomAcronym()
           randomLetter()
-
-          message.channel.send('Deployment successful.')
         }
+        message.channel.send('Deployment successful.')
       }
     } else if (command === 'haikus') {
       const id = subjectId(message)
@@ -1385,10 +1407,11 @@ client.on('ready', () => {
 })
 
 client.ws.on('INTERACTION_CREATE', async (interaction) => {
-  const channel = client.channels.cache.get(interaction.channel.id)
-  const member = interaction.guild.members.cache.get(interaction.member.user.id)
+  if (interaction.data.name === 'anon-dev') {
+    const channel = client.channels.cache.get(interaction.channel_id)
+    const guild = client.guilds.cache.get(interaction.guild_id)
+    const member = guild.members.cache.get(interaction.member.user.id)
 
-  if (interaction.data.name === 'anon') {
     if (member.roles.cache.has(ROLEIDS.leet)) {
       const message = interaction.data.options[0].value
       const randomize = interaction.data.options[1]
