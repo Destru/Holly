@@ -605,9 +605,6 @@ client.on('message', (message) => {
         permaDeath()
       }
     }
-  } else if (message.channel.id === CHANNELIDS.anonymous) {
-    message.react('❌')
-    permaDeath()
   } else if (message.channel.id === CHANNELIDS.allcaps) {
     const allCaps = /^[A-Z0-9\s-_,./?;:'"‘’“”`~!@#$%^&*()=+|\\<>\[\]{}]+$/gm
 
@@ -756,7 +753,6 @@ client.on('message', (message) => {
     message.channel.id === CHANNELIDS.akihabara ||
     message.channel.id === CHANNELIDS.hornyjail
   ) {
-    // #akihabara + #horny-jail
     if (akihabara.includes(command)) {
       let type = 'sfw'
 
@@ -1388,53 +1384,63 @@ client.on('ready', () => {
 })
 
 client.ws.on('INTERACTION_CREATE', async (interaction) => {
+  const member = client.members.cache.get(interaction.member.user.id)
+
   if (interaction.data.name === 'anon') {
-    const channel = client.channels.cache.get(CHANNELIDS.anonymous)
-    const message = interaction.data.options[0].value
-    const randomize = interaction.data.options[1]
-    const uid = interaction.member.user.id
-    const avatar = Meta.find()
-      .matches('name', 'avatar')
-      .matches('uid', uid)
-      .limit(1)
-      .run()
-    const embed = new Discord.MessageEmbed()
-      .setColor(COLORS.embedBlack)
-      .setDescription(`**Anonymous**\n${message}`)
+    if (member.roles.cache.has(ROLEIDS.leet)) {
+      const message = interaction.data.options[0].value
+      const randomize = interaction.data.options[1]
+      const uid = interaction.member.user.id
+      const avatar = Meta.find()
+        .matches('name', 'avatar')
+        .matches('uid', uid)
+        .limit(1)
+        .run()
+      const embed = new Discord.MessageEmbed()
+        .setColor(COLORS.embedBlack)
+        .setDescription(`**Anonymous**\n${message}`)
 
-    if (avatar.length > 0)
-      embed.setThumbnail(`https://robohash.org/${avatar[0].value}.png`)
-    else embed.setThumbnail(`https://robohash.org/${uid}.png`)
+      if (avatar.length > 0)
+        embed.setThumbnail(`https://robohash.org/${avatar[0].value}.png`)
+      else embed.setThumbnail(`https://robohash.org/${uid}.png`)
 
-    if (randomize && randomize.value === true) {
-      const rng = Math.floor(Math.random() * 900000000000000000)
+      if (randomize && randomize.value === true) {
+        const rng = Math.floor(Math.random() * 900000000000000000)
 
-      if (avatar.length > 0) {
-        Meta.update(avatar[0]._id_, {
-          value: `${rng}`,
-        })
-      } else {
-        Meta.add({
-          name: 'avatar',
-          uid: uid,
-          value: `${rng}`,
-        })
+        if (avatar.length > 0) {
+          Meta.update(avatar[0]._id_, {
+            value: `${rng}`,
+          })
+        } else {
+          Meta.add({
+            name: 'avatar',
+            uid: uid,
+            value: `${rng}`,
+          })
+        }
+
+        embed.setThumbnail(`https://robohash.org/${rng}.png`)
       }
 
-      embed.setThumbnail(`https://robohash.org/${rng}.png`)
-    }
-
-    channel.send(embed)
-
-    client.api.interactions(interaction.id, interaction.token).callback.post({
-      data: {
-        type: 4,
+      client.api.interactions(interaction.id, interaction.token).callback.post({
         data: {
-          content: 'Message posted <:anonymous:837247849145303080>',
-          flags: 1 << 6,
+          type: 4,
+          data: {
+            content: embed,
+          },
         },
-      },
-    })
+      })
+    } else {
+      client.api.interactions(interaction.id, interaction.token).callback.post({
+        data: {
+          type: 4,
+          data: {
+            content: 'Down the rabbit hole :rabbit:',
+            flags: 1 << 6,
+          },
+        },
+      })
+    }
   }
 })
 
