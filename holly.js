@@ -1318,7 +1318,8 @@ client.on('message', (message) => {
       })
       let countAcronyms = 0
       acronyms.forEach((user) => {
-        countAcronyms = countAcronyms + parseInt(user.value)
+        if (!isNaN(user.value))
+          countAcronyms = countAcronyms + parseInt(user.value)
       })
       let countBandNames = 0
       bandnames.forEach((user) => {
