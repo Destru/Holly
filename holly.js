@@ -1249,7 +1249,6 @@ client.on('message', (message) => {
             badges.push(badge.emoji)
           }
         }
-
         if (badges.length > 0) embed.addField('Badges', badges.join(' '), true)
         if (stats.length > 0) {
           stats.sort()
@@ -1298,10 +1297,22 @@ client.on('message', (message) => {
       const countBios = Bio.find().run().length
       const countEntries = Entry.find().run().length
       const deaths = Death.find().run()
+      const memes = Meta.find().matches('name', 'memes').run()
+      const oc = Meta.find().matches('name', 'oc').run()
 
       let countDeaths = 0
       deaths.forEach((death) => {
         countDeaths = countDeaths + parseInt(death.deaths)
+      })
+
+      let countMemes = 0
+      memes.forEach((user) => {
+        countMemes = countMemes + parseInt(user.value)
+      })
+
+      let countOC = 0
+      oc.forEach((user) => {
+        countOC = countOC + parseInt(user.value)
       })
 
       const countHaikus = Haiku.find().run().length
@@ -1314,12 +1325,14 @@ client.on('message', (message) => {
 
       const statsNumbers =
         `Counting Highscore \`${countHighscore}\`` +
-        `\nDeath Count \`${countDeaths}\``
+        `\nDeath Toll \`${countDeaths}\`` +
+        `\nMemes \`${countMemes}\``
 
       const statsOriginal =
         `Accidental Haikus \`${countHaikus}\`` +
         `\nBiographies \`${countBios}\`` +
-        `\nContest Entries \`${countEntries}\``
+        `\nContest Entries \`${countEntries}\`` +
+        `\nCreative Work \`${countOC}\``
 
       const embed = new Discord.MessageEmbed()
         .setColor(COLORS.embed)
