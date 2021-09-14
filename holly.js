@@ -544,12 +544,13 @@ client.on('message', (message) => {
               case 50:
                 description +=
                   `You have joined the *Hacker's Club*; ` +
-                  `backdoor access has been granted. `
+                  `rootkit access has been granted. `
                 break
               case 60:
                 description +=
-                  `You have unlocked the *Master Control Program*, ` +
-                  `and may change your color at will. `
+                  `You have unlocked the *Machine City*, ` +
+                  `and may change your color at will. ` +
+                  `Encrypted storage access has also been granted.`
                 break
               default:
                 description += `Enjoy your new color, comrade.`
@@ -1345,7 +1346,7 @@ client.on('message', (message) => {
 
       const statsOriginal =
         `Accidental Haikus \`${countHaikus}\`` +
-        `\nAcronyms \`${countMemes}\`` +
+        `\nAcronyms \`${countAcronyms}\`` +
         `\nBand Names \`${countBandNames}\`` +
         `\nContest Entries \`${countEntries}\`` +
         `\nCreative Work \`${countOC}\``
