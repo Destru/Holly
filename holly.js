@@ -1299,20 +1299,33 @@ client.on('message', (message) => {
       const deaths = Death.find().run()
       const memes = Meta.find().matches('name', 'memes').run()
       const oc = Meta.find().matches('name', 'oc').run()
+      const acronyms = Meta.find().matches('name', 'acronyms').run()
+      const bandnames = Meta.find().matches('name', 'bandnames').run()
+      const stimulus = Meta.find().matches('name', 'stimulus').run()
 
       let countDeaths = 0
       deaths.forEach((death) => {
         countDeaths = countDeaths + parseInt(death.deaths)
       })
-
       let countMemes = 0
       memes.forEach((user) => {
         countMemes = countMemes + parseInt(user.value)
       })
-
       let countOC = 0
       oc.forEach((user) => {
         countOC = countOC + parseInt(user.value)
+      })
+      let countAcronyms = 0
+      acronyms.forEach((user) => {
+        countAcronyms = countAcronyms + parseInt(user.value)
+      })
+      let countBandNames = 0
+      bandnames.forEach((user) => {
+        countBandNames = countBandNames + parseInt(user.value)
+      })
+      let countStimulus = 0
+      stimulus.forEach((user) => {
+        countStimulus = countStimulus + parseInt(user.value)
       })
 
       const countHaikus = Haiku.find().run().length
@@ -1326,11 +1339,14 @@ client.on('message', (message) => {
       const statsNumbers =
         `Counting Highscore \`${countHighscore}\`` +
         `\nDeath Toll \`${countDeaths}\`` +
-        `\nMemes \`${countMemes}\``
+        `\nMemes \`${countMemes}\`` +
+        `\nMini-Bios \`${countBios}\`` +
+        `\nStimulus \`${countStimulus}\``
 
       const statsOriginal =
         `Accidental Haikus \`${countHaikus}\`` +
-        `\nBiographies \`${countBios}\`` +
+        `\nAcronyms \`${countMemes}\`` +
+        `\nBand Names \`${countBandNames}\`` +
         `\nContest Entries \`${countEntries}\`` +
         `\nCreative Work \`${countOC}\``
 
