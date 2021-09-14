@@ -124,6 +124,12 @@ const ROLEIDS = {
   psyop: '444074281694003210',
   voter: '827915811724460062',
 }
+const STATUS = [
+  'Back to Reality',
+  'Better Than Life',
+  'Gunmen of the Apocalypse',
+  'Play-by-mail Chess',
+]
 
 let KEY
 fs.readFile('./key.md', 'utf8', (err, data) => {
@@ -299,12 +305,6 @@ const setReactions = (message, type = false) => {
       message.react(EMOJIIDS.heart)
   }
 }
-const status = [
-  'Back to Reality',
-  'Better Than Life',
-  'Gunmen of the Apocalypse',
-  'Play-by-mail Chess',
-]
 const subjectId = (message) => {
   const matches = message.content.match(/<@!(\d+)>/)
   let id = message.author.id
@@ -908,41 +908,41 @@ client.on('message', (message) => {
     } else if (command === 'deploy') {
       if (message.member.roles.cache.has(ROLEIDS.admin)) {
         if (version === '(Development)') {
-          // client.api
-          //   .applications(client.user.id)
-          //   .guilds(IDS.csc)
-          //   .commands.post({
-          //     data: {
-          //       name: 'anon-dev',
-          //       description: 'Send #anonymous messages',
-          //       options: [
-          //         {
-          //           type: 3,
-          //           name: 'message',
-          //           description: 'Text to send',
-          //           required: true,
-          //         },
-          //         {
-          //           type: 5,
-          //           name: 'random',
-          //           description: 'Randomize avatar',
-          //           required: false,
-          //         },
-          //       ],
-          //     },
-          //   })
-
           client.api
             .applications(client.user.id)
             .guilds(IDS.csc)
-            .commands.get()
-            .then((commands) => {
-              client.api
-                .applications(client.user.id)
-                .guilds(IDS.csc)
-                .commands(commands[0].id)
-                .delete()
+            .commands.post({
+              data: {
+                name: 'anon',
+                description: 'Send #anonymous messages',
+                options: [
+                  {
+                    type: 3,
+                    name: 'message',
+                    description: 'Text to send',
+                    required: true,
+                  },
+                  {
+                    type: 5,
+                    name: 'random',
+                    description: 'Randomize avatar',
+                    required: false,
+                  },
+                ],
+              },
             })
+
+          // client.api
+          //   .applications(client.user.id)
+          //   .guilds(IDS.csc)
+          //   .commands.get()
+          //   .then((commands) => {
+          //     client.api
+          //       .applications(client.user.id)
+          //       .guilds(IDS.csc)
+          //       .commands(commands[0].id)
+          //       .delete()
+          //   })
         } else {
           // client.api
           //   .applications(client.user.id)
@@ -1384,7 +1384,8 @@ client.on('message', (message) => {
       .then((data) => {
         let compliment =
           data.compliment.charAt(0).toUpperCase() + data.compliment.slice(1)
-        let emoji = complimentEmoji[Math.floor(Math.random() * status.length)]
+        let emoji =
+          complimentEmoji[Math.floor(Math.random() * complimentEmoji.length)]
 
         message.channel.send(`${compliment}, ${message.author} ${emoji}`)
       })
@@ -1397,7 +1398,7 @@ client.on('ready', () => {
   client.user.setPresence({
     status: 'online',
     activity: {
-      name: status[Math.floor(Math.random() * status.length)],
+      name: STATUS[Math.floor(Math.random() * STATUS.length)],
       type: 'PLAYING',
     },
   })

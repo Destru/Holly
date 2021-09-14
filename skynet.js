@@ -10,7 +10,7 @@ clones.forEach((token, i) => {
   })
 
   client.on('typingStart', (channel) => {
-    if (channel.id === '848997740767346699') {
+    if (channel.id === '830131461000658994') {
       channel.startTyping()
       setTimeout(() => {
         channel.stopTyping()
