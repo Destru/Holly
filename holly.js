@@ -90,6 +90,7 @@ const EMOJIIDS = {
   kekw: '830114281168699412',
   heart: '875259618119536701',
   upvote: '462126280704262144',
+  weed: '421147396769054750',
 }
 const IDS = {
   csc: '160320676580818951',
@@ -99,7 +100,19 @@ const IDS = {
   trebek: '400786664861204481',
 }
 const METASTATS = ['oc', 'memes', 'stimulus', 'acronyms', 'bandnames']
-
+const POTHEAD = [
+  '420',
+  'cannabis',
+  'marijuana',
+  'mary jane',
+  'pot',
+  'weed',
+  'kief',
+  'bong',
+  'spliff',
+  'reefer',
+  'blunt',
+]
 const PREFIX = '!'
 const ROLEIDS = {
   tron: '832402366698618941',
@@ -1420,6 +1433,8 @@ client.on('message', (message) => {
 
         message.channel.send(`${compliment}, ${message.author} ${emoji}`)
       })
+  } else if (POTHEAD.some((w) => message.content.includes(w))) {
+    message.react(EMOJIIDS.weed)
   }
 })
 
