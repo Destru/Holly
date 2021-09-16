@@ -25,6 +25,11 @@ const BADGES = [
     emoji: '<:cscalt:837251418247004205>',
   },
   {
+    name: "Hacker's Club",
+    description: "Member of the Hacker's Club",
+    emoji: '<:hackersclub:888141945296289832>',
+  },
+  {
     name: 'Immortal',
     description: 'An immortal being.',
     emoji: '<:tst:866886790920405032>',
@@ -1205,6 +1210,7 @@ client.on('message', (message) => {
           })
           badges.push(`[${badge.emoji}](${bio.url})`)
         }
+
         if (admin) {
           let badge = BADGES.find((badge) => {
             return badge.name === 'Operator'
@@ -1214,6 +1220,18 @@ client.on('message', (message) => {
         if (avatar) {
           let badge = BADGES.find((badge) => {
             return badge.name === 'Anonymous'
+          })
+          badges.push(badge.emoji)
+        }
+        if (
+          member.roles.cache.has(ROLEIDS.engineer) ||
+          member.roles.cache.has(ROLEIDS.cyberpunk) ||
+          member.roles.cache.has(ROLEIDS.hacker) ||
+          member.roles.cache.has(ROLEIDS.coder) ||
+          member.roles.cache.has(ROLEIDS.leet)
+        ) {
+          let badge = BADGES.find((badge) => {
+            return badge.name === "Hacker's Club"
           })
           badges.push(badge.emoji)
         }
@@ -1233,7 +1251,7 @@ client.on('message', (message) => {
           let badge = BADGES.find((badge) => {
             return badge.name === '?'
           })
-          description = `${description} ${badge.emoji}`
+          badges.push(badge.emoji)
         }
 
         if (deaths.length > 0) stats.push(`Deaths \`${deaths[0].deaths}\``)
