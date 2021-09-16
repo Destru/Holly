@@ -100,17 +100,6 @@ const IDS = {
   trebek: '400786664861204481',
 }
 const METASTATS = ['oc', 'memes', 'stimulus', 'acronyms', 'bandnames']
-const POTHEAD = [
-  '420',
-  'cannabis',
-  'marijuana',
-  'mary jane',
-  'weed',
-  'bong',
-  'spliff',
-  'reefer',
-  'blunt',
-]
 const PREFIX = '!'
 const ROLEIDS = {
   tron: '832402366698618941',
@@ -317,7 +306,7 @@ const setReactions = (message, type = false) => {
   }
 }
 const subjectId = (message) => {
-  const matches = message.content.match(/<@!(\d+)>/)
+  const matches = message.content.match(/<@!?(\d+)>/)
   let id = message.author.id
   if (matches) id = matches[1]
   return id
@@ -1431,13 +1420,13 @@ client.on('message', (message) => {
 
         message.channel.send(`${compliment}, ${message.author} ${emoji}`)
       })
-  } else if (POTHEAD.some((w) => message.content.includes(w))) {
+  } else if (message.content.includes(':420:')) {
     message.react(EMOJIIDS.weed)
   }
 })
 
 client.on('ready', () => {
-  console.log(`Holly ${version} is online.` + `\nKey: ${KEY}`)
+  console.log(`Holly ${version} is online.`)
 
   client.user.setPresence({
     status: 'online',
