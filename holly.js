@@ -424,7 +424,9 @@ client.on('message', (message) => {
         })
       }
 
-      Immortal.remove(immortal._id_)
+      Immortal.update(immortal._id_, {
+        score: '0',
+      })
     } else {
       if (penalty > 0) {
         if (penalty > immortal.score) penalty = immortal.score
