@@ -294,7 +294,6 @@ const ranks = {
   50: 'Cyberpunk',
   60: 'Tron',
 }
-
 const setReactions = (message, type = false) => {
   switch (type) {
     case 'csc':
@@ -868,7 +867,8 @@ client.on('message', (message) => {
         .addFields(
           {
             name: 'Community <:cscbob:846528128524091422>',
-            value: '`/anon`\n`!haikus`\n`!profile`\n`!resurrect`\n`!stats`',
+            value:
+              '`/anon` :rabbit:\n`!haikus`\n`!profile`\n`!resurrect`\n`!stats`',
             inline: true,
           },
           {
@@ -1456,7 +1456,7 @@ client.on('ready', () => {
     },
   })
 
-  cron.schedule('0 */6 * * *', () => {
+  cron.schedule('0 */8 * * *', () => {
     randomAcronym()
     randomLetter()
   })
