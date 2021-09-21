@@ -129,6 +129,7 @@ const ROLEIDS = {
   psyop: '444074281694003210',
   voter: '827915811724460062',
 }
+const SPACERIMAGE = 'https://cyberpunksocial.club/images/discord-spacer.png'
 const STATUS = [
   'Back to Reality',
   'Better Than Life',
@@ -590,7 +591,10 @@ client.on('message', (message) => {
     }
     return
   } else if (message.channel.id === CHANNELIDS.acronyms) {
-    const matches = Meta.find().matches('name', 'acronyms').limit(1).run()
+    const matches = Meta.find()
+      .matches('name', 'acronyms')
+      .matches('uid', '')
+      .run()
     const words = message.content.toLowerCase().trim().split(' ')
 
     if (matches.length > 0) {
@@ -1270,7 +1274,14 @@ client.on('message', (message) => {
             badges.push(badge.emoji)
           }
         }
-        if (badges.length > 0) embed.addField('Badges', badges.join(' '), true)
+        if (badges.length > 0) {
+          const badgesFormatted = badges.map((badge, i) => {
+            if ((i + 1) % 4 === 0) return `${badge}\n`
+            else return badge
+          })
+
+          embed.addField('Badges', badgesFormatted.join(' '), true)
+        }
         if (stats.length > 0) {
           stats.sort()
           embed.addField('Stats', stats.join('\n'), true)
