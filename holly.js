@@ -129,7 +129,7 @@ const ROLEIDS = {
   psyop: '444074281694003210',
   voter: '827915811724460062',
 }
-const SPACERIMAGE = 'https://cyberpunksocial.club/images/discord-spacer.png'
+const SPACER1996 = 'https://cyberpunksocial.club/images/discord-spacer.png'
 const STATUS = [
   'Back to Reality',
   'Better Than Life',
@@ -235,7 +235,9 @@ const randomAcronym = () => {
   const csc = 'csc '.repeat(50)
   const matches = Meta.find().matches('name', 'acronyms').limit(1).run()
   const rare =
-    'acab cccp cia fbi kgb nasa nsa ' + 'lol omg wtf afk brb mcd kfc bbq lmao'
+    'acab cccp cia fbi kgb nasa nsa ' +
+    'lol omg wtf afk brb mcd kfc bbq lmao ' +
+    'dnd'
 
   let acronyms = `${csc} ${rare}`.split(' ')
   let acronym = acronyms[Math.floor(Math.random() * acronyms.length)]
@@ -294,6 +296,7 @@ const ranks = {
   40: 'Replicant',
   50: 'Cyberpunk',
   60: 'Tron',
+  75: 'Godline',
 }
 const setReactions = (message, type = false) => {
   switch (type) {
@@ -559,6 +562,8 @@ client.on('message', (message) => {
                   `and may change your color at will. ` +
                   `Encrypted storage access has also been granted.`
                 break
+              case 75:
+                description += `You understand *everything*.`
               default:
                 description += `Enjoy your new color, comrade.`
             }
@@ -1143,7 +1148,7 @@ client.on('message', (message) => {
         message.channel.send(`You have \`${matches[0].score}\` ${points}.`)
       } else message.channel.send(`You have \`0\` points.`)
     } else if (command === 'profile') {
-      const embed = new Discord.MessageEmbed()
+      const embed = new Discord.MessageEmbed().setImage(SPACER1996)
       const id = subjectId(message)
 
       message.guild.members.fetch(id).then((member) => {
