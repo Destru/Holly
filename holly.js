@@ -1207,32 +1207,27 @@ client.on('message', (message) => {
           pronouns += `\`They/Them\` `
         if (member.roles.cache.has(ROLEIDS.pronouns))
           pronouns = `\`Pronouns: Ask\``
-        if (pronouns.length > 0) {
-          description += `${pronouns} \`${prettyMs(memberFor, {
-            compact: true,
-          })}\``
-        } else {
-          description += `\`${prettyMs(memberFor)}\``
-        }
+        if (pronouns.length > 0) description += `${pronouns} `
 
-        if (bio) {
-          let badge = BADGES.find((badge) => {
-            return badge.name === 'Comrade'
-          })
-          badges.push(`[${badge.emoji}](${bio.url})`)
-        }
+        description += `\`${prettyMs(memberFor)}\``
 
-        if (admin) {
-          let badge = BADGES.find((badge) => {
-            return badge.name === 'Operator'
-          })
-          badges.push(badge.emoji)
-        }
         if (avatar) {
           let badge = BADGES.find((badge) => {
             return badge.name === 'Anonymous'
           })
-          badges.push(badge.emoji)
+          badges.push(`${badge.name} ${badge.emoji}\n`)
+        }
+        if (bio) {
+          let badge = BADGES.find((badge) => {
+            return badge.name === 'Comrade'
+          })
+          badges.push(`${badge.name} [${badge.emoji}](${bio.url})\n`)
+        }
+        if (admin) {
+          let badge = BADGES.find((badge) => {
+            return badge.name === 'Operator'
+          })
+          badges.push(`${badge.name} ${badge.emoji}\n`)
         }
         if (
           member.roles.cache.has(ROLEIDS.engineer) ||
@@ -1244,25 +1239,25 @@ client.on('message', (message) => {
           let badge = BADGES.find((badge) => {
             return badge.name === "Hacker's Club"
           })
-          badges.push(badge.emoji)
+          badges.push(`${badge.name} ${badge.emoji}\n`)
         }
         if (patron) {
           let badge = BADGES.find((badge) => {
             return badge.name === 'Patron'
           })
-          badges.push(badge.emoji)
+          badges.push(`${badge.name} ${badge.emoji}\n`)
         }
         if (psyop) {
           let badge = BADGES.find((badge) => {
             return badge.name === 'PSYOP'
           })
-          badges.push(badge.emoji)
+          badges.push(`${badge.name} ${badge.emoji}\n`)
         }
         if (rabbit) {
           let badge = BADGES.find((badge) => {
             return badge.name === '?'
           })
-          badges.push(badge.emoji)
+          description += ` ${badge.emoji}`
         }
 
         if (deaths.length > 0) stats.push(`Deaths \`${deaths[0].deaths}\``)
@@ -1280,12 +1275,7 @@ client.on('message', (message) => {
           }
         }
         if (badges.length > 0) {
-          const badgesFormatted = badges.map((badge, i) => {
-            if ((i + 1) % 4 === 0) return `${badge}\n`
-            else return badge
-          })
-
-          embed.addField('Badges', badgesFormatted.join(' '), true)
+          embed.addField('Badges', badges.join(' '), true)
         }
         if (stats.length > 0) {
           stats.sort()
