@@ -1241,6 +1241,14 @@ client.on('message', (message) => {
           })
           badges.push(`${badge.name} ${badge.emoji}\n`)
         }
+        if (immortal.length > 0) {
+          if (isImmortal(id)) {
+            let badge = BADGES.find((badge) => {
+              return badge.name === 'Immortal'
+            })
+            badges.push(`${badge.name} ${badge.emoji}\n`)
+          }
+        }
         if (patron) {
           let badge = BADGES.find((badge) => {
             return badge.name === 'Patron'
@@ -1265,14 +1273,6 @@ client.on('message', (message) => {
           const haiku = haikus[Math.floor(Math.random() * haikus.length)]
           embed.addField('Haiku', `*${haiku.content}*`, false)
           stats.push(`Haikus \`${haikus.length}\``)
-        }
-        if (immortal.length > 0) {
-          if (isImmortal(id)) {
-            let badge = BADGES.find((badge) => {
-              return badge.name === 'Immortal'
-            })
-            badges.push(`${badge.name} ${badge.emoji}\n`)
-          }
         }
         if (badges.length > 0) {
           embed.addField('Badges', badges.join(' '), true)
