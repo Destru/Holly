@@ -1271,7 +1271,7 @@ client.on('message', (message) => {
             let badge = BADGES.find((badge) => {
               return badge.name === 'Immortal'
             })
-            badges.push(badge.emoji)
+            badges.push(`${badge.name} ${badge.emoji}\n`)
           }
         }
         if (badges.length > 0) {
