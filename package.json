@@ -1,6 +1,6 @@
 {
   "name": "holly",
-  "version": "4.20.20",
+  "version": "4.20.21",
   "description": "Experimental chatbot for the CSC.",
   "main": "holly.js",
   "engines": {
