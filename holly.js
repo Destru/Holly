@@ -78,7 +78,6 @@ const CHANNELIDS = {
   memes: '415948136759164928',
   nsfw: '362316618044407819',
   patrons: '824006200306958367',
-  releases: '352149516885164044',
   saferspace: '830131461000658994',
   stimulus: '419929465989234720',
   terminal: '405503298951446528',
@@ -542,9 +541,7 @@ client.on('message', (message) => {
                   `and have been granted access to \`Limited\` channels. `
                 break
               case 10:
-                description +=
-                  `You can now post in <#352149516885164044>, ` +
-                  `and will receive the \`Live\` role when you stream. `
+                description += `You will now receive the \`Live\` role when you stream. `
                 break
               case 15:
                 description +=
@@ -632,26 +629,16 @@ client.on('message', (message) => {
   } else if (message.channel.id === CHANNELIDS.bandnames) {
     setReactions(message, 'upvote')
     trackByName(message.author.id, 'bandnames')
-  } else if (
-    message.channel.id === CHANNELIDS.comrades ||
-    message.channel.id === CHANNELIDS.contest
-  ) {
+  } else if (message.channel.id === CHANNELIDS.comrades) {
     const embed = new Discord.MessageEmbed()
       .setColor(COLORS.embed)
       .setTitle(`Warning`)
+    const matches = Bio.find().matches('uid', message.author.id).limit(1).run()
 
-    let matches
-
-    if (message.channel.id === CHANNELIDS.comrades) {
-      matches = Bio.find().matches('uid', message.author.id).limit(1).run()
-    } else {
-      matches = Entry.find().matches('uid', message.author.id).limit(3).run()
-    }
-
-    if (matches.length >= 3) {
+    if (matches.length > 0) {
       if (message) message.delete()
       embed.setDescription(
-        `You're only allowed three (\`3\`) posts in this channel.` +
+        `You're only allowed one (\`1\`) post in this channel.` +
           `\n\n[Edit your last post](${
             matches[matches.length - 1].url
           }) :pencil2:`
@@ -662,19 +649,11 @@ client.on('message', (message) => {
         }, timerFeedbackDelete)
       })
     } else {
-      if (message.channel.id === CHANNELIDS.comrades) {
-        setReactions(message, 'heart')
-        Bio.add({
-          uid: message.author.id,
-          url: message.url,
-        })
-      } else {
-        setReactions(message, 'upvote')
-        Entry.add({
-          uid: message.author.id,
-          url: message.url,
-        })
-      }
+      setReactions(message, 'heart')
+      Bio.add({
+        uid: message.author.id,
+        url: message.url,
+      })
     }
   } else if (message.channel.id === CHANNELIDS.counting) {
     const matches = Meta.find().matches('name', 'counting').limit(1).run()
@@ -801,7 +780,6 @@ client.on('message', (message) => {
       CHANNELIDS.gallery,
       CHANNELIDS.illustrating,
       CHANNELIDS.patrons,
-      CHANNELIDS.releases,
       CHANNELIDS.writing,
     ].includes(message.channel.id)
   ) {
