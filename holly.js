@@ -56,7 +56,7 @@ const BADGES = [
   },
 ]
 const CHANNELIDS = {
-  akihabara: '837824443799175179',
+  akihabara: '836963196916858902',
   anything: '462734936177115136',
   acronyms: '866967261092773918',
   allcaps: '412714197399371788',
@@ -65,11 +65,9 @@ const CHANNELIDS = {
   chat: '160320676580818951',
   comrades: '865757944552488960',
   composing: '843417385444442152',
-  contest: '875207790468153386',
   counting: '827487959241457694',
   gallery: '877484284519264296',
   graveyard: '832394205422026813',
-  halloffame: '880299507936534598',
   hornyjail: '841057992890646609',
   illustrating: '843417452787662848',
   internal: '845382463685132288',
@@ -347,10 +345,6 @@ const Bio = new db.Collection('bios', {
 const Death = new db.Collection('deaths', {
   uid: '',
   deaths: '',
-})
-const Entry = new db.Collection('entries', {
-  uid: '',
-  url: '',
 })
 const Haiku = new db.Collection('haikus', {
   uid: '',
@@ -1289,7 +1283,6 @@ client.on('message', (message) => {
       return message.channel.send(embed)
     } else if (command === 'stats') {
       const countBios = Bio.find().run().length
-      const countEntries = Entry.find().run().length
       const deaths = Death.find().run()
       const memes = Meta.find().matches('name', 'memes').run()
       const oc = Meta.find().matches('name', 'oc').run()
@@ -1342,7 +1335,6 @@ client.on('message', (message) => {
         `Accidental Haikus \`${countHaikus}\`` +
         `\nAcronyms \`${countAcronyms}\`` +
         `\nBand Names \`${countBandNames}\`` +
-        `\nContest Entries \`${countEntries}\`` +
         `\nCreative Work \`${countOC}\``
 
       const embed = new Discord.MessageEmbed()
