@@ -334,7 +334,7 @@ const trackByName = (id, name) => {
     })
   }
 }
-const version = process.env.npm_package_version || '(Development)'
+const version = process.env.npm_package_version || 'DEV-ALIENBOB'
 
 db.configure({ dir: './db' })
 
