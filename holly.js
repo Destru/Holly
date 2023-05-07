@@ -74,7 +74,6 @@ const CHANNELIDS = {
   illustrating: '843417452787662848',
   internal: '845382463685132288',
   irl: '414177882865401866',
-  jeopardy: '833098945668186182',
   memes: '415948136759164928',
   nsfw: '362316618044407819',
   patrons: '824006200306958367',
@@ -580,16 +579,6 @@ client.on('message', (message) => {
           }
         }
       }
-    } else if (
-      message.channel.id === CHANNELIDS.jeopardy &&
-      message.author.id === IDS.trebek &&
-      Math.random() < randomChance
-    ) {
-      fetch('https://insult.mattbas.org/api/insult.json')
-        .then((response) => response.json())
-        .then((data) => {
-          message.channel.send(`${data.insult}, ${message.author}`)
-        })
     }
     return
   } else if (message.channel.id === CHANNELIDS.acronyms) {
