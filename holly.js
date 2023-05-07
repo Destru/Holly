@@ -125,7 +125,7 @@ const ROLEIDS = {
   psyop: '444074281694003210',
   voter: '827915811724460062',
 }
-const SPACER1996 = 'https://cyberpunksocial.club/images/discord-spacer.png'
+const SPACER1996 = 'https://i.stack.imgur.com/Fzh0w.png'
 const STATUS = [
   'Back to Reality',
   'Better Than Life',
@@ -254,7 +254,7 @@ const randomAcronym = () => {
 
   channel.setTopic(`${topic} :skull:`)
 }
-const randomChance = 0.03
+const randomChance = 0.015
 const randomEmoji = () => {
   const emoji = [
     '<:cscalt:837251418247004205>',
