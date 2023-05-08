@@ -56,21 +56,16 @@ const BADGES = [
   },
 ]
 const CHANNELIDS = {
-  akihabara: '836963196916858902',
-  anything: '462734936177115136',
   acronyms: '866967261092773918',
   allcaps: '412714197399371788',
   anonymous: '848997740767346699',
   bandnames: '867179976444870696',
   chat: '160320676580818951',
   comrades: '865757944552488960',
-  composing: '843417385444442152',
   counting: '827487959241457694',
-  gallery: '877484284519264296',
+  creative: '462734936177115136',
   graveyard: '832394205422026813',
   hornyjail: '841057992890646609',
-  illustrating: '843417452787662848',
-  internal: '845382463685132288',
   irl: '414177882865401866',
   memes: '415948136759164928',
   nsfw: '362316618044407819',
@@ -79,7 +74,7 @@ const CHANNELIDS = {
   stimulus: '419929465989234720',
   terminal: '405503298951446528',
   wordwar: '866967592622489640',
-  writing: '843417014756179978',
+  wip: '843417385444442152',
 }
 const COLORS = {
   embed: '#FF00FF',
@@ -757,13 +752,10 @@ client.on('message', (message) => {
     }
   } else if (
     [
-      CHANNELIDS.anything,
       CHANNELIDS.comrades,
-      CHANNELIDS.composing,
-      CHANNELIDS.gallery,
-      CHANNELIDS.illustrating,
+      CHANNELIDS.creative,
       CHANNELIDS.patrons,
-      CHANNELIDS.writing,
+      CHANNELIDS.wip,
     ].includes(message.channel.id)
   ) {
     if (
