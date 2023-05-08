@@ -64,6 +64,7 @@ const CHANNELIDS = {
   comrades: '865757944552488960',
   counting: '827487959241457694',
   creative: '462734936177115136',
+  gaybar: '836963196916858902',
   graveyard: '832394205422026813',
   hornyjail: '841057992890646609',
   irl: '414177882865401866',
@@ -724,7 +725,7 @@ client.on('message', (message) => {
       }
     }
   } else if (
-    message.channel.id === CHANNELIDS.akihabara ||
+    message.channel.id === CHANNELIDS.gaybar ||
     message.channel.id === CHANNELIDS.hornyjail
   ) {
     if (akihabara.includes(command)) {
@@ -1486,3 +1487,11 @@ client.ws.on('INTERACTION_CREATE', async (interaction) => {
 })
 
 client.login()
+
+const http = require('http')
+http
+  .createServer(function (req, res) {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end('HOLLY\n')
+  })
+  .listen(8080)
