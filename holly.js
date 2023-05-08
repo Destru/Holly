@@ -74,6 +74,7 @@ const CHANNELIDS = {
   saferspace: '830131461000658994',
   stimulus: '419929465989234720',
   terminal: '405503298951446528',
+  tst: '866572477139910727',
   wordwar: '866967592622489640',
   wip: '843417385444442152',
 }
@@ -85,6 +86,7 @@ const EMOJIIDS = {
   anonymous: '837247849145303080',
   csc: '837251418247004205',
   kekw: '830114281168699412',
+  hailsatan: '450846760886206464',
   heart: '875259618119536701',
   upvote: '462126280704262144',
   weed: '421147396769054750',
@@ -298,6 +300,8 @@ const setReactions = (message, type = false) => {
       break
     case 'upvote':
       if (message.channel.id === CHANNELIDS.memes) message.react(EMOJIIDS.kekw)
+      else if (message.channel.id === CHANNELIDS.tst)
+        message.react(EMOJIIDS.hailsatan)
       else message.react(EMOJIIDS.upvote)
       break
     case 'heart':
@@ -685,7 +689,8 @@ client.on('message', (message) => {
     }
   } else if (
     message.channel.id === CHANNELIDS.memes ||
-    message.channel.id === CHANNELIDS.stimulus
+    message.channel.id === CHANNELIDS.stimulus ||
+    message.channel.id === CHANNELIDS.tst
   ) {
     if (
       message.content.includes('http://') ||
@@ -1495,3 +1500,4 @@ http
     res.end('HOLLY\n')
   })
   .listen(8080)
+k
