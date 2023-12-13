@@ -123,7 +123,7 @@ const ROLEIDS = {
   psyop: '444074281694003210',
   voter: '827915811724460062',
 }
-const SPACER1996 = 'https://i.stack.imgur.com/Fzh0w.png'
+
 const STATUS = [
   'Back to Reality',
   'Better Than Life',
@@ -1109,7 +1109,7 @@ client.on('message', (message) => {
         message.channel.send(`You have \`${matches[0].score}\` ${points}.`)
       } else message.channel.send(`You have \`0\` points.`)
     } else if (command === 'profile') {
-      const embed = new Discord.MessageEmbed().setImage(SPACER1996)
+      const embed = new Discord.MessageEmbed()
       const id = subjectId(message)
 
       message.guild.members.fetch(id).then((member) => {
