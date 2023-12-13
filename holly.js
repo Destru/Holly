@@ -1496,8 +1496,7 @@ client.login()
 const http = require('http')
 http
   .createServer(function (req, res) {
-    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.writeHead(301, { 'Location': 'https://cyberpunksocial.club' })
     res.end('HOLLY\n')
   })
   .listen(8080)
-k
