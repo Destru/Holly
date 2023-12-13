@@ -293,21 +293,23 @@ const ranks = {
   75: 'Godline',
 }
 const setReactions = (message, type = false) => {
-  switch (type) {
-    case 'csc':
-      message.react(EMOJIIDS.csc)
-      message.react(EMOJIIDS.heart)
-      break
-    case 'upvote':
-      if (message.channel.id === CHANNELIDS.memes) message.react(EMOJIIDS.kekw)
-      else if (message.channel.id === CHANNELIDS.tst)
-        message.react(EMOJIIDS.hailsatan)
-      else message.react(EMOJIIDS.upvote)
-      break
-    case 'heart':
-    default:
-      message.react(EMOJIIDS.heart)
-  }
+  setTimeout(() => {
+    switch (type) {
+      case 'csc':
+        message.react(EMOJIIDS.csc)
+        message.react(EMOJIIDS.heart)
+        break
+      case 'upvote':
+        if (message.channel.id === CHANNELIDS.memes) message.react(EMOJIIDS.kekw)
+        else if (message.channel.id === CHANNELIDS.tst)
+          message.react(EMOJIIDS.hailsatan)
+        else message.react(EMOJIIDS.upvote)
+        break
+      case 'heart':
+      default:
+        message.react(EMOJIIDS.heart)
+    }
+  }, 3000)
 }
 const subjectId = (message) => {
   const matches = message.content.match(/<@!?(\d+)>/)
