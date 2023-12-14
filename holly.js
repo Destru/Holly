@@ -310,7 +310,7 @@ const setReactions = (message, type = false) => {
       default:
         message.react(EMOJIIDS.heart)
     }
-  }, 3000)
+  }, 1000)
 }
 const subjectId = (message) => {
   const matches = message.content.match(/<@!?(\d+)>/)
