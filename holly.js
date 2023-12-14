@@ -300,7 +300,8 @@ const setReactions = (message, type = false) => {
         message.react(EMOJIIDS.heart)
         break
       case 'upvote':
-        if (message.channel.id === CHANNELIDS.memes) message.react(EMOJIIDS.kekw)
+        if (message.channel.id === CHANNELIDS.memes)
+          message.react(EMOJIIDS.kekw)
         else if (message.channel.id === CHANNELIDS.tst)
           message.react(EMOJIIDS.hailsatan)
         else message.react(EMOJIIDS.upvote)
@@ -338,7 +339,7 @@ const trackByName = (id, name) => {
 }
 const version = process.env.npm_package_version || 'DEV-ALIENBOB'
 
-db.configure({ dir: './db' })
+db.configure({ dir: './data' })
 
 const Bio = new db.Collection('bios', {
   uid: '',
@@ -1498,7 +1499,7 @@ client.login()
 const http = require('http')
 http
   .createServer(function (req, res) {
-    res.writeHead(301, { 'Location': 'https://cyberpunksocial.club' })
+    res.writeHead(301, { Location: 'https://cyberpunksocial.club' })
     res.end('HOLLY\n')
   })
   .listen(8080)
