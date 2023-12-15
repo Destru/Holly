@@ -1,4 +1,4 @@
 .env
 .vscode
-db
+data
 node_modules

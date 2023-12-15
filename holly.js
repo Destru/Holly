@@ -13,6 +13,7 @@ const checkWord = require('check-word')
 const { authenticate, terminal } = require('./terminal')
 const dictionary = checkWord('en')
 
+const { COLORS, CHANNELIDS, EMOJIIDS, IDS, ROLEIDS } = require('./config')
 const BADGES = [
   {
     name: 'Anonymous',
@@ -55,75 +56,8 @@ const BADGES = [
     emoji: '[🐰](https://github.com/Destru/Holly/blob/master/key.md)',
   },
 ]
-const CHANNELIDS = {
-  acronyms: '866967261092773918',
-  allcaps: '412714197399371788',
-  anonymous: '848997740767346699',
-  bandnames: '867179976444870696',
-  chat: '160320676580818951',
-  comrades: '865757944552488960',
-  counting: '827487959241457694',
-  creative: '462734936177115136',
-  gaybar: '836963196916858902',
-  graveyard: '832394205422026813',
-  hornyjail: '841057992890646609',
-  irl: '414177882865401866',
-  memes: '415948136759164928',
-  nsfw: '362316618044407819',
-  patrons: '824006200306958367',
-  saferspace: '830131461000658994',
-  stimulus: '419929465989234720',
-  terminal: '405503298951446528',
-  tst: '866572477139910727',
-  wordwar: '866967592622489640',
-  wip: '843417385444442152',
-}
-const COLORS = {
-  embed: '#FF00FF',
-  embedBlack: '#2F3136',
-}
-const EMOJIIDS = {
-  anonymous: '837247849145303080',
-  csc: '837251418247004205',
-  kekw: '830114281168699412',
-  hailsatan: '450846760886206464',
-  heart: '875259618119536701',
-  upvote: '462126280704262144',
-  weed: '421147396769054750',
-}
-const IDS = {
-  csc: '160320676580818951',
-  hal9000: '836661328374267997',
-  holly: '301275924098449408',
-  queeg: '844980040579678259',
-  trebek: '400786664861204481',
-}
 const METASTATS = ['oc', 'memes', 'stimulus', 'acronyms', 'bandnames']
 const PREFIX = '!'
-const ROLEIDS = {
-  tron: '832402366698618941',
-  cyberpunk: '419210958603419649',
-  replicant: '832401876024295424',
-  android: '832401705039691817',
-  cyborg: '349225708821676033',
-  augmented: '832400605947363360',
-  revolutionary: '414205618077827102',
-  insurgent: '832400140651462656',
-  activist: '348980130292695040',
-  comrade: '422282829494484992',
-  admin: '832089472337182770',
-  ghost: '832393909988491304',
-  hehim: '872843239009431664',
-  leet: '879993290877984818',
-  operator: '412545631228395540',
-  sheher: '872843238657110076',
-  theythem: '872843238208319529',
-  patron: '824015992417419283',
-  pronons: '872843237344288779',
-  psyop: '444074281694003210',
-  voter: '827915811724460062',
-}
-
 const STATUS = [
   'Back to Reality',
   'Better Than Life',
@@ -140,41 +74,6 @@ fs.readFile('./key.md', 'utf8', (err, data) => {
   KEY = data.trim()
 })
 
-const akihabara = [
-  'awoo',
-  'bite',
-  'blowjob',
-  'blush',
-  'bonk',
-  'bully',
-  'cringe',
-  'cuddle',
-  'cry',
-  'dance',
-  'glomp',
-  'handhold',
-  'happy',
-  'highfive',
-  'hug',
-  'kick',
-  'kill',
-  'kiss',
-  'lick',
-  'megumin',
-  'neko',
-  'nom',
-  'pat',
-  'poke',
-  'shinobu',
-  'slap',
-  'smile',
-  'smug',
-  'trap',
-  'waifu',
-  'wave',
-  'wink',
-  'yeet',
-]
 const alphabet = 'abcdefghijklmnopqrstuvwxyz'
 const alphabetEmoji =
   '🇦 🇧 🇨 🇩 🇪 🇫 🇬 🇭 🇮 🇯 🇰 🇱 🇲 🇳 🇴 🇵 🇶 🇷 🇸 🇹 🇺 🇻 🇼 🇽 🇾 🇿'.split(
@@ -184,11 +83,7 @@ const capitalize = (string) => {
   if (typeof string !== 'string') return string
   return string.charAt(0).toUpperCase() + string.slice(1)
 }
-const complimentChannels = [
-  '836963196916858902',
-  '841057992890646609',
-  '832419005993189406',
-]
+const complimentChannels = ['836963196916858902', '841057992890646609']
 const complimentEmoji = [
   ':heart:',
   ':heart_eyes:',
@@ -290,7 +185,7 @@ const ranks = {
   40: 'Replicant',
   50: 'Cyberpunk',
   60: 'Tron',
-  75: 'Godline',
+  75: 'Godlike',
 }
 const setReactions = (message, type = false) => {
   setTimeout(() => {
@@ -337,10 +232,9 @@ const trackByName = (id, name) => {
     })
   }
 }
-const version = process.env.npm_package_version || 'DEV-ALIENBOB'
+const version = process.env.npm_package_version
 
 db.configure({ dir: './data' })
-
 const Bio = new db.Collection('bios', {
   uid: '',
   url: '',
@@ -509,12 +403,6 @@ client.on('message', (message) => {
         if (matches) {
           const level = parseInt(matches[2])
 
-          fetch(`https://api.waifu.pics/sfw/dance`)
-            .then((response) => response.json())
-            .then((data) => {
-              message.channel.send(data.url)
-            })
-
           if (ranks[level]) {
             const id = matches[1]
             const embed = new Discord.MessageEmbed()
@@ -551,7 +439,7 @@ client.on('message', (message) => {
                 break
               case 60:
                 description +=
-                  `You have unlocked the *Machine City*, ` +
+                  `You have entered *the Grid*, ` +
                   `and may change your color at will. ` +
                   `Encrypted storage access has also been granted.`
                 break
@@ -731,33 +619,6 @@ client.on('message', (message) => {
         message.react('❌')
         permaDeath()
       }
-    }
-  } else if (
-    message.channel.id === CHANNELIDS.gaybar ||
-    message.channel.id === CHANNELIDS.hornyjail
-  ) {
-    if (akihabara.includes(command)) {
-      let type = 'sfw'
-
-      if (
-        command === 'blowjob' ||
-        command === 'neko' ||
-        command === 'trap' ||
-        command === 'waifu'
-      ) {
-        if (message.channel.id === CHANNELIDS.hornyjail) type = 'nsfw'
-        else {
-          if (command === 'blowjob' || command === 'trap') {
-            command = 'bonk'
-          }
-        }
-      }
-
-      fetch(`https://api.waifu.pics/${type}/${command}`)
-        .then((response) => response.json())
-        .then((data) => {
-          message.channel.send(data.url)
-        })
     }
   } else if (
     [
