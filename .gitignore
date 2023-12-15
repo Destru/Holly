@@ -1,4 +1,4 @@
 .env
 .vscode
-data/*
+data
 node_modules
