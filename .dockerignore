@@ -3,3 +3,4 @@
 .gitignore
 .vscode
 node_modules
+data
