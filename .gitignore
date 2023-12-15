@@ -1,4 +1,5 @@
 .env
 .vscode
-data
+backup
+data/*
 node_modules
