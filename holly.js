@@ -271,8 +271,8 @@ client.on('message', (message) => {
     const obituary = new Discord.MessageEmbed()
       .setColor(COLORS.embedBlack)
       .setThumbnail(message.author.avatarURL())
-      .setTitle(`${message.author.username}`)
-      .setDescription(`Died in ${message.channel} :headstone:`)
+      .setTitle(`Death 💀`)
+      .setDescription(`${message.author} died in ${message.channel}`)
 
     if (!isImmortal(message.author.id)) {
       if (message) message.react('💀')
@@ -639,7 +639,14 @@ client.on('message', (message) => {
   }
 
   if (message.content.startsWith(PREFIX)) {
-    if (command === 'badges' || command === 'badge') {
+    if (command === 'age') {
+      const id = subjectId(message)
+
+      message.guild.members.fetch(id).then((member) => {
+        const memberFor = Date.now() - member.joinedAt.getTime()
+        return message.lineReply(`Member age \`${prettyMs(memberFor)}\``)
+      })
+    } else if (command === 'badges' || command === 'badge') {
       const embed = new Discord.MessageEmbed().setColor(COLORS.embed)
       if (args[0]) {
         let badge = BADGES.find((badge) => {
@@ -700,7 +707,7 @@ client.on('message', (message) => {
           {
             name: 'Community <:cscbob:846528128524091422>',
             value:
-              '`/anon` :rabbit:\n`!haikus`\n`!profile`\n`!resurrect`\n`!stats`',
+              '!age\n`!badges`\n`!haikus`\n`!profile`\n`!resurrect`\n`!stats`',
             inline: true,
           },
           {
@@ -720,9 +727,7 @@ client.on('message', (message) => {
 
       const embed = new Discord.MessageEmbed()
         .setColor(COLORS.embedBlack)
-        .setDescription(
-          `There have been \`${deathCount}\` recorded deaths :headstone:`
-        )
+        .setDescription(`There have been \`${deathCount}\` recorded deaths.`)
         .setTitle(`Deaths`)
 
       if (deaths.length > 0) {
@@ -740,86 +745,50 @@ client.on('message', (message) => {
           leaderboard.push(`\`${i + 1}.\` ${user} \`${score}\``)
         }
         embed.addField('Leaderboard', leaderboard.join('\n'), false)
-        message.guild.members.fetch(deathsRanked[0].uid).then((member) => {
-          embed.setThumbnail(member.user.avatarURL())
-          return message.channel.send(embed)
-        })
-      }
+
+        return message.channel.send(embed)
+      } else message.channel.send('There have been no recorded deaths.')
     } else if (command === 'deploy') {
       if (message.member.roles.cache.has(ROLEIDS.admin)) {
-        if (version === '(Development)') {
-          client.api
-            .applications(client.user.id)
-            .guilds(IDS.csc)
-            .commands.post({
-              data: {
-                name: 'anon',
-                description: 'Send #anonymous messages',
-                options: [
-                  {
-                    type: 3,
-                    name: 'message',
-                    description: 'Text to send',
-                    required: true,
-                  },
-                  {
-                    type: 5,
-                    name: 'random',
-                    description: 'Randomize avatar',
-                    required: false,
-                  },
-                ],
-              },
-            })
+        client.api
+          .applications(client.user.id)
+          .guilds(IDS.csc)
+          .commands.get()
+          .then((commands) => {
+            client.api
+              .applications(client.user.id)
+              .guilds(IDS.csc)
+              .commands(commands[0].id)
+              .delete()
+          })
 
-          // client.api
-          //   .applications(client.user.id)
-          //   .guilds(IDS.csc)
-          //   .commands.get()
-          //   .then((commands) => {
-          //     client.api
-          //       .applications(client.user.id)
-          //       .guilds(IDS.csc)
-          //       .commands(commands[0].id)
-          //       .delete()
-          //   })
-        } else {
-          // client.api
-          //   .applications(client.user.id)
-          //   .guilds(IDS.csc)
-          //   .commands.post({
-          //     data: {
-          //       name: 'anon',
-          //       description: 'Send #anonymous messages',
-          //       options: [
-          //         {
-          //           type: 3,
-          //           name: 'message',
-          //           description: 'Text to send',
-          //           required: true,
-          //         },
-          //         {
-          //           type: 5,
-          //           name: 'random',
-          //           description: 'Randomize avatar',
-          //           required: false,
-          //         },
-          //       ],
-          //     },
-          //   })
+        // client.api
+        //   .applications(client.user.id)
+        //   .guilds(IDS.csc)
+        //   .commands.post({
+        //     data: {
+        //       name: 'anon',
+        //       description: 'Send #anonymous messages',
+        //       options: [
+        //         {
+        //           type: 3,
+        //           name: 'message',
+        //           description: 'Text to send',
+        //           required: true,
+        //         },
+        //         {
+        //           type: 5,
+        //           name: 'random',
+        //           description: 'Randomize avatar',
+        //           required: false,
+        //         },
+        //       ],
+        //     },
+        //   })
 
-          // METASTATS.forEach((stat) => {
-          //   const matches = Meta.find().matches('name', stat).run()
-          //   if (matches.length > 0) {
-          //     matches.forEach((match) => {
-          //       Meta.remove(match._id_)
-          //     })
-          //   }
-          // })
+        // randomAcronym()
+        // randomLetter()
 
-          randomAcronym()
-          randomLetter()
-        }
         message.channel.send('Deployment successful.')
       }
     } else if (command === 'haikus') {
@@ -918,13 +887,6 @@ client.on('message', (message) => {
         return message.channel.send(
           alphabetEmoji[alphabet.indexOf(matches[0].value)]
         )
-    } else if (command === 'age') {
-      const id = subjectId(message)
-
-      message.guild.members.fetch(id).then((member) => {
-        const memberFor = Date.now() - member.joinedAt.getTime()
-        return message.lineReply(`Member age \`${prettyMs(memberFor)}\``)
-      })
     } else if (command === 'permadeath') {
       const embed = new Discord.MessageEmbed()
         .setColor(COLORS.embedBlack)
@@ -1120,7 +1082,7 @@ client.on('message', (message) => {
 
       const embed = new Discord.MessageEmbed()
         .setColor(COLORS.embedBlack)
-        .setTitle(`Resurrection`)
+        .setTitle(`Resurrection 🙏`)
       const matches = Resurrection.find()
         .matches('uid', message.author.id)
         .run()
@@ -1136,7 +1098,7 @@ client.on('message', (message) => {
         message.member.roles.remove(ROLEIDS.ghost)
         if (hasResurrected) Resurrection.remove(matches[0]._id_)
         Resurrection.add({ uid: message.author.id })
-        embed.setDescription(`You have been resurrected 🙏`)
+        embed.setDescription(`You have been resurrected.`)
       } else {
         embed.setDescription(
           `You have to wait \`${prettyMs(timeRemaining)}\` to resurrect.`
