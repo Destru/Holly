@@ -728,7 +728,7 @@ client.on('message', (message) => {
       const embed = new Discord.MessageEmbed()
         .setColor(COLORS.embedBlack)
         .setDescription(`There have been \`${deathCount}\` recorded deaths.`)
-        .setTitle(`Deaths`)
+        .setTitle(`Deaths 🪦`)
 
       if (deaths.length > 0) {
         const deathsSorted = deaths.sort((a, b) => a.deaths - b.deaths)
