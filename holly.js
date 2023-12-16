@@ -750,17 +750,17 @@ client.on('message', (message) => {
       } else message.channel.send('There have been no recorded deaths.')
     } else if (command === 'deploy') {
       if (message.member.roles.cache.has(ROLEIDS.admin)) {
-        client.api
-          .applications(client.user.id)
-          .guilds(IDS.csc)
-          .commands.get()
-          .then((commands) => {
-            client.api
-              .applications(client.user.id)
-              .guilds(IDS.csc)
-              .commands(commands[0].id)
-              .delete()
-          })
+        // client.api
+        //   .applications(client.user.id)
+        //   .guilds(IDS.csc)
+        //   .commands.get()
+        //   .then((commands) => {
+        //     client.api
+        //       .applications(client.user.id)
+        //       .guilds(IDS.csc)
+        //       .commands(commands[0].id)
+        //       .delete()
+        //   })
 
         // client.api
         //   .applications(client.user.id)
