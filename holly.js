@@ -986,14 +986,6 @@ client.on('message', (message) => {
         else if (member.roles.cache.has(ROLEIDS.activist)) rank = `Activist`
         else if (member.roles.cache.has(ROLEIDS.comrade)) rank = `Comrade`
 
-        if (member.roles.cache.has(ROLEIDS.hehim)) pronouns += `\`He/Him\` `
-        if (member.roles.cache.has(ROLEIDS.sheher)) pronouns += `\`She/Her\` `
-        if (member.roles.cache.has(ROLEIDS.theythem))
-          pronouns += `\`They/Them\` `
-        if (member.roles.cache.has(ROLEIDS.pronouns))
-          pronouns = `\`Pronouns: Ask\``
-        if (pronouns.length > 0) description += `${pronouns} `
-
         description += `\`${prettyMs(memberFor)}\``
 
         if (avatar) {
