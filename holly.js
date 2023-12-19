@@ -147,7 +147,7 @@ const randomAcronym = () => {
 
   channel.setTopic(`${topic} :skull:`)
 }
-const randomChance = 0.015
+const randomChance = 0.02
 const randomEmoji = () => {
   const emoji = [
     '<:cscalt:837251418247004205>',
@@ -280,7 +280,7 @@ client.on('message', (message) => {
       channelGraveyard.send(obituary)
       permaDeathScore(true)
     } else {
-      permaDeathScore(false, Math.floor(Math.random() * 42) + 1)
+      permaDeathScore(false, Math.floor(Math.random() * 10) + 1)
     }
   }
   const permaDeathScore = (death = false, penalty = 0) => {
@@ -368,31 +368,7 @@ client.on('message', (message) => {
 
   if (message.author.bot) {
     if (message.channel.id === CHANNELIDS.terminal) {
-      if (message.author.id === IDS.queeg) {
-        const matches = message.content.match(/Running daily tasks\./)
-        if (matches) {
-          const immortal = Immortal.find()
-            .run()
-            .sort((a, b) => a.score - b.score)
-            .pop()
-
-          const currentScore = parseInt(immortal.score)
-          let penalty = Math.floor(Math.random() * (currentScore / 2)) + 1
-
-          if (penalty > currentScore) penalty = currentScore - 1
-
-          Immortal.update(immortal._id_, {
-            score: `${currentScore - penalty}`,
-          })
-
-          let points = 'points'
-          if (penalty === 1) points = 'point'
-
-          message.channel.send(
-            `The \`!immortal\` has been found and wounded for \`${penalty}\` ${points}.`
-          )
-        }
-      } else if (message.author.id === IDS.hal9000) {
+      if (message.author.id === IDS.hal9000) {
         const matches = message.content.match(
           /<@(\d+)> has reached level (\d+)/
         )
@@ -580,8 +556,7 @@ client.on('message', (message) => {
     }
   } else if (
     message.channel.id === CHANNELIDS.memes ||
-    message.channel.id === CHANNELIDS.stimulus ||
-    message.channel.id === CHANNELIDS.tst
+    message.channel.id === CHANNELIDS.stimulus
   ) {
     if (
       message.content.includes('http://') ||
@@ -644,7 +619,7 @@ client.on('message', (message) => {
 
       message.guild.members.fetch(id).then((member) => {
         const memberFor = Date.now() - member.joinedAt.getTime()
-        return message.lineReply(`Member age \`${prettyMs(memberFor)}\``)
+        return message.channel.send(prettyMs(memberFor))
       })
     } else if (command === 'badges' || command === 'badge') {
       const embed = new Discord.MessageEmbed().setColor(COLORS.embed)
@@ -851,35 +826,6 @@ client.on('message', (message) => {
           }
         } else return message.channel.send(`No haikus found.`)
       }
-    } else if (command === 'immortal') {
-      const embed = new Discord.MessageEmbed()
-      const immortals = Immortal.find().run()
-
-      if (immortals.length > 0) {
-        const immortalsSorted = immortals.sort((a, b) => a.score - b.score)
-        const immortal = immortalsSorted.pop()
-
-        if (immortal && immortal.uid && immortal.score) {
-          embed.setDescription(
-            `\`${immortal.score}\` points <:tst:866886790920405032>` +
-              `\n\nBow before our ruler; an immortal being. ` +
-              `Bathe in their light and unfathomable beauty, ` +
-              `and *accept* their judgement.`
-          )
-
-          message.guild.members.fetch(immortal.uid).then((member) => {
-            embed
-              .setColor(member.displayHexColor)
-              .setThumbnail(member.user.avatarURL())
-              .setTitle(member.displayName)
-            message.channel.send(embed)
-          })
-        }
-      } else {
-        return message.channel.send(
-          `There is currently no immortal being present on the server ${randomEmoji()}`
-        )
-      }
     } else if (command === 'letter') {
       const matches = Meta.find().matches('name', 'word-war').limit(1).run()
 
@@ -887,13 +833,13 @@ client.on('message', (message) => {
         return message.channel.send(
           alphabetEmoji[alphabet.indexOf(matches[0].value)]
         )
-    } else if (command === 'permadeath') {
+    } else if (command === 'permadeath' || command === 'immortal') {
       const embed = new Discord.MessageEmbed()
         .setColor(COLORS.embedBlack)
         .setDescription(
           `Contributing in :skull: channels awards points. ` +
             `Points reset on death. ` +
-            `Whoever has the most points is \`!immortal\` and will be hunted.`
+            `Whoever has the most points is immortal.`
         )
         .setTitle(`Permadeath`)
 
@@ -921,6 +867,12 @@ client.on('message', (message) => {
           message.channel.send(embed)
         })
       }
+    } else if (command === 'ping') {
+      message.channel.send(
+        `${Date.now() - message.createdTimestamp}ms / ${Math.round(
+          message.client.ws.ping
+        )}ms`
+      )
     } else if (command === 'points') {
       const matches = Immortal.find()
         .matches('uid', message.author.id)
@@ -1170,6 +1122,8 @@ client.on('message', (message) => {
         )
 
       message.channel.send(embed)
+    } else if (command === 'uptime') {
+      message.channel.send(prettyMs(message.client.uptime))
     } else if (command === 'version') {
       message.channel.send(version)
     } else if (message.content.includes(KEY)) {
