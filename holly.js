@@ -10,7 +10,6 @@ const findahaiku = require('findahaiku')
 const paginationEmbed = require('discord.js-pagination')
 const prettyMs = require('pretty-ms')
 const checkWord = require('check-word')
-const { authenticate, terminal } = require('./terminal')
 const dictionary = checkWord('en')
 
 const { COLORS, CHANNELIDS, EMOJIIDS, IDS, ROLEIDS } = require('./config')
@@ -213,7 +212,7 @@ const subjectId = (message) => {
   if (matches) id = matches[1]
   return id
 }
-const timerFeedbackDelete = 5000
+const timerFeedbackDelete = 10000
 const trackByName = (id, name) => {
   let match = Meta.find()
     .matches('uid', id)
@@ -333,18 +332,7 @@ client.on('message', (message) => {
     }
   }
 
-  if (message.guild === null) {
-    client.guilds.cache
-      .get(IDS.csc)
-      .members.fetch(message.author.id)
-      .then((member) => {
-        if (member.roles.cache.has(ROLEIDS.leet)) {
-          terminal(message, client)
-        } else {
-          return message.author.send(`No access. :rabbit2:`)
-        }
-      })
-  } else if (
+  if (
     !message.author.bot &&
     isHaiku &&
     message.channel.id !== CHANNELIDS.saferspace
@@ -1138,25 +1126,12 @@ client.on('message', (message) => {
     } else {
       message.member.roles.add(ROLEIDS.leet)
       message.channel
-        .send('https://c.tenor.com/bWNecnNqh2MAAAAC/hole-rabbit-hole.gif')
+        .send('You can now send anonymous messages with `/anon` :rabbit:')
         .then((message) => {
           setTimeout(() => {
             message.delete()
-          }, timerFeedbackDelete * 2)
+          }, timerFeedbackDelete)
         })
-      message.channel.send(`Authenticating with \`${KEY}\``).then((message) => {
-        setTimeout(() => {
-          message.delete()
-          message.channel
-            .send('`SIGACK` received, terminal unlocked...')
-            .then((message) => {
-              setTimeout(() => {
-                message.delete()
-                authenticate(message.member)
-              }, timerFeedbackDelete / 2)
-            })
-        }, timerFeedbackDelete)
-      })
     }
   } else if (
     complimentChannels.includes(message.channel.id) &&
