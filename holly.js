@@ -1126,40 +1126,37 @@ client.on('message', (message) => {
       message.channel.send(prettyMs(message.client.uptime))
     } else if (command === 'version') {
       message.channel.send(version)
-    } else if (message.content.includes(KEY)) {
-      message.delete()
-      if (message.member.roles.cache.has(ROLEIDS.leet)) {
-        message.channel.send('🐇').then((message) => {
+    }
+  } else if (message.content.includes(KEY)) {
+    message.delete()
+    if (message.member.roles.cache.has(ROLEIDS.leet)) {
+      message.channel.send('🐇').then((message) => {
+        setTimeout(() => {
+          message.delete()
+        }, timerFeedbackDelete)
+      })
+    } else {
+      message.member.roles.add(ROLEIDS.leet)
+      message.channel
+        .send('https://c.tenor.com/bWNecnNqh2MAAAAC/hole-rabbit-hole.gif')
+        .then((message) => {
           setTimeout(() => {
             message.delete()
-          }, timerFeedbackDelete)
+          }, timerFeedbackDelete * 2)
         })
-      } else {
-        message.delete()
-        message.member.roles.add(ROLEIDS.leet)
-        message.channel
-          .send('https://c.tenor.com/bWNecnNqh2MAAAAC/hole-rabbit-hole.gif')
-          .then((message) => {
-            setTimeout(() => {
-              message.delete()
-            }, timerFeedbackDelete * 2)
-          })
-        message.channel
-          .send(`Authenticating with \`${KEY}\``)
-          .then((message) => {
-            setTimeout(() => {
-              message.delete()
-              message.channel
-                .send('`SIGACK` received, terminal unlocked...')
-                .then((message) => {
-                  setTimeout(() => {
-                    message.delete()
-                    authenticate(message.member)
-                  }, timerFeedbackDelete / 2)
-                })
-            }, timerFeedbackDelete)
-          })
-      }
+      message.channel.send(`Authenticating with \`${KEY}\``).then((message) => {
+        setTimeout(() => {
+          message.delete()
+          message.channel
+            .send('`SIGACK` received, terminal unlocked...')
+            .then((message) => {
+              setTimeout(() => {
+                message.delete()
+                authenticate(message.member)
+              }, timerFeedbackDelete / 2)
+            })
+        }, timerFeedbackDelete)
+      })
     }
   } else if (
     complimentChannels.includes(message.channel.id) &&
