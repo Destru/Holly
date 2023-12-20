@@ -1241,6 +1241,6 @@ const http = require('http')
 http
   .createServer(function (req, res) {
     res.writeHead(301, { Location: 'https://cyberpunksocial.club' })
-    res.end('HOLLY\n')
+    res.end()
   })
   .listen(8080)
