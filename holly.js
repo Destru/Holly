@@ -16,12 +16,12 @@ const { COLORS, CHANNELIDS, EMOJIIDS, IDS, ROLEIDS } = require('./config')
 const BADGES = [
   {
     name: 'Anonymous',
-    description: 'Used a custom avatar for anonymous chat.',
+    description: 'Has an anonymous avatar.',
     emoji: '<:anonymous:837247849145303080>',
   },
   {
     name: 'Comrade',
-    description: 'Written a mini biography.',
+    description: 'Written a biography.',
     emoji: '<:cscalt:837251418247004205>',
   },
   {
@@ -36,21 +36,21 @@ const BADGES = [
   },
   {
     name: 'Operator',
-    description: 'Member of the *CSC* admin team.',
+    description: 'Member of the admin team.',
     emoji: '<:cscbob:846528128524091422>',
   },
   {
     name: 'Patron',
-    description: 'Super cool and awesome *Patreon* supporter.',
+    description: 'Patreon supporter.',
     emoji: '<:patreon:837291787797135360>',
   },
   {
     name: 'PSYOP',
-    description: 'Rad to the max *Twitch* subscriber.',
+    description: 'Twitch subscriber.',
     emoji: '<:twitch:879932370210414703>',
   },
   {
-    name: '?',
+    name: 'Rabbit Hole',
     description: 'Jrag qbja gur enoovg ubyr.',
     emoji: '[🐰](https://github.com/Destru/Holly/blob/master/key.md)',
   },
@@ -82,26 +82,6 @@ const capitalize = (string) => {
   if (typeof string !== 'string') return string
   return string.charAt(0).toUpperCase() + string.slice(1)
 }
-const complimentChannels = ['836963196916858902', '841057992890646609']
-const complimentEmoji = [
-  ':heart:',
-  ':heart_eyes:',
-  ':black_heart:',
-  ':blue_heart:',
-  ':brown_heart:',
-  ':green_heart:',
-  ':orange_heart:',
-  ':purple_heart:',
-  ':sparkling_heart:',
-  ':white_heart:',
-  ':yellow_heart:',
-  ':smiling_face_with_3_hearts:',
-  ':kiss:',
-  ':kissing:',
-  ':kissing_heart:',
-  ':kissing_closed_eyes:',
-  ':kissing_smiling_eyes:',
-]
 const countLeaderboard = 5
 const isImmortal = (id) => {
   const immortal = Immortal.find()
@@ -120,14 +100,17 @@ const quotes = [
 ]
 const randomAcronym = () => {
   const channel = client.channels.cache.get(CHANNELIDS.acronyms)
-  const csc = 'csc '.repeat(50)
   const matches = Meta.find().matches('name', 'acronyms').limit(1).run()
-  const rare =
-    'acab cccp cia fbi kgb nasa nsa ' +
-    'lol omg wtf afk brb mcd kfc bbq lmao ' +
-    'dnd'
+  const acronyms =
+    'afk aka ama asap awol bae bbl bbs biab bolo brb btw diy dnd eta fish fomo fu fubar fyi idk imo irl kiss lmao lmk lol mia noyb omg pos pov rofl smh stfu tbh ttyl ttys wth wtf yolo ' +
+    'cia cdc csi dmc fbi osha lapd nasa nsa nypd potus rnc sat scotus swat ' +
+    'cccp kgb tst ' +
+    'cd css dvd gif html lcd led jpeg jpg midi png ' +
+    'faq iq hr ppv pr suv tba vhs ufo ' +
+    'ftp irc ssh www ' +
+    'add adhd aids hiv hpv md lsd ocd ' +
+    'csc '.repeat(42).split(' ')
 
-  let acronyms = `${csc} ${rare}`.split(' ')
   let acronym = acronyms[Math.floor(Math.random() * acronyms.length)]
   let topic = ``
 
@@ -196,9 +179,10 @@ const setReactions = (message, type = false) => {
       case 'upvote':
         if (message.channel.id === CHANNELIDS.memes)
           message.react(EMOJIIDS.kekw)
-        else if (message.channel.id === CHANNELIDS.tst)
-          message.react(EMOJIIDS.hailsatan)
         else message.react(EMOJIIDS.upvote)
+        break
+      case 'death':
+        message.react('💀')
         break
       case 'heart':
       default:
@@ -561,6 +545,8 @@ client.on('message', (message) => {
     message.channel.id === CHANNELIDS.irl
   ) {
     setReactions(message, 'heart')
+  } else if (message.channel.id === CHANNELIDS.scarydoor) {
+    setReactions(message, 'skull')
   } else if (message.channel.id === CHANNELIDS.wordwar) {
     const matches = Meta.find().matches('name', 'word-war').limit(1).run()
     const word = message.content.toLowerCase().trim()
@@ -609,7 +595,7 @@ client.on('message', (message) => {
         const memberFor = Date.now() - member.joinedAt.getTime()
         return message.channel.send(prettyMs(memberFor))
       })
-    } else if (command === 'badges' || command === 'badge') {
+    } else if (command === 'badge' || command === 'badges') {
       const embed = new Discord.MessageEmbed().setColor(COLORS.embed)
       if (args[0]) {
         let badge = BADGES.find((badge) => {
@@ -631,7 +617,7 @@ client.on('message', (message) => {
 
       let badges = []
       BADGES.forEach((badge) => {
-        if (badge.name !== '?') badges.push(`${badge.name} ${badge.emoji}`)
+        badges.push(`${badge.name} ${badge.emoji}`)
       })
 
       embed.setDescription(badges.join('\n'))
@@ -821,7 +807,7 @@ client.on('message', (message) => {
         return message.channel.send(
           alphabetEmoji[alphabet.indexOf(matches[0].value)]
         )
-    } else if (command === 'permadeath' || command === 'immortal') {
+    } else if (command === 'permadeath') {
       const embed = new Discord.MessageEmbed()
         .setColor(COLORS.embedBlack)
         .setDescription(
@@ -895,10 +881,9 @@ client.on('message', (message) => {
         const rabbit = member.roles.cache.has(ROLEIDS.leet)
         const memberFor = Date.now() - member.joinedAt.getTime()
 
-        let badges = []
-        let description = ''
-        let stats = [],
-          pronouns = '',
+        let badges = [],
+          description = '',
+          stats = [],
           rank = ''
 
         METASTATS.forEach((stat) => {
@@ -1008,7 +993,7 @@ client.on('message', (message) => {
 
         message.channel.send(embed)
       })
-    } else if (command === 'resurrect' || command === 'ressurect') {
+    } else if (command === 'resurrect') {
       if (!message.member.roles.cache.has(ROLEIDS.ghost))
         return message.channel.send(`You're not dead.`)
 
@@ -1134,7 +1119,7 @@ client.on('message', (message) => {
         })
     }
   } else if (
-    complimentChannels.includes(message.channel.id) &&
+    message.channel.id === CHANNELIDS.gaybar &&
     Math.random() < randomChance
   ) {
     fetch('https://complimentr.com/api')
@@ -1142,10 +1127,8 @@ client.on('message', (message) => {
       .then((data) => {
         let compliment =
           data.compliment.charAt(0).toUpperCase() + data.compliment.slice(1)
-        let emoji =
-          complimentEmoji[Math.floor(Math.random() * complimentEmoji.length)]
 
-        message.channel.send(`${compliment}, ${message.author} ${emoji}`)
+        message.channel.send(`${compliment}, ${message.author}`)
       })
   } else if (message.content.includes(':420:')) {
     message.react(EMOJIIDS.weed)
