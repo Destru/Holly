@@ -546,7 +546,7 @@ client.on('message', (message) => {
   ) {
     setReactions(message, 'heart')
   } else if (message.channel.id === CHANNELIDS.scarydoor) {
-    setReactions(message, 'skull')
+    setReactions(message, 'death')
   } else if (message.channel.id === CHANNELIDS.wordwar) {
     const matches = Meta.find().matches('name', 'word-war').limit(1).run()
     const word = message.content.toLowerCase().trim()
