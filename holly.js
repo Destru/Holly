@@ -25,7 +25,7 @@ const BADGES = [
     emoji: '<:cscalt:837251418247004205>',
   },
   {
-    name: "Hacker's Club",
+    name: 'Hacker',
     description: "Member of the Hacker's Club",
     emoji: '<:hackersclub:888141945296289832>',
   },
@@ -50,7 +50,7 @@ const BADGES = [
     emoji: '<:twitch:879932370210414703>',
   },
   {
-    name: 'Rabbit Hole',
+    name: 'Rabbit',
     description: 'Jrag qbja gur enoovg ubyr.',
     emoji: '[🐰](https://github.com/Destru/Holly/blob/master/key.md)',
   },
@@ -196,6 +196,7 @@ const subjectId = (message) => {
   if (matches) id = matches[1]
   return id
 }
+
 const timerFeedbackDelete = 10000
 const trackByName = (id, name) => {
   let match = Meta.find()
@@ -601,9 +602,9 @@ client.on('message', (message) => {
         let badge = BADGES.find((badge) => {
           return badge.name.toLowerCase() === args[0].toLowerCase()
         })
-        let output = `No such badge.`
+        let output = `No such badge exists.`
 
-        if (badge) {
+        if (badge && badge.name !== 'Rabbit') {
           embed
             .setDescription(badge.description)
             .setTitle(`${badge.name} ${badge.emoji}`)
@@ -616,9 +617,7 @@ client.on('message', (message) => {
       embed.setTitle('Badges')
 
       let badges = []
-      BADGES.forEach((badge) => {
-        badges.push(`${badge.name} ${badge.emoji}`)
-      })
+      BADGES.forEach((badge) => badges.push(`${badge.name} ${badge.emoji}`))
 
       embed.setDescription(badges.join('\n'))
 
@@ -899,17 +898,18 @@ client.on('message', (message) => {
           }
         })
 
-        if (member.roles.cache.has(ROLEIDS.tron)) rank = `Tron`
-        else if (member.roles.cache.has(ROLEIDS.cyberpunk)) rank = `Cyberpunk`
-        else if (member.roles.cache.has(ROLEIDS.replicant)) rank = `Replicant`
-        else if (member.roles.cache.has(ROLEIDS.android)) rank = `Android`
-        else if (member.roles.cache.has(ROLEIDS.cyborg)) rank = `Cyborg`
-        else if (member.roles.cache.has(ROLEIDS.augmented)) rank = `Augmented`
+        if (member.roles.cache.has(ROLEIDS.tron)) rank = 'Tron'
+        else if (member.roles.cache.has(ROLEIDS.cyberpunk)) rank = 'Cyberpunk'
+        else if (member.roles.cache.has(ROLEIDS.replicant)) rank = 'Replicant'
+        else if (member.roles.cache.has(ROLEIDS.android)) rank = 'Android'
+        else if (member.roles.cache.has(ROLEIDS.cyborg)) rank = 'Cyborg'
+        else if (member.roles.cache.has(ROLEIDS.augmented)) rank = 'Augmented'
         else if (member.roles.cache.has(ROLEIDS.revolutionary))
-          rank = `Revolutionary`
-        else if (member.roles.cache.has(ROLEIDS.insurgent)) rank = `Insurgent`
-        else if (member.roles.cache.has(ROLEIDS.activist)) rank = `Activist`
-        else if (member.roles.cache.has(ROLEIDS.comrade)) rank = `Comrade`
+          rank = 'Revolutionary'
+        else if (member.roles.cache.has(ROLEIDS.insurgent)) rank = 'Insurgent'
+        else if (member.roles.cache.has(ROLEIDS.activist)) rank = 'Activist'
+        else if (member.roles.cache.has(ROLEIDS.comrade)) rank = 'Comrade'
+        else rank = 'Recruit'
 
         description += `\`${prettyMs(memberFor)}\``
 
@@ -939,7 +939,7 @@ client.on('message', (message) => {
           member.roles.cache.has(ROLEIDS.leet)
         ) {
           let badge = BADGES.find((badge) => {
-            return badge.name === "Hacker's Club"
+            return badge.name === 'Hacker'
           })
           badges.push(`${badge.name} ${badge.emoji}\n`)
         }
@@ -965,7 +965,7 @@ client.on('message', (message) => {
         }
         if (rabbit) {
           let badge = BADGES.find((badge) => {
-            return badge.name === '?'
+            return badge.name === 'Rabbit'
           })
           description += ` ${badge.emoji}`
         }
@@ -987,9 +987,9 @@ client.on('message', (message) => {
           .setColor(member.displayHexColor || COLORS.embed)
           .setDescription(description)
           .setThumbnail(member.user.avatarURL())
-          .setTitle(member.displayName)
+          .setTitle(rank)
 
-        if (rank.length > 0) embed.setTitle(`${rank} ${member.displayName}`)
+        if (rank.length > 0) embed.setTitle(rank)
 
         message.channel.send(embed)
       })
