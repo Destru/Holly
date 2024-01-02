@@ -181,7 +181,7 @@ const setReactions = (message, type = false) => {
           message.react(EMOJIIDS.kekw)
         else message.react(EMOJIIDS.upvote)
         break
-      case 'death':
+      case 'skull':
         message.react('💀')
         break
       case 'heart':
@@ -259,7 +259,7 @@ client.on('message', (message) => {
       .setDescription(`${message.author} died in ${message.channel}`)
 
     if (!isImmortal(message.author.id)) {
-      if (message) message.react('💀')
+      if (message) setReactions(message, 'skull')
       message.member.roles.add(ROLEIDS.ghost)
       channelGraveyard.send(obituary)
       permaDeathScore(true)
@@ -546,8 +546,13 @@ client.on('message', (message) => {
     message.channel.id === CHANNELIDS.irl
   ) {
     setReactions(message, 'heart')
-  } else if (message.channel.id === CHANNELIDS.scarydoor) {
-    setReactions(message, 'death')
+  } else if (
+    message.channel.id === CHANNELIDS.scarydoor &&
+    (message.content.includes('http://') ||
+      message.content.includes('https://') ||
+      message.attachments.size > 0)
+  ) {
+    setReactions(message, 'skull')
   } else if (message.channel.id === CHANNELIDS.wordwar) {
     const matches = Meta.find().matches('name', 'word-war').limit(1).run()
     const word = message.content.toLowerCase().trim()
