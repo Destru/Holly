@@ -670,7 +670,7 @@ client.on('message', (message) => {
           {
             name: 'Community <:cscbob:846528128524091422>',
             value:
-              '!age\n`!badges`\n`!haikus`\n`!profile`\n`!resurrect`\n`!stats`',
+              '`!age`\n`!badges`\n`!haikus`\n`!profile`\n`!resurrect`\n`!stats`',
             inline: true,
           },
           {
