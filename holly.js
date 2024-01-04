@@ -73,6 +73,16 @@ fs.readFile('./key.md', 'utf8', (err, data) => {
   KEY = data.trim()
 })
 
+const acronymString =
+  'csc '.repeat(42) +
+  'afk aka ama asap awol bae bbl bbs biab bolo brb btw diy dnd eta fish fomo fu fubar fyi idk imo irl kiss lmao lmk lol mia noyb omg pos pov rofl smh stfu tbh ttyl ttys wth wtf yolo ' +
+  'cia cdc csi dmc fbi osha lapd nasa nsa nypd potus rnc sat scotus swat ' +
+  'cccp kgb tst ' +
+  'cd css dvd gif html lcd led jpeg jpg midi png ' +
+  'faq iq hr ppv pr suv tba vhs ufo ' +
+  'ftp irc ssh www ' +
+  'add adhd aids hiv hpv md lsd ocd'
+const acronyms = acronymString.split(' ')
 const alphabet = 'abcdefghijklmnopqrstuvwxyz'
 const alphabetEmoji =
   '🇦 🇧 🇨 🇩 🇪 🇫 🇬 🇭 🇮 🇯 🇰 🇱 🇲 🇳 🇴 🇵 🇶 🇷 🇸 🇹 🇺 🇻 🇼 🇽 🇾 🇿'.split(
@@ -101,18 +111,8 @@ const quotes = [
 const randomAcronym = () => {
   const channel = client.channels.cache.get(CHANNELIDS.acronyms)
   const matches = Meta.find().matches('name', 'acronyms').limit(1).run()
-  const acronyms =
-    'afk aka ama asap awol bae bbl bbs biab bolo brb btw diy dnd eta fish fomo fu fubar fyi idk imo irl kiss lmao lmk lol mia noyb omg pos pov rofl smh stfu tbh ttyl ttys wth wtf yolo ' +
-    'cia cdc csi dmc fbi osha lapd nasa nsa nypd potus rnc sat scotus swat ' +
-    'cccp kgb tst ' +
-    'cd css dvd gif html lcd led jpeg jpg midi png ' +
-    'faq iq hr ppv pr suv tba vhs ufo ' +
-    'ftp irc ssh www ' +
-    'add adhd aids hiv hpv md lsd ocd ' +
-    'csc '.repeat(42).split(' ')
-
   let acronym = acronyms[Math.floor(Math.random() * acronyms.length)]
-  let topic = ``
+  let topic = ''
 
   if (matches.length > 0) {
     while (acronym === matches[0].value) {
@@ -126,6 +126,8 @@ const randomAcronym = () => {
   for (i = 0; i < acronym.length; i++) {
     topic += `${alphabetEmoji[acronym.charCodeAt(i) - 97]} `
   }
+
+  console.log(topic)
 
   channel.setTopic(`${topic} :skull:`)
 }
@@ -594,7 +596,15 @@ client.on('message', (message) => {
   }
 
   if (message.content.startsWith(PREFIX)) {
-    if (command === 'age') {
+    if (command === 'acronym') {
+      const matches = Meta.find('name', 'acronym').limit(1).run()
+      const acronym = matches[0].value
+      console.log(acronym)
+      console.log(acronyms.length)
+      console.log(acronyms[acronym])
+      console.log(acronyms)
+      if (matches.length > 0) return message.channel.send(acronyms[acronym])
+    } else if (command === 'age') {
       const id = subjectId(message)
 
       message.guild.members.fetch(id).then((member) => {
@@ -739,8 +749,8 @@ client.on('message', (message) => {
         //     },
         //   })
 
-        // randomAcronym()
-        // randomLetter()
+        randomAcronym()
+        randomLetter()
 
         message.channel.send('Deployment successful.')
       }
