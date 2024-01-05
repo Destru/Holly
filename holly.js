@@ -872,7 +872,7 @@ client.on('message', (message) => {
 
         message.channel.send(`You have \`${matches[0].score}\` ${points}.`)
       } else message.channel.send(`You have \`0\` points.`)
-    } else if (command === 'profile') {
+    } else if (command === 'profile' || command === 'bio') {
       const embed = new Discord.MessageEmbed()
       const id = subjectId(message)
 
