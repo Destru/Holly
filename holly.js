@@ -176,11 +176,12 @@ const setReactions = (message, type = false) => {
     switch (type) {
       case 'csc':
         message.react(EMOJIIDS.csc)
-        message.react(EMOJIIDS.heart)
         break
       case 'upvote':
         if (message.channel.id === CHANNELIDS.memes)
           message.react(EMOJIIDS.kekw)
+        else if (message.channel.id === CHANNELIDS.scarydoor)
+          message.react('💀')
         else message.react(EMOJIIDS.upvote)
         break
       case 'skull':
@@ -358,16 +359,16 @@ client.on('message', (message) => {
             const id = matches[1]
             const embed = new Discord.MessageEmbed()
 
-            let adjective = `a contributing`
+            let adjective = `a contributing member`
 
-            if (level >= 50) adjective = `a *godlike*`
-            else if (level >= 40) adjective = `an inspiring`
-            else if (level >= 30) adjective = `a prolific`
-            else if (level >= 20) adjective = `an important`
+            if (level >= 50) adjective = `a cornerstone`
+            else if (level >= 40) adjective = `an inspiring member`
+            else if (level >= 30) adjective = `a prolific member`
+            else if (level >= 20) adjective = `an important member`
 
             let description =
               `Has been promoted to **${ranks[level]}** ${randomEmoji()}` +
-              `\n\nThank you for being ${adjective} member of this community. `
+              `\n\nThank you for being ${adjective} of this community. `
 
             switch (level) {
               case 5:
@@ -385,17 +386,17 @@ client.on('message', (message) => {
                 break
               case 50:
                 description +=
-                  `You have joined the *Hacker's Club*; ` +
-                  `rootkit access has been granted. `
+                  `You have joined the <#831769969095344128>, ` +
+                  `and Rootkit access has been granted. `
                 break
               case 60:
                 description +=
-                  `You have entered *the Grid*, ` +
+                  `You have entered <#>, ` +
                   `and may change your color at will. ` +
-                  `Encrypted storage access has also been granted.`
+                  `Access to <#831769762518007839> has also been granted.`
                 break
               case 75:
-                description += `You understand *everything*.`
+                description += `You have reached the end of the internet.`
               default:
                 description += `Enjoy your new color, comrade.`
             }
@@ -554,7 +555,7 @@ client.on('message', (message) => {
       message.content.includes('https://') ||
       message.attachments.size > 0)
   ) {
-    setReactions(message, 'skull')
+    setReactions(message, 'upvote')
   } else if (message.channel.id === CHANNELIDS.wordwar) {
     const matches = Meta.find().matches('name', 'word-war').limit(1).run()
     const word = message.content.toLowerCase().trim()
