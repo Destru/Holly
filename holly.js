@@ -187,6 +187,8 @@ const setReactions = (message, type = false) => {
       case 'skull':
         message.react('💀')
         break
+      case 'binaerpilot':
+        messsage.react(EMOJIIDS.binaerpilot)
       case 'heart':
       default:
         message.react(EMOJIIDS.heart)
@@ -549,6 +551,8 @@ client.on('message', (message) => {
     message.channel.id === CHANNELIDS.irl
   ) {
     setReactions(message, 'heart')
+  } else if (message.channel.id === CHANNELIDS.patrons) {
+    setReactions(message, 'binaerpilot')
   } else if (
     message.channel.id === CHANNELIDS.scarydoor &&
     (message.content.includes('http://') ||
@@ -579,12 +583,9 @@ client.on('message', (message) => {
       }
     }
   } else if (
-    [
-      CHANNELIDS.comrades,
-      CHANNELIDS.creative,
-      CHANNELIDS.patrons,
-      CHANNELIDS.wip,
-    ].includes(message.channel.id)
+    [CHANNELIDS.comrades, CHANNELIDS.creative, CHANNELIDS.wip].includes(
+      message.channel.id
+    )
   ) {
     if (
       message.content.includes('http://') ||
