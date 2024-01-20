@@ -101,6 +101,13 @@ const isImmortal = (id) => {
   if (immortal && immortal.uid === id) return true
   else return false
 }
+const hasContent = (message) => {
+  return (
+    message.content.includes('http://') ||
+    message.content.includes('https://') ||
+    message.attachments.size > 0
+  )
+}
 const perPage = 5
 const quotes = [
   `Rude alert! Rude alert! An electrical fire has knocked out my voice recognition unicycle! Many Wurlitzers are missing from my database.`,
@@ -533,31 +540,24 @@ client.on('message', (message) => {
       permaDeath()
     }
   } else if (
-    message.channel.id === CHANNELIDS.memes ||
-    message.channel.id === CHANNELIDS.stimulus
+    (message.channel.id === CHANNELIDS.memes ||
+      message.channel.id === CHANNELIDS.stimulus) &&
+    hasContent(message)
   ) {
-    if (
-      message.content.includes('http://') ||
-      message.content.includes('https://') ||
-      message.attachments.size > 0
-    ) {
-      setReactions(message, 'upvote')
-      if (message.channel.id === CHANNELIDS.memes)
-        trackByName(message.author.id, 'memes')
-      else trackByName(message.author.id, 'stimulus')
-    }
+    setReactions(message, 'upvote')
+    if (message.channel.id === CHANNELIDS.memes)
+      trackByName(message.author.id, 'memes')
+    else trackByName(message.author.id, 'stimulus')
   } else if (
     message.channel.id === CHANNELIDS.nsfw ||
     message.channel.id === CHANNELIDS.irl
   ) {
     setReactions(message, 'heart')
-  } else if (message.channel.id === CHANNELIDS.patrons) {
+  } else if (message.channel.id === CHANNELIDS.patrons && hasContent(message)) {
     setReactions(message, 'binaerpilot')
   } else if (
     message.channel.id === CHANNELIDS.scarydoor &&
-    (message.content.includes('http://') ||
-      message.content.includes('https://') ||
-      message.attachments.size > 0)
+    hasContent(message)
   ) {
     setReactions(message, 'upvote')
   } else if (message.channel.id === CHANNELIDS.wordwar) {
@@ -585,16 +585,11 @@ client.on('message', (message) => {
   } else if (
     [CHANNELIDS.comrades, CHANNELIDS.creative, CHANNELIDS.wip].includes(
       message.channel.id
-    )
+    ) &&
+    hasContent(message)
   ) {
-    if (
-      message.content.includes('http://') ||
-      message.content.includes('https://') ||
-      message.attachments.size > 0
-    ) {
-      setReactions(message, 'csc')
-      trackByName(message.author.id, 'oc')
-    }
+    setReactions(message, 'csc')
+    trackByName(message.author.id, 'oc')
   }
 
   if (message.content.startsWith(PREFIX)) {
