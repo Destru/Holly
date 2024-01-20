@@ -195,7 +195,8 @@ const setReactions = (message, type = false) => {
         message.react('💀')
         break
       case 'binaerpilot':
-        messsage.react(EMOJIIDS.binaerpilot)
+        message.react(EMOJIIDS.binaerpilot)
+        break
       case 'heart':
       default:
         message.react(EMOJIIDS.heart)
