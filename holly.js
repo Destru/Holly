@@ -27,7 +27,7 @@ const BADGES = [
   {
     name: 'Hacker',
     description: "Member of the Hacker's Club",
-    emoji: '<:hackersclub:888141945296289832>',
+    emoji: '🛰️',
   },
   {
     name: 'Immortal',
@@ -47,7 +47,7 @@ const BADGES = [
   {
     name: 'PSYOP',
     description: 'Twitch subscriber.',
-    emoji: '🛰️',
+    emoji: '🧠',
   },
   {
     name: 'Rabbit',
