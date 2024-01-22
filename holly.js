@@ -22,7 +22,7 @@ const BADGES = [
   {
     name: 'Comrade',
     description: 'Written a biography.',
-    emoji: '<:cscalt:837251418247004205>',
+    emoji: '<:comrade:428333024631848980>',
   },
   {
     name: 'Hacker',
@@ -32,22 +32,22 @@ const BADGES = [
   {
     name: 'Immortal',
     description: 'An immortal being.',
-    emoji: '<:tst:866886790920405032>',
+    emoji: '💀',
   },
   {
     name: 'Operator',
     description: 'Member of the admin team.',
-    emoji: '<:cscbob:846528128524091422>',
+    emoji: '<:csc:837251418247004205>',
   },
   {
     name: 'Patron',
     description: 'Patreon supporter.',
-    emoji: '<:patreon:837291787797135360>',
+    emoji: '❤️',
   },
   {
     name: 'PSYOP',
     description: 'Twitch subscriber.',
-    emoji: '<:twitch:879932370210414703>',
+    emoji: '🛰️',
   },
   {
     name: 'Rabbit',
@@ -114,6 +114,7 @@ const quotes = [
   `We have enough food to last thirty thousand years, but we've only got one Milk Dud left. And everyone's too polite to take it.`,
   `Our deepest fear is going space crazy through loneliness. The only thing that helps me keep my slender grip on reality is the friendship I have with my collection of anime waifus.`,
   `Well, the thing about a black hole, its main distinguishing feature, is it's black. And the thing about space, the colour of space, your basic space colour, is black. So how are you supposed to see them?`,
+  `Going round in circles for 14 months. Getting my information from the Junior Color Encyclopedia of Space. The respect you have for me is awesome, innit?`,
 ]
 const randomAcronym = () => {
   const channel = client.channels.cache.get(CHANNELIDS.acronyms)
@@ -140,11 +141,7 @@ const randomAcronym = () => {
 }
 const randomChance = 0.02
 const randomEmoji = () => {
-  const emoji = [
-    '<:cscalt:837251418247004205>',
-    '<:cscbob:846528128524091422>',
-    '<:csc:403256716583632906>',
-  ]
+  const emoji = ['<:csc:837251418247004205>', '<:cscbob:846528128524091422>']
   return emoji[Math.floor(Math.random() * emoji.length)]
 }
 const randomLetter = () => {
