@@ -398,7 +398,7 @@ client.on('message', (message) => {
                 break
               case 60:
                 description +=
-                  `You have entered <#>, ` +
+                  `You have entered the <#845227759168782336>, ` +
                   `and may change your color at will. ` +
                   `Access to <#831769762518007839> has also been granted.`
                 break
