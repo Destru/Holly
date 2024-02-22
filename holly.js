@@ -135,8 +135,6 @@ const randomAcronym = () => {
     topic += `${alphabetEmoji[acronym.charCodeAt(i) - 97]} `
   }
 
-  console.log(topic)
-
   channel.setTopic(`${topic} :skull:`)
 }
 const randomChance = 0.02
@@ -594,10 +592,7 @@ client.on('message', (message) => {
     if (command === 'acronym') {
       const matches = Meta.find('name', 'acronym').limit(1).run()
       const acronym = matches[0].value
-      console.log(acronym)
-      console.log(acronyms.length)
-      console.log(acronyms[acronym])
-      console.log(acronyms)
+
       if (matches.length > 0) return message.channel.send(acronyms[acronym])
     } else if (command === 'age') {
       const id = subjectId(message)
