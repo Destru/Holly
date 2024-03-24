@@ -20,6 +20,11 @@ const BADGES = [
     emoji: '<:anonymous:837247849145303080>',
   },
   {
+    name: 'Artist',
+    description: 'Creative member.',
+    emoji: '🧑‍🎨',
+  },
+  {
     name: 'Comrade',
     description: 'Written a biography.',
     emoji: '<:comrade:428333024631848980>',
@@ -35,6 +40,11 @@ const BADGES = [
     emoji: '💀',
   },
   {
+    name: 'Memer',
+    description: 'Posts a lot of garbage.',
+    emoji: '<:kekw:830114281168699412>',
+  },
+  {
     name: 'Operator',
     description: 'Member of the admin team.',
     emoji: '<:csc:837251418247004205>',
@@ -43,6 +53,11 @@ const BADGES = [
     name: 'Patron',
     description: 'Patreon supporter.',
     emoji: '❤️',
+  },
+  {
+    name: 'Poet',
+    description: 'Writes haikus.',
+    emoji: '📝',
   },
   {
     name: 'PSYOP',
@@ -592,7 +607,6 @@ client.on('message', (message) => {
     if (command === 'acronym') {
       const matches = Meta.find('name', 'acronym').limit(1).run()
       const acronym = matches[0].value
-
       if (matches.length > 0) return message.channel.send(acronyms[acronym])
     } else if (command === 'age') {
       const id = subjectId(message)
@@ -890,6 +904,9 @@ client.on('message', (message) => {
           stats = [],
           rank = ''
 
+        let artist = false,
+          memer = false
+
         METASTATS.forEach((stat) => {
           const match = Meta.find()
             .matches('uid', id)
@@ -900,6 +917,8 @@ client.on('message', (message) => {
             let name = capitalize(match[0].name)
             if (name.length <= 2) name = name.toUpperCase()
             stats.push(`${name} \`${match[0].value}\``)
+            if (match[0].name == 'oc' && match[0].value >= 10) artist = true
+            if (match[0].name == 'meme' && match[0].value >= 100) memer = true
           }
         })
 
@@ -918,6 +937,12 @@ client.on('message', (message) => {
 
         description += `\`${prettyMs(memberFor)}\``
 
+        if (artist) {
+          let badge = BADGES.find((badge) => {
+            return badge.name === 'Artist'
+          })
+          badges.push(`${badge.name} ${badge.emoji}\n`)
+        }
         if (avatar) {
           let badge = BADGES.find((badge) => {
             return badge.name === 'Anonymous'
@@ -956,9 +981,21 @@ client.on('message', (message) => {
             badges.push(`${badge.name} ${badge.emoji}\n`)
           }
         }
+        if (memer) {
+          let badge = BADGES.find((badge) => {
+            return badge.name === 'Memer'
+          })
+          badges.push(`${badge.name} ${badge.emoji}\n`)
+        }
         if (patron) {
           let badge = BADGES.find((badge) => {
             return badge.name === 'Patron'
+          })
+          badges.push(`${badge.name} ${badge.emoji}\n`)
+        }
+        if (haikus && haikus.length >= 50) {
+          let badge = BADGES.find((badge) => {
+            return badge.name === 'Poet'
           })
           badges.push(`${badge.name} ${badge.emoji}\n`)
         }
