@@ -665,7 +665,7 @@ client.on('message', (message) => {
           { name: 'Version', value: version, inline: true }
         )
       return message.channel.send(embed)
-    } else if (command === 'commands') {
+    } else if (command === 'commands' || command === 'command') {
       const embed = new Discord.MessageEmbed()
         .setColor(COLORS.embed)
         .setDescription(quotes[Math.floor(Math.random() * quotes.length)])
