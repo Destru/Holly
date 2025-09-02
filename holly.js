@@ -1064,6 +1064,8 @@ client.on('message', (message) => {
         )
       }
       return message.channel.send(embed)
+    } else if (command === 'ressurrect' || command === 'ressurect') {
+        message.channel.send(`Did you mean \`!resurrect\`? 😉`)
     } else if (command === 'stats') {
       const countBios = Bio.find().run().length
       const deaths = Death.find().run()
