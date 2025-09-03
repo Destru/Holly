@@ -670,7 +670,7 @@ client.on('message', (message) => {
           },
           {
             name: 'Permadeath :skull:',
-            value: '`!deaths`\n`!immortal`\n`!permadeath`\n`!points`',
+            value: '`!deaths`\n`!leaderboard`\n`!points`',
             inline: true,
           }
         )
@@ -809,14 +809,7 @@ client.on('message', (message) => {
           }
         } else return message.channel.send(`No haikus found.`)
       }
-    } else if (command === 'letter') {
-      const matches = Meta.find().matches('name', 'word-war').limit(1).run()
-
-      if (matches.length > 0)
-        return message.channel.send(
-          alphabetEmoji[alphabet.indexOf(matches[0].value)]
-        )
-    } else if (command === 'permadeath') {
+    } else if (command === 'permadeath' || command === 'leaderboard') {
       const embed = new Discord.MessageEmbed()
         .setColor(COLORS.embedBlack)
         .setDescription(
@@ -825,6 +818,8 @@ client.on('message', (message) => {
             `Whoever has the most points is immortal.`
         )
         .setTitle(`Permadeath`)
+
+      message.channel.send(embed)
 
       const immortals = Immortal.find().run()
 
@@ -850,6 +845,13 @@ client.on('message', (message) => {
           message.channel.send(embed)
         })
       }
+    } else if (command === 'letter') {
+      const matches = Meta.find().matches('name', 'word-war').limit(1).run()
+
+      if (matches.length > 0)
+        return message.channel.send(
+          alphabetEmoji[alphabet.indexOf(matches[0].value)]
+        )
     } else if (command === 'ping') {
       message.channel.send(
         `${Date.now() - message.createdTimestamp}ms / ${Math.round(
