@@ -184,9 +184,7 @@ const ranks = {
   30: 'Cyborg',
   35: 'Android',
   40: 'Replicant',
-  50: 'Cyberpunk',
-  60: 'Tron',
-  75: 'Godlike',
+  50: 'Cyberpunk'
 }
 const setReactions = (message, type = false) => {
   setTimeout(() => {
@@ -409,14 +407,6 @@ client.on('message', (message) => {
                   `You have joined the <#831769969095344128>, ` +
                   `and Rootkit access has been granted. `
                 break
-              case 60:
-                description +=
-                  `You have entered the <#845227759168782336>, ` +
-                  `and may change your color at will. ` +
-                  `Access to <#831769762518007839> has also been granted.`
-                break
-              case 75:
-                description += `You have reached the end of the internet.`
               default:
                 description += `Enjoy your new color, comrade.`
             }
