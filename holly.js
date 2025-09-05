@@ -669,7 +669,7 @@ client.on('message', (message) => {
           },
           {
             name: 'Permadeath :skull:',
-            value: '`!deaths`\n`!immortal`\n`!permadeath`\n`!points`',
+            value: '`!deaths`\n`!permadeath`\n`!points`',
             inline: true,
           }
         )
