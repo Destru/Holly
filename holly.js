@@ -1167,10 +1167,7 @@ client.on('message', (message) => {
             inline: true,
           }
         )
-        .setFooter({
-          text: `Holly is currently storing ${dataReadable} worth of data.`,
-          iconURL: 'https://cyberpunksocial.club/images/csc.png',
-        })
+        .setFooter(`Holly is currently storing ${dataReadable} worth of data.`)
 
       message.channel.send(embed)
     } else if (command === 'uptime') {
