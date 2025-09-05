@@ -1233,7 +1233,7 @@ client.ws.on('INTERACTION_CREATE', async (interaction) => {
         data: {
           type: 4,
           data: {
-            content: `Message sent <:anonymous:${EMOJIIDS.anonymous}>`,
+            content: `<:anonymous:${EMOJIIDS.anonymous}>`,
             flags: 1 << 6,
           },
         },
@@ -1249,8 +1249,6 @@ client.ws.on('INTERACTION_CREATE', async (interaction) => {
         },
       })
     }
-
-    await interaction.deleteReply();
   }
 })
 
