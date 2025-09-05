@@ -107,7 +107,7 @@ const capitalize = (string) => {
   if (typeof string !== 'string') return string
   return string.charAt(0).toUpperCase() + string.slice(1)
 }
-const countLeaderboard = 5
+const leaderboardCount = 10
 const isImmortal = (id) => {
   const immortal = Immortal.find()
     .run()
@@ -152,7 +152,7 @@ const randomAcronym = () => {
 
   channel.setTopic(`${topic} :skull:`)
 }
-const randomChance = 0.02
+const randomChance = 0.025
 const randomEmoji = () => {
   const emoji = ['<:csc:837251418247004205>', '<:cscbob:846528128524091422>']
   return emoji[Math.floor(Math.random() * emoji.length)]
@@ -692,7 +692,7 @@ client.on('message', (message) => {
         const deathsRanked = deathsSorted.reverse()
 
         let entries =
-          deaths.length > countLeaderboard ? countLeaderboard : deaths.length
+          deaths.length > leaderboardCount ? leaderboardCount : deaths.length
         let leaderboard = []
 
         for (let i = 0; i < entries; i++) {
@@ -707,41 +707,41 @@ client.on('message', (message) => {
       } else message.channel.send('There have been no recorded deaths.')
     } else if (command === 'deploy') {
       if (message.member.roles.cache.has(ROLEIDS.admin)) {
-        // client.api
-        //   .applications(client.user.id)
-        //   .guilds(IDS.csc)
-        //   .commands.get()
-        //   .then((commands) => {
-        //     client.api
-        //       .applications(client.user.id)
-        //       .guilds(IDS.csc)
-        //       .commands(commands[0].id)
-        //       .delete()
-        //   })
+        client.api
+          .applications(client.user.id)
+          .guilds(IDS.csc)
+          .commands.get()
+          .then((commands) => {
+            client.api
+              .applications(client.user.id)
+              .guilds(IDS.csc)
+              .commands(commands[0].id)
+              .delete()
+          })
 
-        // client.api
-        //   .applications(client.user.id)
-        //   .guilds(IDS.csc)
-        //   .commands.post({
-        //     data: {
-        //       name: 'anon',
-        //       description: 'Send #anonymous messages',
-        //       options: [
-        //         {
-        //           type: 3,
-        //           name: 'message',
-        //           description: 'Text to send',
-        //           required: true,
-        //         },
-        //         {
-        //           type: 5,
-        //           name: 'random',
-        //           description: 'Randomize avatar',
-        //           required: false,
-        //         },
-        //       ],
-        //     },
-        //   })
+        client.api
+          .applications(client.user.id)
+          .guilds(IDS.csc)
+          .commands.post({
+            data: {
+              name: 'anon',
+              description: 'Send #anonymous messages',
+              options: [
+                {
+                  type: 3,
+                  name: 'message',
+                  description: 'Text to send',
+                  required: true,
+                },
+                {
+                  type: 5,
+                  name: 'random',
+                  description: 'Randomize avatar',
+                  required: false,
+                },
+              ],
+            },
+          })
 
         randomAcronym()
         randomLetter()
@@ -832,8 +832,8 @@ client.on('message', (message) => {
         const immortalRanked = immortalsSorted.reverse()
 
         let entries =
-          immortals.length > countLeaderboard
-            ? countLeaderboard
+          immortals.length > leaderboardCount
+            ? leaderboardCount
             : immortals.length
         let leaderboard = []
 
@@ -866,7 +866,7 @@ client.on('message', (message) => {
 
         message.channel.send(`You have \`${matches[0].score}\` ${points}.`)
       } else message.channel.send(`You have \`0\` points.`)
-    } else if (command === 'profile' || command === 'bio') {
+    } else if (command === 'profile') {
       const embed = new Discord.MessageEmbed()
       const id = subjectId(message)
 
@@ -912,8 +912,7 @@ client.on('message', (message) => {
           }
         })
 
-        if (member.roles.cache.has(ROLEIDS.tron)) rank = 'Tron'
-        else if (member.roles.cache.has(ROLEIDS.cyberpunk)) rank = 'Cyberpunk'
+        if (member.roles.cache.has(ROLEIDS.cyberpunk)) rank = 'Cyberpunk'
         else if (member.roles.cache.has(ROLEIDS.replicant)) rank = 'Replicant'
         else if (member.roles.cache.has(ROLEIDS.android)) rank = 'Android'
         else if (member.roles.cache.has(ROLEIDS.cyborg)) rank = 'Cyborg'
@@ -1152,20 +1151,13 @@ client.on('message', (message) => {
           }, timerFeedbackDelete)
         })
     }
-  } else if (
-    message.channel.id === CHANNELIDS.gaybar &&
-    Math.random() < randomChance
-  ) {
-    fetch('https://complimentr.com/api')
-      .then((response) => response.json())
-      .then((data) => {
-        let compliment =
-          data.compliment.charAt(0).toUpperCase() + data.compliment.slice(1)
-
-        message.channel.send(`${compliment}, ${message.author}`)
-      })
   } else if (message.content.includes(':420:')) {
     message.react(EMOJIIDS.weed)
+  } else if (message.content.includes('🥷') && message.author.id === IDS.admin) {
+      const immortals = Immortal.find().run()
+      const immortalsFiltered = immortals.filter((immortal) => message.guild.members.fetch(immortal.uid))
+
+      message.channel.send(`immortals: ${immortals.length} filtered: ${immortalsFiltered.length}`)
   }
 })
 
