@@ -5,9 +5,9 @@ const fs = require('fs')
 const client = new Discord.Client()
 const db = require('flat-db')
 const cron = require('node-cron')
-const fetch = require('node-fetch')
 const findahaiku = require('findahaiku')
 const paginationEmbed = require('discord.js-pagination')
+const path = require('path')
 const prettyMs = require('pretty-ms')
 const checkWord = require('check-word')
 const dictionary = checkWord('en')
@@ -131,6 +131,40 @@ const quotes = [
   `Well, the thing about a black hole, its main distinguishing feature, is it's black. And the thing about space, the colour of space, your basic space colour, is black. So how are you supposed to see them?`,
   `Going round in circles for 14 months. Getting my information from the Junior Color Encyclopedia of Space. The respect you have for me is awesome, innit?`,
 ]
+
+const formatBytes = (bytes) => {
+  if (typeof bytes !== 'number' || isNaN(bytes) || bytes < 0) return '0 B'
+  const units = ['B', 'KB', 'MB', 'GB', 'TB']
+  let i = 0
+  while (bytes >= 1024 && i < units.length - 1) {
+    bytes = bytes / 1024
+    i++
+  }
+  const value = Math.round(bytes * 10) / 10
+  return `${value} ${units[i]}`
+}
+
+const getDirSize = (dirPath) => {
+  let total = 0
+  try {
+    const entries = fs.readdirSync(dirPath, { withFileTypes: true })
+    for (const entry of entries) {
+      const fullPath = path.join(dirPath, entry.name)
+      if (entry.isFile()) {
+        try {
+          const stats = fs.statSync(fullPath)
+          total += stats.size
+        } catch (e) {}
+      } else if (entry.isDirectory()) {
+        total += getDirSize(fullPath)
+      }
+    }
+  } catch (e) {
+    return 0
+  }
+  return total
+}
+
 const randomAcronym = () => {
   const channel = client.channels.cache.get(CHANNELIDS.acronyms)
   const matches = Meta.find().matches('name', 'acronyms').limit(1).run()
@@ -184,7 +218,7 @@ const ranks = {
   30: 'Cyborg',
   35: 'Android',
   40: 'Replicant',
-  50: 'Cyberpunk'
+  50: 'Cyberpunk',
 }
 const setReactions = (message, type = false) => {
   setTimeout(() => {
@@ -1054,15 +1088,26 @@ client.on('message', (message) => {
       }
       return message.channel.send(embed)
     } else if (command === 'ressurrect' || command === 'ressurect') {
-        message.channel.send(`Did you mean \`!resurrect\`? 😉`)
+      message.channel.send(`Did you mean \`!resurrect\`? 😉`)
     } else if (command === 'stats') {
-      const countBios = Bio.find().run().length
+      const acronyms = Meta.find().matches('name', 'acronyms').run()
+      const bandnames = Meta.find().matches('name', 'bandnames').run()
       const deaths = Death.find().run()
       const memes = Meta.find().matches('name', 'memes').run()
       const oc = Meta.find().matches('name', 'oc').run()
-      const acronyms = Meta.find().matches('name', 'acronyms').run()
-      const bandnames = Meta.find().matches('name', 'bandnames').run()
       const stimulus = Meta.find().matches('name', 'stimulus').run()
+
+      let countAcronyms = 0
+      acronyms.forEach((user) => {
+        if (!isNaN(user.value))
+          countAcronyms = countAcronyms + parseInt(user.value)
+      })
+      let countBandNames = 0
+      bandnames.forEach((user) => {
+        countBandNames = countBandNames + parseInt(user.value)
+      })
+
+      const countBios = Bio.find().run().length
 
       let countDeaths = 0
       deaths.forEach((death) => {
@@ -1075,15 +1120,6 @@ client.on('message', (message) => {
       let countOC = 0
       oc.forEach((user) => {
         countOC = countOC + parseInt(user.value)
-      })
-      let countAcronyms = 0
-      acronyms.forEach((user) => {
-        if (!isNaN(user.value))
-          countAcronyms = countAcronyms + parseInt(user.value)
-      })
-      let countBandNames = 0
-      bandnames.forEach((user) => {
-        countBandNames = countBandNames + parseInt(user.value)
       })
       let countStimulus = 0
       stimulus.forEach((user) => {
@@ -1111,6 +1147,11 @@ client.on('message', (message) => {
         `\nBand Names \`${countBandNames}\`` +
         `\nCreative Work \`${countOC}\``
 
+      // 🧠
+      const dataDir = path.resolve(__dirname, 'data')
+      const dataBytes = getDirSize(dataDir)
+      const dataReadable = formatBytes(dataBytes)
+
       const embed = new Discord.MessageEmbed()
         .setColor(COLORS.embed)
         .setDescription(
@@ -1126,6 +1167,10 @@ client.on('message', (message) => {
             inline: true,
           }
         )
+        .setFooter({
+          text: `Holly is currently storing ${dataReadable} worth of data.`,
+          iconURL: 'https://cyberpunksocial.club/images/csc.png',
+        })
 
       message.channel.send(embed)
     } else if (command === 'uptime') {
@@ -1153,11 +1198,19 @@ client.on('message', (message) => {
     }
   } else if (message.content.includes(':420:')) {
     message.react(EMOJIIDS.weed)
-  } else if (message.content.includes('🥷') && message.author.id === IDS.admin) {
-      const immortals = Immortal.find().run()
-      const immortalsFiltered = immortals.filter((immortal) => message.guild.members.fetch(immortal.uid))
+  } else if (
+    message.content.includes('--debug --data') &&
+    message.author.id === IDS.admin
+  ) {
+    const haikus = Haiku.find().run()
+    const haikusFiltered = haikus.filter((haiku) =>
+      message.guild.members.fetch(haiku.uid)
+    )
 
-      message.channel.send(`immortals: ${immortals.length} filtered: ${immortalsFiltered.length}`)
+    message.channel.send(
+      `-- debug\n` +
+        `haikus: ${immortals.length} filtered: ${immortalsFiltered.length}`
+    )
   }
 })
 
