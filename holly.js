@@ -1147,11 +1147,6 @@ client.on('message', (message) => {
         `\nBand Names \`${countBandNames}\`` +
         `\nCreative Work \`${countOC}\``
 
-      // 🧠
-      const dataDir = path.resolve(__dirname, 'data')
-      const dataBytes = getDirSize(dataDir)
-      const dataReadable = formatBytes(dataBytes)
-
       const embed = new Discord.MessageEmbed()
         .setColor(COLORS.embed)
         .setDescription(
@@ -1167,7 +1162,6 @@ client.on('message', (message) => {
             inline: true,
           }
         )
-        .setFooter(`Holly is currently storing ${dataReadable} worth of data.`)
 
       message.channel.send(embed)
     } else if (command === 'uptime') {
@@ -1196,9 +1190,13 @@ client.on('message', (message) => {
   } else if (message.content.includes(':420:')) {
     message.react(EMOJIIDS.weed)
   } else if (
-    message.content.includes('--debug --data') &&
+    message.content.includes('--debug') &&
     message.author.id === IDS.admin
   ) {
+    const dataDir = path.resolve(__dirname, 'data')
+    const dataBytes = getDirSize(dataDir)
+    const dataReadable = formatBytes(dataBytes)
+
     const haikus = Haiku.find().run()
     const haikusFiltered = haikus.filter((haiku) =>
       message.guild.members.fetch(haiku.uid)
@@ -1206,7 +1204,8 @@ client.on('message', (message) => {
 
     message.channel.send(
       `-- debug\n` +
-        `haikus: ${immortals.length} filtered: ${immortalsFiltered.length}`
+        `🧠 ${dataReadable}\n` +
+        `haikus: ${haikus.length} filtered: ${haikusFiltered.length}`
     )
   }
 })
