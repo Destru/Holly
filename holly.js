@@ -1228,6 +1228,16 @@ client.ws.on('INTERACTION_CREATE', async (interaction) => {
       }
 
       channel.send(embed)
+
+      client.api.interactions(interaction.id, interaction.token).callback.post({
+        data: {
+          type: 4,
+          data: {
+            content: `Message sent <:anonymous:${EMOJIIDS.anonymous}>`,
+            flags: 1 << 6,
+          },
+        },
+      })
     } else {
       client.api.interactions(interaction.id, interaction.token).callback.post({
         data: {
@@ -1239,6 +1249,8 @@ client.ws.on('INTERACTION_CREATE', async (interaction) => {
         },
       })
     }
+
+    await interaction.deleteReply();
   }
 })
 
