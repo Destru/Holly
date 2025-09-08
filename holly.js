@@ -1202,11 +1202,7 @@ client.on('message', (message) => {
       message.guild.members.fetch(haiku.uid)
     )
 
-    message.channel.send(
-      `-- debug\n` +
-        `🧠 ${dataReadable}\n` +
-        `haikus: ${haikus.length} filtered: ${haikusFiltered.length}`
-    )
+    message.channel.send(`🧠 ${dataReadable}`)
   }
 })
 
