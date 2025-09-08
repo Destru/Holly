@@ -229,8 +229,6 @@ const setReactions = (message, type = false) => {
       case 'upvote':
         if (message.channel.id === CHANNELIDS.memes)
           message.react(EMOJIIDS.kekw)
-        else if (message.channel.id === CHANNELIDS.scarydoor)
-          message.react('💀')
         else message.react(EMOJIIDS.upvote)
         break
       case 'skull':
@@ -590,11 +588,6 @@ client.on('message', (message) => {
     setReactions(message, 'heart')
   } else if (message.channel.id === CHANNELIDS.patrons && hasContent(message)) {
     setReactions(message, 'binaerpilot')
-  } else if (
-    message.channel.id === CHANNELIDS.scarydoor &&
-    hasContent(message)
-  ) {
-    setReactions(message, 'upvote')
   } else if (message.channel.id === CHANNELIDS.wordwar) {
     const matches = Meta.find().matches('name', 'word-war').limit(1).run()
     const word = message.content.toLowerCase().trim()
@@ -618,9 +611,7 @@ client.on('message', (message) => {
       }
     }
   } else if (
-    [CHANNELIDS.comrades, CHANNELIDS.creative, CHANNELIDS.wip].includes(
-      message.channel.id
-    ) &&
+    [CHANNELIDS.comrades, CHANNELIDS.wip].includes(message.channel.id) &&
     hasContent(message)
   ) {
     setReactions(message, 'csc')
