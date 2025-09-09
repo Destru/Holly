@@ -16,38 +16,33 @@ const { COLORS, CHANNELIDS, EMOJIIDS, IDS, ROLEIDS } = require('./config')
 const BADGES = [
   {
     name: 'Anonymous',
-    description: 'Has an anonymous avatar.',
-    emoji: '<:anonymous:837247849145303080>',
+    description: 'We are legion.',
+    emoji: '🕵️‍♀️',
   },
   {
-    name: 'Artist',
-    description: 'Creative member.',
-    emoji: '🧑‍🎨',
-  },
-  {
-    name: 'Comrade',
-    description: 'Written a biography.',
-    emoji: '<:comrade:428333024631848980>',
+    name: 'Creative',
+    description: 'Makes cool things.',
+    emoji: '👩‍🔬',
   },
   {
     name: 'Hacker',
     description: "Member of the Hacker's Club",
-    emoji: '🛰️',
+    emoji: '🥷',
   },
   {
     name: 'Immortal',
-    description: 'An immortal being.',
+    description: 'Memento mori.',
     emoji: '💀',
   },
   {
     name: 'Memer',
     description: 'Posts a lot of garbage.',
-    emoji: '<:kekw:830114281168699412>',
+    emoji: '🐸',
   },
   {
     name: 'Operator',
     description: 'Member of the admin team.',
-    emoji: '<:csc:837251418247004205>',
+    emoji: '🕵️‍♀️',
   },
   {
     name: 'Patron',
@@ -57,12 +52,12 @@ const BADGES = [
   {
     name: 'Poet',
     description: 'Writes haikus.',
-    emoji: '📝',
+    emoji: '👩‍🎨',
   },
   {
     name: 'PSYOP',
     description: 'Twitch subscriber.',
-    emoji: '🧠',
+    emoji: '👩‍🎤',
   },
   {
     name: 'Rabbit',
@@ -107,7 +102,7 @@ const capitalize = (string) => {
   if (typeof string !== 'string') return string
   return string.charAt(0).toUpperCase() + string.slice(1)
 }
-const leaderboardCount = 10
+const leaderboardCount = 5
 const isImmortal = (id) => {
   const immortal = Immortal.find()
     .run()
@@ -272,28 +267,29 @@ const trackByName = (id, name) => {
 const version = process.env.npm_package_version
 
 db.configure({ dir: './data' })
-const Bio = new db.Collection('bios', {
-  uid: '',
-  url: '',
-})
+
 const Death = new db.Collection('deaths', {
   uid: '',
   deaths: '',
 })
+
 const Haiku = new db.Collection('haikus', {
   uid: '',
   channel: '',
   content: '',
 })
+
 const Immortal = new db.Collection('immortals', {
   uid: '',
   score: '',
 })
+
 const Meta = new db.Collection('meta', {
   uid: '',
   name: '',
   value: '',
 })
+
 const Resurrection = new db.Collection('resurrections', {
   uid: '',
 })
@@ -440,7 +436,7 @@ client.on('message', (message) => {
                   `and Rootkit access has been granted. `
                 break
               default:
-                description += `Enjoy your new color, comrade.`
+                description += `Enjoy your new color, comrade!`
             }
 
             message.guild.members.fetch(id).then((member) => {
@@ -497,32 +493,6 @@ client.on('message', (message) => {
   } else if (message.channel.id === CHANNELIDS.bandnames) {
     setReactions(message, 'upvote')
     trackByName(message.author.id, 'bandnames')
-  } else if (message.channel.id === CHANNELIDS.comrades) {
-    const embed = new Discord.MessageEmbed()
-      .setColor(COLORS.embed)
-      .setTitle(`Warning`)
-    const matches = Bio.find().matches('uid', message.author.id).limit(1).run()
-
-    if (matches.length > 0) {
-      if (message) message.delete()
-      embed.setDescription(
-        `You're only allowed one (\`1\`) post in this channel.` +
-          `\n\n[Edit your last post](${
-            matches[matches.length - 1].url
-          }) :pencil2:`
-      )
-      message.channel.send(embed).then((message) => {
-        setTimeout(() => {
-          if (message) message.delete()
-        }, timerFeedbackDelete)
-      })
-    } else {
-      setReactions(message, 'heart')
-      Bio.add({
-        uid: message.author.id,
-        url: message.url,
-      })
-    }
   } else if (message.channel.id === CHANNELIDS.counting) {
     const matches = Meta.find().matches('name', 'counting').limit(1).run()
     const numOnly = /^\d+$/
@@ -610,10 +580,7 @@ client.on('message', (message) => {
         permaDeath()
       }
     }
-  } else if (
-    [CHANNELIDS.comrades, CHANNELIDS.wip].includes(message.channel.id) &&
-    hasContent(message)
-  ) {
+  } else if (message.channel.id === CHANNELIDS.wip && hasContent(message)) {
     setReactions(message, 'csc')
     trackByName(message.author.id, 'oc')
   }
@@ -905,7 +872,6 @@ client.on('message', (message) => {
             .matches('name', 'avatar')
             .limit(1)
             .run()[0] || false
-        const bio = Bio.find().matches('uid', id).limit(1).run()[0] || false
         const deaths = Death.find().matches('uid', id).limit(1).run()
         const haikus = Haiku.find().matches('uid', id).run()
         const immortal = Immortal.find().matches('uid', id).limit(1).run()
@@ -962,12 +928,6 @@ client.on('message', (message) => {
             return badge.name === 'Anonymous'
           })
           badges.push(`${badge.name} ${badge.emoji}\n`)
-        }
-        if (bio) {
-          let badge = BADGES.find((badge) => {
-            return badge.name === 'Comrade'
-          })
-          badges.push(`${badge.name} [${badge.emoji}](${bio.url})\n`)
         }
         if (admin) {
           let badge = BADGES.find((badge) => {
@@ -1097,9 +1057,6 @@ client.on('message', (message) => {
       bandnames.forEach((user) => {
         countBandNames = countBandNames + parseInt(user.value)
       })
-
-      const countBios = Bio.find().run().length
-
       let countDeaths = 0
       deaths.forEach((death) => {
         countDeaths = countDeaths + parseInt(death.deaths)
@@ -1129,7 +1086,6 @@ client.on('message', (message) => {
         `Counting Highscore \`${countHighscore}\`` +
         `\nDeath Toll \`${countDeaths}\`` +
         `\nMemes \`${countMemes}\`` +
-        `\nMini-Bios \`${countBios}\`` +
         `\nStimulus \`${countStimulus}\``
 
       const statsOriginal =
@@ -1212,6 +1168,15 @@ client.on('ready', () => {
     randomAcronym()
     randomLetter()
   })
+})
+
+client.on('threadCreate', async (thread) => {
+  console.log(
+    `id: ${thread.id}, name: ${thread.name}, parent: ${thread.parentId}`
+  )
+  if (thread.parentId === CHANNELIDS.creative) {
+    trackByName(message.author.id, 'oc')
+  }
 })
 
 client.ws.on('INTERACTION_CREATE', async (interaction) => {
