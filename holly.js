@@ -556,9 +556,22 @@ async function handlePermadeath({ message }) {
       (a, b) => parseInt(b.points || '0', 10) - parseInt(a.points || '0', 10),
     )
     const topN = ranked.slice(0, leaderboardCount)
-    const leaderboard = topN.map((r, i) => {
-      const present = message.guild.members.cache.has(r.uid)
-      const who = present ? `<@${r.uid}>` : `\`${r.uid}\``
+
+    const resolved = await Promise.all(
+      topN.map(async (r) => {
+        try {
+          const member =
+            message.guild.members.cache.get(r.uid) ||
+            (await message.guild.members.fetch({ user: r.uid, force: false }))
+          return { r, member }
+        } catch {
+          return { r, member: null }
+        }
+      }),
+    )
+
+    const leaderboard = resolved.map(({ r, member }, i) => {
+      const who = member ? `<@${r.uid}>` : `\`${r.uid}\``
       return `\`${i + 1}.\` ${who} \`${parseInt(r.points || '0', 10)}\``
     })
 
@@ -568,8 +581,9 @@ async function handlePermadeath({ message }) {
       inline: false,
     })
 
-    const topMember = message.guild.members.cache.get(topN[0].uid)
-    if (topMember) embed.setThumbnail(topMember.user.displayAvatarURL())
+    const firstPresent = resolved.find((x) => !!x.member)
+    if (firstPresent)
+      embed.setThumbnail(firstPresent.member.user.displayAvatarURL())
   }
 
   return message.channel.send({ embeds: [embed] })
