@@ -369,6 +369,9 @@ async function handleProfile({ message }) {
 
   let creative = false,
     memer = false
+
+  if (deaths.length > 0) stats.push(`Deaths \`${deaths[0].deaths}\``)
+
   METASTATS.forEach((stat) => {
     const m = Meta.find()
       .matches('uid', id)
@@ -403,14 +406,14 @@ async function handleProfile({ message }) {
 
   const description = `\`${prettyMs(memberFor)}\``
 
-  if (deaths.length > 0) stats.push(`Deaths \`${deaths[0].deaths}\``)
+  if (badges.length > 0)
+    embed.addFields({ name: 'Badges', value: badges.join(' '), inline: false })
+
   if (haikus.length > 0) {
     const h = haikus[Math.floor(Math.random() * haikus.length)]
     embed.addFields({ name: 'Haiku', value: `*${h.content}*`, inline: false })
     stats.push(`Haikus \`${haikus.length}\``)
   }
-  if (badges.length > 0)
-    embed.addFields({ name: 'Badges', value: badges.join(' '), inline: true })
   if (stats.length > 0)
     embed.addFields({
       name: 'Stats',
@@ -1001,22 +1004,31 @@ client.on('messageCreate', async (message) => {
         return message.channel.send(prettyMs(memberFor))
       })
     } else if (command === 'badge' || command === 'badges') {
-      const embed = new EmbedBuilder().setColor(COLORS.embed)
-      if (args[0]) {
-        let badge = BADGES.find((badge) => {
-          return badge.name.toLowerCase() === args[0].toLowerCase()
-        })
-        let output = `No such badge exists.`
+      if (args.length > 0) {
+        const query = args.join(' ').toLowerCase().trim()
+        let match =
+          BADGES.find((b) => b.name.toLowerCase() === query) ||
+          BADGES.find((b) => b.emoji === query)
 
-        return message.channel.send(output)
+        if (!match) {
+          return message.channel.send(
+            'No such badge exists. Try `!badges` to see all of them.'
+          )
+        }
+
+        const embed = new EmbedBuilder()
+          .setColor(COLORS.embed)
+          .setTitle(`${match.emoji} ${match.name}`)
+          .setDescription(match.description)
+
+        return message.channel.send({ embeds: [embed] })
       }
 
-      embed.setTitle('Badges')
-
-      let badges = []
-      BADGES.forEach((badge) => badges.push(`${badge.emoji} ${badge.name}`))
-
-      embed.setDescription(badges.join('\n'))
+      const embed = new EmbedBuilder()
+        .setColor(COLORS.embed)
+        .setTitle('Badges')
+        .setDescription(BADGES.map((b) => `${b.emoji} ${b.name}`).join('\n'))
+        .setFooter({ text: 'Tip: Use !badge <name> to see details.' })
 
       return message.channel.send({ embeds: [embed] })
     } else if (command === 'deaths') {
