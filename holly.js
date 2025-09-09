@@ -120,12 +120,12 @@ const capitalize = (string) => {
 }
 const leaderboardCount = 5
 const isImmortal = (id) => {
-  const immortal = Immortal.find()
-    .run()
-    .sort((a, b) => a.score - b.score)
-    .pop()
-  if (immortal && immortal.uid === id) return true
-  else return false
+  const rows = Permadeath.find().run()
+  if (!rows || rows.length === 0) return false
+  const top = rows.sort(
+    (a, b) => parseInt(b.points || '0', 10) - parseInt(a.points || '0', 10),
+  )[0]
+  return !!top && top.uid === id
 }
 const hasContent = (message) => {
   return (
@@ -409,20 +409,22 @@ async function handleCommands({ message }) {
 }
 
 async function handleDeaths({ message }) {
-  const deaths = Death.find().run()
-  let deathCount = 0
-  deaths.forEach((d) => {
-    deathCount += parseInt(d.deaths)
-  })
+  const rows = Permadeath.find().run()
+  const deathCount = rows.reduce((n, r) => n + parseInt(r.deaths || '0', 10), 0)
   const embed = makeEmbed(COLORS.embedBlack)
     .setTitle('Deaths 🪦')
     .setDescription(`There have been \`${deathCount}\` recorded deaths.`)
-  if (deaths.length > 0) {
-    const ranked = deaths.sort((a, b) => b.deaths - a.deaths)
+  if (rows.length > 0) {
+    const ranked = [...rows].sort(
+      (a, b) => parseInt(b.deaths || '0', 10) - parseInt(a.deaths || '0', 10),
+    )
     const entries = Math.min(ranked.length, leaderboardCount)
     const leaderboard = ranked
       .slice(0, entries)
-      .map((d, i) => `\`${i + 1}.\` <@${d.uid}> \`${d.deaths}\``)
+      .map(
+        (r, i) =>
+          `\`${i + 1}.\` <@${r.uid}> \`${parseInt(r.deaths || '0', 10)}\``,
+      )
     embed.addFields({
       name: 'Leaderboard',
       value: leaderboard.join('\n'),
@@ -511,13 +513,18 @@ async function handlePermadeath({ message }) {
       'Contributing in marked channels awards points. Points reset on death. Whoever has the most points is immortal.',
     )
   message.channel.send({ embeds: [embed] })
-  const immortals = Immortal.find().run()
-  if (immortals.length > 0) {
-    const ranked = immortals.sort((a, b) => b.score - a.score)
+  const rows = Permadeath.find().run()
+  if (rows.length > 0) {
+    const ranked = rows.sort(
+      (a, b) => parseInt(b.points || '0', 10) - parseInt(a.points || '0', 10),
+    )
     const entries = Math.min(ranked.length, leaderboardCount)
     const leaderboard = ranked
       .slice(0, entries)
-      .map((d, i) => `\`${i + 1}.\` <@${d.uid}> \`${d.score}\``)
+      .map(
+        (r, i) =>
+          `\`${i + 1}.\` <@${r.uid}> \`${parseInt(r.points || '0', 10)}\``,
+      )
     embed.addFields({
       name: 'Leaderboard',
       value: leaderboard.join('\n'),
@@ -536,16 +543,13 @@ async function handlePing({ message }) {
 }
 
 async function handlePoints({ message }) {
-  const matches = Immortal.find()
+  const row = Permadeath.find()
     .matches('uid', message.author.id)
     .limit(1)
-    .run()
-  if (matches.length > 0) {
-    const points = matches[0].score === 1 ? 'point' : 'points'
-    return message.channel.send(`You have \`${matches[0].score}\` ${points}.`)
-  } else {
-    return message.channel.send('You have \`0\` points.')
-  }
+    .run()[0]
+  const score = row ? parseInt(row.points || '0', 10) : 0
+  const points = score === 1 ? 'point' : 'points'
+  return message.channel.send(`You have \`${score}\` ${points}.`)
 }
 
 async function handleProfile({ message }) {
@@ -561,9 +565,8 @@ async function handleProfile({ message }) {
       .matches('name', 'avatar')
       .limit(1)
       .run()[0] || null
-  const deaths = Death.find().matches('uid', id).limit(1).run()
+  const pd = Permadeath.find().matches('uid', id).limit(1).run()
   const haikus = Haiku.find().matches('uid', id).run()
-  const immortal = Immortal.find().matches('uid', id).limit(1).run()
   const patron = member.roles.cache.has(ROLEIDS.patron)
   const psyop = member.roles.cache.has(ROLEIDS.psyop)
   const rabbit = member.roles.cache.has(ROLEIDS.leet)
@@ -573,7 +576,8 @@ async function handleProfile({ message }) {
   const stats = []
   let creative = false,
     memer = false
-  if (deaths.length > 0) stats.push(`Deaths \`${deaths[0].deaths}\``)
+  if (pd.length > 0)
+    stats.push(`Deaths \`${parseInt(pd[0].deaths || '0', 10)}\``)
   METASTATS.forEach((stat) => {
     const m = Meta.find()
       .matches('uid', id)
@@ -599,7 +603,7 @@ async function handleProfile({ message }) {
     member.roles.cache.has(ROLEIDS.leet)
   )
     giveBadge(badges, 'Hacker')
-  if (immortal.length > 0 && isImmortal(id)) giveBadge(badges, 'Immortal')
+  if (pd.length > 0 && isImmortal(id)) giveBadge(badges, 'Immortal')
   if (memer) giveBadge(badges, 'Memer')
   if (patron) giveBadge(badges, 'Patron')
   if (haikus && haikus.length >= 10) giveBadge(badges, 'Poet')
