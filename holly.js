@@ -1262,19 +1262,6 @@ client.on('clientReady', () => {
   })
 })
 
-client.on('threadCreate', async (thread) => {
-  console.log(
-    `id: ${thread.id}, name: ${thread.name}, parent: ${thread.parentId}`,
-  )
-  if (thread.parentId === CHANNELIDS.creative) {
-    try {
-      const uid =
-        thread.ownerId || (await thread.fetchStarterMessage()).author.id
-      trackByName(uid, 'oc')
-    } catch (e) {}
-  }
-})
-
 client.on('interactionCreate', async (interaction) => {
   if (!interaction.isChatInputCommand()) return
   if (interaction.commandName !== 'anon') return
@@ -1320,6 +1307,24 @@ client.on('interactionCreate', async (interaction) => {
       content: 'Down the rabbit hole :rabbit:',
       ephemeral: true,
     })
+  }
+})
+
+client.on('threadCreate', async (thread) => {
+  try {
+    if (thread.parentId === CHANNELIDS.comrades) {
+      const message = await thread.fetchStarterMessage()
+      if (!message) return
+      setReactions(message, 'heart')
+    } else if (thread.parentId === CHANNELIDS.creative) {
+      const message = await thread.fetchStarterMessage()
+      if (!message) return
+      const uid = thread.ownerId || message.author.id
+      setReactions(message, 'csc')
+      trackByName(uid, 'oc')
+    }
+  } catch (e) {
+    console.log(e)
   }
 })
 
