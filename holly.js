@@ -1157,7 +1157,7 @@ client.on('ready', () => {
   })
 })
 
-client.on('THREAD_CREATE', async (thread) => {
+client.on('threadCreate', async (thread) => {
   console.log(
     `id: ${thread.id}, name: ${thread.name}, parent: ${thread.parentId}`
   )
