@@ -351,7 +351,6 @@ registerCommands('deploy', handleDeploy)
 registerCommands(['haiku', 'haikus'], handleHaiku)
 registerCommands(['leaderboard', 'permadeath'], handlePermadeath)
 registerCommands('letter', handleLetter)
-registerCommands('migrate-permadeath', handleMigratePermadeath)
 registerCommands('ping', handlePing)
 registerCommands('points', handlePoints)
 registerCommands(['resurrect', 'ressurect', 'ressurrect'], handleResurrect)
@@ -550,29 +549,29 @@ async function handlePermadeath({ message }) {
     .setDescription(
       'Contributing in marked channels awards points. Points reset on death. Whoever has the most points is immortal.',
     )
+
   const rows = Permadeath.find().run()
-  const active = await filterActiveMembers(message.guild, rows)
-  if (active.length > 0) {
-    const ranked = active.sort(
+  if (rows.length > 0) {
+    const ranked = [...rows].sort(
       (a, b) => parseInt(b.points || '0', 10) - parseInt(a.points || '0', 10),
     )
-    const entries = Math.min(ranked.length, leaderboardCount)
-    const leaderboard = ranked
-      .slice(0, entries)
-      .map(
-        (r, i) =>
-          `\`${i + 1}.\` <@${r.uid}> \`${parseInt(r.points || '0', 10)}\``,
-      )
+    const topN = ranked.slice(0, leaderboardCount)
+    const leaderboard = topN.map((r, i) => {
+      const present = message.guild.members.cache.has(r.uid)
+      const who = present ? `<@${r.uid}>` : `\`${r.uid}\``
+      return `\`${i + 1}.\` ${who} \`${parseInt(r.points || '0', 10)}\``
+    })
+
     embed.addFields({
       name: 'Leaderboard',
       value: leaderboard.join('\n'),
       inline: false,
     })
-    try {
-      const topMember = await message.guild.members.fetch(ranked[0].uid)
-      embed.setThumbnail(topMember.user.displayAvatarURL())
-    } catch {}
+
+    const topMember = message.guild.members.cache.get(topN[0].uid)
+    if (topMember) embed.setThumbnail(topMember.user.displayAvatarURL())
   }
+
   return message.channel.send({ embeds: [embed] })
 }
 
@@ -686,17 +685,20 @@ async function handleResurrect({ message }) {
   if (!message.member.roles.cache.has(ROLEIDS.ghost))
     return message.channel.send("You're not dead.")
   const embed = makeEmbed(COLORS.embedBlack).setTitle('Resurrection 🙏')
-  const matches = Resurrection.find().matches('uid', message.author.id).run()
-  const hasResurrected = matches.length > 0
+
+  const row = Permadeath.find()
+    .matches('uid', message.author.id)
+    .limit(1)
+    .run()[0]
   let timeRemaining
-  if (hasResurrected) {
-    const expires = matches[0]._ts_ + 3 * 24 * 60 * 60 * 1000
+  if (row && row.resurrectedAt) {
+    const expires =
+      new Date(row.resurrectedAt).getTime() + 3 * 24 * 60 * 60 * 1000
     if (Date.now() < expires) timeRemaining = expires - Date.now()
   }
+
   if (!timeRemaining) {
     message.member.roles.remove(ROLEIDS.ghost)
-    if (hasResurrected) Resurrection.remove(matches[0]._id_)
-    Resurrection.add({ uid: message.author.id })
     pdResurrect(message.author.id)
     embed.setDescription('You have been resurrected.')
   } else {
@@ -760,59 +762,6 @@ async function handleUptime({ message }) {
 
 async function handleVersion({ message }) {
   return message.channel.send(version)
-}
-
-async function handleMigratePermadeath({ message }) {
-  if (!message.member.roles.cache.has(ROLEIDS.admin)) return
-
-  const users = new Set()
-  Death.find()
-    .run()
-    .forEach((r) => users.add(r.uid))
-  Immortal.find()
-    .run()
-    .forEach((r) => users.add(r.uid))
-  Resurrection.find()
-    .run()
-    .forEach((r) => users.add(r.uid))
-
-  let created = 0,
-    updated = 0
-  for (const uid of users) {
-    const d = Death.find().matches('uid', uid).limit(1).run()[0]
-    const i = Immortal.find().matches('uid', uid).limit(1).run()[0]
-    const resAll = Resurrection.find().matches('uid', uid).run()
-    const latestRes = resAll.sort((a, b) => (b._ts_ || 0) - (a._ts_ || 0))[0]
-
-    const deaths = d ? parseInt(d.deaths || '0', 10) : 0
-    const points = i ? parseInt(i.score || '0', 10) : 0
-    const resurrectedAt = latestRes
-      ? new Date(latestRes._ts_).toISOString()
-      : ''
-
-    const existing = Permadeath.find().matches('uid', uid).limit(1).run()[0]
-    if (existing) {
-      updated++
-      Permadeath.update(existing._id_, {
-        uid,
-        points: String(points),
-        deaths: String(deaths),
-        resurrectedAt,
-      })
-    } else {
-      created++
-      Permadeath.add({
-        uid,
-        points: String(points),
-        deaths: String(deaths),
-        resurrectedAt,
-      })
-    }
-  }
-
-  return message.channel.send(
-    `Permadeath migrated. Users: \`${users.size}\`, created: \`${created}\`, updated: \`${updated}\`.`,
-  )
 }
 
 // legacy
@@ -940,20 +889,10 @@ const version =
 
 db.configure({ dir: './data' })
 
-const Death = new db.Collection('deaths', {
-  uid: '',
-  deaths: '',
-})
-
 const Haiku = new db.Collection('haikus', {
   uid: '',
   channel: '',
   content: '',
-})
-
-const Immortal = new db.Collection('immortals', {
-  uid: '',
-  score: '',
 })
 
 const Meta = new db.Collection('meta', {
@@ -967,10 +906,6 @@ const Permadeath = new db.Collection('permadeath', {
   points: '',
   deaths: '',
   resurrectedAt: '',
-})
-
-const Resurrection = new db.Collection('resurrections', {
-  uid: '',
 })
 
 const pdGet = (uid) => {
@@ -1033,58 +968,12 @@ client.on('messageCreate', async (message) => {
   const permaDeathScore = (death = false, penalty = 0) => {
     if (death === true) {
       pdApplyDeath(message.author.id)
-    } else if (penalty > 0) {
+      return
+    }
+    if (penalty > 0) {
       pdSubPoints(message.author.id, penalty)
     } else {
       pdAddPoint(message.author.id)
-    }
-
-    const matches = Immortal.find()
-      .matches('uid', message.author.id)
-      .limit(1)
-      .run()
-
-    let immortal
-
-    if (matches.length > 0) {
-      immortal = matches[0]
-    } else {
-      let immortalKey = Immortal.add({
-        uid: message.author.id,
-        score: '0',
-      })
-
-      immortal = Immortal.get(immortalKey)
-    }
-
-    if (death) {
-      const deaths = Death.find().matches('uid', message.author.id).run()
-
-      if (deaths.length > 0) {
-        Death.update(deaths[0]._id_, {
-          deaths: `${parseInt(deaths[0].deaths) + 1}`,
-        })
-      } else {
-        Death.add({
-          uid: message.author.id,
-          deaths: '1',
-        })
-      }
-
-      Immortal.update(immortal._id_, {
-        score: '0',
-      })
-    } else {
-      if (penalty > 0) {
-        if (penalty > immortal.score) penalty = immortal.score
-        Immortal.update(immortal._id_, {
-          score: `${parseInt(immortal.score) - penalty}`,
-        })
-      } else {
-        Immortal.update(immortal._id_, {
-          score: `${parseInt(immortal.score) + 1}`,
-        })
-      }
     }
   }
 
