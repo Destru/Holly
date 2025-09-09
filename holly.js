@@ -51,18 +51,13 @@ const BADGES = [
   },
   {
     name: 'Poet',
-    description: 'Writes haikus.',
-    emoji: '👩‍🎨',
+    description: 'Writes accidental haikus.',
+    emoji: '👩‍🎤',
   },
   {
     name: 'PSYOP',
     description: 'Twitch subscriber.',
-    emoji: '👩‍🎤',
-  },
-  {
-    name: 'Rabbit',
-    description: 'Jrag qbja gur enoovg ubyr.',
-    emoji: '[🐰](https://github.com/Destru/Holly/blob/master/key.md)',
+    emoji: '👩‍🚀',
   },
 ]
 const METASTATS = ['oc', 'memes', 'stimulus', 'acronyms', 'bandnames']
@@ -605,20 +600,13 @@ client.on('message', (message) => {
         })
         let output = `No such badge exists.`
 
-        if (badge && badge.name !== 'Rabbit') {
-          embed
-            .setDescription(badge.description)
-            .setTitle(`${badge.name} ${badge.emoji}`)
-          output = embed
-        }
-
         return message.channel.send(output)
       }
 
       embed.setTitle('Badges')
 
       let badges = []
-      BADGES.forEach((badge) => badges.push(`${badge.name} ${badge.emoji}`))
+      BADGES.forEach((badge) => badges.push(`${badge.emoji} ${badge.name}`))
 
       embed.setDescription(badges.join('\n'))
 
@@ -807,7 +795,7 @@ client.on('message', (message) => {
         return message.channel.send(
           alphabetEmoji[alphabet.indexOf(matches[0].value)]
         )
-    } else if (command === 'permadeath') {
+    } else if (command === 'permadeath' || command === 'leaderboard') {
       const embed = new Discord.MessageEmbed()
         .setColor(COLORS.embedBlack)
         .setDescription(
@@ -815,7 +803,7 @@ client.on('message', (message) => {
             `Points reset on death. ` +
             `Whoever has the most points is immortal.`
         )
-        .setTitle(`Permadeath`)
+        .setTitle(`Permadeath 🧛`)
 
       const immortals = Immortal.find().run()
 
@@ -858,7 +846,7 @@ client.on('message', (message) => {
 
         message.channel.send(`You have \`${matches[0].score}\` ${points}.`)
       } else message.channel.send(`You have \`0\` points.`)
-    } else if (command === 'profile') {
+    } else if (command === 'profile' || command === 'bio') {
       const embed = new Discord.MessageEmbed()
       const id = subjectId(message)
 
@@ -899,7 +887,7 @@ client.on('message', (message) => {
             if (name.length <= 2) name = name.toUpperCase()
             stats.push(`${name} \`${match[0].value}\``)
             if (match[0].name == 'oc' && match[0].value >= 10) creative = true
-            if (match[0].name == 'meme' && match[0].value >= 100) memer = true
+            if (match[0].name == 'meme' && match[0].value >= 50) memer = true
           }
         })
 
@@ -923,15 +911,15 @@ client.on('message', (message) => {
           })
           badges.push(`${badge.name} ${badge.emoji}\n`)
         }
-        if (admin) {
-          let badge = BADGES.find((badge) => {
-            return badge.name === 'Operator'
-          })
-          badges.push(`${badge.name} ${badge.emoji}\n`)
-        }
         if (creative) {
           let badge = BADGES.find((badge) => {
             return badge.name === 'Creative'
+          })
+          badges.push(`${badge.name} ${badge.emoji}\n`)
+        }
+        if (admin) {
+          let badge = BADGES.find((badge) => {
+            return badge.name === 'Operator'
           })
           badges.push(`${badge.name} ${badge.emoji}\n`)
         }
@@ -978,12 +966,6 @@ client.on('message', (message) => {
             return badge.name === 'PSYOP'
           })
           badges.push(`${badge.name} ${badge.emoji}\n`)
-        }
-        if (rabbit) {
-          let badge = BADGES.find((badge) => {
-            return badge.name === 'Rabbit'
-          })
-          description += ` ${badge.emoji}`
         }
 
         if (deaths.length > 0) stats.push(`Deaths \`${deaths[0].deaths}\``)
