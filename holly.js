@@ -120,7 +120,10 @@ const capitalize = (string) => {
 }
 const leaderboardCount = 5
 const isImmortal = (id) => {
-  const rows = Permadeath.find().run()
+  const guild = client.guilds.cache.get(IDS.csc)
+  const rows = Permadeath.find()
+    .run()
+    .filter((r) => !guild || guild.members.cache.has(r.uid))
   if (!rows || rows.length === 0) return false
   const top = rows.sort(
     (a, b) => parseInt(b.points || '0', 10) - parseInt(a.points || '0', 10),
@@ -410,12 +413,16 @@ async function handleCommands({ message }) {
 
 async function handleDeaths({ message }) {
   const rows = Permadeath.find().run()
-  const deathCount = rows.reduce((n, r) => n + parseInt(r.deaths || '0', 10), 0)
+  const active = rows.filter((r) => message.guild.members.cache.has(r.uid))
+  const deathCount = active.reduce(
+    (n, r) => n + parseInt(r.deaths || '0', 10),
+    0,
+  )
   const embed = makeEmbed(COLORS.embedBlack)
     .setTitle('Deaths 🪦')
     .setDescription(`There have been \`${deathCount}\` recorded deaths.`)
-  if (rows.length > 0) {
-    const ranked = [...rows].sort(
+  if (active.length > 0) {
+    const ranked = [...active].sort(
       (a, b) => parseInt(b.deaths || '0', 10) - parseInt(a.deaths || '0', 10),
     )
     const entries = Math.min(ranked.length, leaderboardCount)
@@ -512,10 +519,10 @@ async function handlePermadeath({ message }) {
     .setDescription(
       'Contributing in marked channels awards points. Points reset on death. Whoever has the most points is immortal.',
     )
-  message.channel.send({ embeds: [embed] })
   const rows = Permadeath.find().run()
-  if (rows.length > 0) {
-    const ranked = rows.sort(
+  const active = rows.filter((r) => message.guild.members.cache.has(r.uid))
+  if (active.length > 0) {
+    const ranked = active.sort(
       (a, b) => parseInt(b.points || '0', 10) - parseInt(a.points || '0', 10),
     )
     const entries = Math.min(ranked.length, leaderboardCount)
@@ -530,10 +537,12 @@ async function handlePermadeath({ message }) {
       value: leaderboard.join('\n'),
       inline: false,
     })
-    const topMember = await message.guild.members.fetch(ranked[0].uid)
-    embed.setThumbnail(topMember.user.displayAvatarURL())
-    return message.channel.send({ embeds: [embed] })
+    try {
+      const topMember = await message.guild.members.fetch(ranked[0].uid)
+      embed.setThumbnail(topMember.user.displayAvatarURL())
+    } catch {}
   }
+  return message.channel.send({ embeds: [embed] })
 }
 
 async function handlePing({ message }) {
@@ -669,15 +678,21 @@ async function handleResurrect({ message }) {
 async function handleStats({ message }) {
   const acronyms = Meta.find().matches('name', 'acronyms').run()
   const bandnames = Meta.find().matches('name', 'bandnames').run()
-  const deaths = Death.find().run()
   const memes = Meta.find().matches('name', 'memes').run()
   const oc = Meta.find().matches('name', 'oc').run()
   const stimulus = Meta.find().matches('name', 'stimulus').run()
+  const toInt = (x) => {
+    const n = parseInt(x, 10)
+    return Number.isFinite(n) && !isNaN(n) ? n : 0
+  }
   let count = (col) =>
-    col.reduce((a, b) => a + parseInt(b.value || b.deaths || 0), 0)
+    col.reduce((a, b) => a + toInt(b.value ?? b.deaths ?? '0'), 0)
   const countAcronyms = count(acronyms)
   const countBandNames = count(bandnames)
-  const countDeaths = count(deaths)
+  const pdRows = Permadeath.find().run()
+  const countDeaths = pdRows
+    .filter((r) => message.guild.members.cache.has(r.uid))
+    .reduce((n, r) => n + parseInt(r.deaths || '0', 10), 0)
   const countMemes = count(memes)
   const countOC = count(oc)
   const countStimulus = count(stimulus)
@@ -784,7 +799,7 @@ const randomAcronym = () => {
     Meta.add({ name: 'acronyms', value: acronym })
   }
 
-  for (i = 0; i < acronym.length; i++) {
+  for (let i = 0; i < acronym.length; i++) {
     topic += `${alphabetEmoji[acronym.charCodeAt(i) - 97]} `
   }
 
