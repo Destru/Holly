@@ -228,7 +228,7 @@ const setReactions = (message, type = false) => {
         message.react(EMOJIIDS.binaerpilot)
         break
       case 'immortal':
-        message.react(🧛)
+        message.react('🧛')
         break
       case 'heart':
       default:
