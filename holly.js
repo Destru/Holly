@@ -886,8 +886,9 @@ client.on('message', (message) => {
             let name = capitalize(match[0].name)
             if (name.length <= 2) name = name.toUpperCase()
             stats.push(`${name} \`${match[0].value}\``)
+
             if (match[0].name == 'oc' && match[0].value >= 10) creative = true
-            if (match[0].name == 'meme' && match[0].value >= 50) memer = true
+            if (match[0].name == 'meme' && match[0].value >= 100) memer = true
           }
         })
 
@@ -909,13 +910,13 @@ client.on('message', (message) => {
           let badge = BADGES.find((badge) => {
             return badge.name === 'Anonymous'
           })
-          badges.push(`${badge.name} ${badge.emoji}\n`)
+          badges.push(` ${badge.emoji} ${badge.name}\n`)
         }
         if (creative) {
           let badge = BADGES.find((badge) => {
             return badge.name === 'Creative'
           })
-          badges.push(`${badge.name} ${badge.emoji}\n`)
+          badges.push(`${badge.emoji} ${badge.name}\n`)
         }
         if (admin) {
           let badge = BADGES.find((badge) => {
@@ -947,15 +948,15 @@ client.on('message', (message) => {
           let badge = BADGES.find((badge) => {
             return badge.name === 'Memer'
           })
-          badges.push(`${badge.name} ${badge.emoji}\n`)
+          badges.push(`${badge.emoji} ${badge.name}\n`)
         }
         if (patron) {
           let badge = BADGES.find((badge) => {
             return badge.name === 'Patron'
           })
-          badges.push(`${badge.name} ${badge.emoji}\n`)
+          badges.push(`${badge.emoji} ${badge.name}\n`)
         }
-        if (haikus && haikus.length >= 50) {
+        if (haikus && haikus.length >= 10) {
           let badge = BADGES.find((badge) => {
             return badge.name === 'Poet'
           })
@@ -965,7 +966,7 @@ client.on('message', (message) => {
           let badge = BADGES.find((badge) => {
             return badge.name === 'PSYOP'
           })
-          badges.push(`${badge.name} ${badge.emoji}\n`)
+          badges.push(`${badge.emoji} ${badge.name}\n`)
         }
 
         if (deaths.length > 0) stats.push(`Deaths \`${deaths[0].deaths}\``)
