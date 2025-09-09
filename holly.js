@@ -885,7 +885,7 @@ client.on('message', (message) => {
           stats = [],
           rank = ''
 
-        let artist = false,
+        let creative = false,
           memer = false
 
         METASTATS.forEach((stat) => {
@@ -898,7 +898,7 @@ client.on('message', (message) => {
             let name = capitalize(match[0].name)
             if (name.length <= 2) name = name.toUpperCase()
             stats.push(`${name} \`${match[0].value}\``)
-            if (match[0].name == 'oc' && match[0].value >= 10) artist = true
+            if (match[0].name == 'oc' && match[0].value >= 10) creative = true
             if (match[0].name == 'meme' && match[0].value >= 100) memer = true
           }
         })
@@ -917,12 +917,6 @@ client.on('message', (message) => {
 
         description += `\`${prettyMs(memberFor)}\``
 
-        if (artist) {
-          let badge = BADGES.find((badge) => {
-            return badge.name === 'Artist'
-          })
-          badges.push(`${badge.name} ${badge.emoji}\n`)
-        }
         if (avatar) {
           let badge = BADGES.find((badge) => {
             return badge.name === 'Anonymous'
@@ -932,6 +926,12 @@ client.on('message', (message) => {
         if (admin) {
           let badge = BADGES.find((badge) => {
             return badge.name === 'Operator'
+          })
+          badges.push(`${badge.name} ${badge.emoji}\n`)
+        }
+        if (creative) {
+          let badge = BADGES.find((badge) => {
+            return badge.name === 'Creative'
           })
           badges.push(`${badge.name} ${badge.emoji}\n`)
         }
