@@ -1,14 +1,36 @@
 require('dotenv').config()
-require('discord-reply')
-const Discord = require('discord.js')
+const {
+  Client,
+  GatewayIntentBits,
+  Partials,
+  EmbedBuilder,
+  ActivityType,
+  REST,
+  Routes,
+  SlashCommandBuilder,
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  ComponentType,
+} = require('discord.js')
 const fs = require('fs')
-const client = new Discord.Client()
+const client = new Client({
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMembers,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.GuildMessageReactions,
+    GatewayIntentBits.MessageContent,
+  ],
+  partials: [Partials.Channel, Partials.Message, Partials.Reaction],
+})
 const db = require('flat-db')
 const cron = require('node-cron')
-const fetch = require('node-fetch')
-const findahaiku = require('findahaiku')
-const paginationEmbed = require('discord.js-pagination')
-const prettyMs = require('pretty-ms')
+const findahaikuLib = require('findahaiku')
+const findahaiku = findahaikuLib.default || findahaikuLib
+const path = require('path')
+const prettyMsLib = require('pretty-ms')
+const prettyMs = prettyMsLib.default || prettyMsLib
 const checkWord = require('check-word')
 const dictionary = checkWord('en')
 
@@ -16,43 +38,48 @@ const { COLORS, CHANNELIDS, EMOJIIDS, IDS, ROLEIDS } = require('./config')
 const BADGES = [
   {
     name: 'Anonymous',
-    description: 'Has an anonymous avatar.',
-    emoji: '<:anonymous:837247849145303080>',
+    description: 'We are legion.',
+    emoji: '🕵️‍♀️',
   },
   {
-    name: 'Comrade',
-    description: 'Written a biography.',
-    emoji: '<:comrade:428333024631848980>',
+    name: 'Creative',
+    description: 'Makes cool things.',
+    emoji: '👩‍🔬',
   },
   {
     name: 'Hacker',
     description: "Member of the Hacker's Club",
-    emoji: '🛰️',
+    emoji: '👩‍💻',
   },
   {
     name: 'Immortal',
-    description: 'An immortal being.',
-    emoji: '💀',
+    description: 'Memento mori.',
+    emoji: '🧛‍♀️',
+  },
+  {
+    name: 'Memer',
+    description: 'Posts a lot of garbage.',
+    emoji: '👩‍🍳',
   },
   {
     name: 'Operator',
     description: 'Member of the admin team.',
-    emoji: '<:csc:837251418247004205>',
+    emoji: '👷‍♀️',
   },
   {
     name: 'Patron',
     description: 'Patreon supporter.',
-    emoji: '❤️',
+    emoji: '🦸‍♀️',
+  },
+  {
+    name: 'Poet',
+    description: 'Writes accidental haikus.',
+    emoji: '👩‍🎤',
   },
   {
     name: 'PSYOP',
     description: 'Twitch subscriber.',
-    emoji: '🧠',
-  },
-  {
-    name: 'Rabbit',
-    description: 'Jrag qbja gur enoovg ubyr.',
-    emoji: '[🐰](https://github.com/Destru/Holly/blob/master/key.md)',
+    emoji: '👩‍🚀',
   },
 ]
 const METASTATS = ['oc', 'memes', 'stimulus', 'acronyms', 'bandnames']
@@ -73,6 +100,8 @@ fs.readFile('./key.md', 'utf8', (err, data) => {
   KEY = data.trim()
 })
 
+const hasKey = () => typeof KEY === 'string' && KEY.length > 0
+
 const acronymString =
   'csc '.repeat(42) +
   'afk aka ama asap awol bae bbl bbs biab bolo brb btw diy dnd eta fish fomo fu fubar fyi idk imo irl kiss lmao lmk lol mia noyb omg pos pov rofl smh stfu tbh ttyl ttys wth wtf yolo ' +
@@ -92,7 +121,7 @@ const capitalize = (string) => {
   if (typeof string !== 'string') return string
   return string.charAt(0).toUpperCase() + string.slice(1)
 }
-const countLeaderboard = 5
+const leaderboardCount = 5
 const isImmortal = (id) => {
   const immortal = Immortal.find()
     .run()
@@ -116,6 +145,117 @@ const quotes = [
   `Well, the thing about a black hole, its main distinguishing feature, is it's black. And the thing about space, the colour of space, your basic space colour, is black. So how are you supposed to see them?`,
   `Going round in circles for 14 months. Getting my information from the Junior Color Encyclopedia of Space. The respect you have for me is awesome, innit?`,
 ]
+
+const formatBytes = (bytes) => {
+  if (typeof bytes !== 'number' || isNaN(bytes) || bytes < 0) return '0 B'
+  const units = ['B', 'KB', 'MB', 'GB', 'TB']
+  let i = 0
+  while (bytes >= 1024 && i < units.length - 1) {
+    bytes = bytes / 1024
+    i++
+  }
+  const value = Math.round(bytes * 10) / 10
+  return `${value} ${units[i]}`
+}
+
+const getDirSize = (dirPath) => {
+  let total = 0
+  try {
+    const entries = fs.readdirSync(dirPath, { withFileTypes: true })
+    for (const entry of entries) {
+      const fullPath = path.join(dirPath, entry.name)
+      if (entry.isFile()) {
+        try {
+          const stats = fs.statSync(fullPath)
+          total += stats.size
+        } catch (e) {}
+      } else if (entry.isDirectory()) {
+        total += getDirSize(fullPath)
+      }
+    }
+  } catch (e) {
+    return 0
+  }
+  return total
+}
+
+const paginateEmbeds = async (message, pages, timeout = 120000) => {
+  if (!Array.isArray(pages) || pages.length === 0) return
+  let index = 0
+
+  const row = new ActionRowBuilder().addComponents(
+    new ButtonBuilder()
+      .setCustomId('first')
+      .setLabel('⏮')
+      .setStyle(ButtonStyle.Secondary),
+    new ButtonBuilder()
+      .setCustomId('prev')
+      .setLabel('◀')
+      .setStyle(ButtonStyle.Secondary),
+    new ButtonBuilder()
+      .setCustomId('next')
+      .setLabel('▶')
+      .setStyle(ButtonStyle.Secondary),
+    new ButtonBuilder()
+      .setCustomId('last')
+      .setLabel('⏭')
+      .setStyle(ButtonStyle.Secondary)
+  )
+
+  const msg = await message.channel.send({
+    embeds: [pages[index]],
+    components: [row],
+  })
+
+  const filter = (i) =>
+    i.user.id === message.author.id && i.message.id === msg.id
+  const collector = msg.createMessageComponentCollector({
+    componentType: ComponentType.Button,
+    filter,
+    time: timeout,
+  })
+
+  collector.on('collect', async (i) => {
+    try {
+      switch (i.customId) {
+        case 'first':
+          index = 0
+          break
+        case 'prev':
+          index = index > 0 ? index - 1 : pages.length - 1
+          break
+        case 'next':
+          index = index + 1 < pages.length ? index + 1 : 0
+          break
+        case 'last':
+          index = pages.length - 1
+          break
+      }
+      await i.update({ embeds: [pages[index]], components: [row] })
+    } catch (e) {
+      try {
+        await i.deferUpdate()
+      } catch {}
+    }
+  })
+
+  collector.on('end', async () => {
+    try {
+      await msg.edit({ components: [] })
+    } catch {}
+  })
+}
+
+const detectHaiku = (text) => {
+  try {
+    const lines = findahaiku(text, { strict: true }) || []
+    if (Array.isArray(lines) && lines.length === 3) {
+      return { isHaiku: true, formattedHaiku: lines.join('\n') }
+    }
+  } catch (e) {}
+  return { isHaiku: false, formattedHaiku: '' }
+}
+
 const randomAcronym = () => {
   const channel = client.channels.cache.get(CHANNELIDS.acronyms)
   const matches = Meta.find().matches('name', 'acronyms').limit(1).run()
@@ -135,11 +275,9 @@ const randomAcronym = () => {
     topic += `${alphabetEmoji[acronym.charCodeAt(i) - 97]} `
   }
 
-  console.log(topic)
-
   channel.setTopic(`${topic} :skull:`)
 }
-const randomChance = 0.02
+const randomChance = 0.025
 const randomEmoji = () => {
   const emoji = ['<:csc:837251418247004205>', '<:cscbob:846528128524091422>']
   return emoji[Math.floor(Math.random() * emoji.length)]
@@ -172,8 +310,6 @@ const ranks = {
   35: 'Android',
   40: 'Replicant',
   50: 'Cyberpunk',
-  60: 'Tron',
-  75: 'Godlike',
 }
 const setReactions = (message, type = false) => {
   setTimeout(() => {
@@ -184,8 +320,6 @@ const setReactions = (message, type = false) => {
       case 'upvote':
         if (message.channel.id === CHANNELIDS.memes)
           message.react(EMOJIIDS.kekw)
-        else if (message.channel.id === CHANNELIDS.scarydoor)
-          message.react('💀')
         else message.react(EMOJIIDS.upvote)
         break
       case 'skull':
@@ -193,6 +327,9 @@ const setReactions = (message, type = false) => {
         break
       case 'binaerpilot':
         message.react(EMOJIIDS.binaerpilot)
+        break
+      case 'immortal':
+        message.react('🧛')
         break
       case 'heart':
       default:
@@ -226,43 +363,52 @@ const trackByName = (id, name) => {
     })
   }
 }
-const version = process.env.npm_package_version
+const version =
+  process.env.npm_package_version ||
+  (function () {
+    try {
+      return require('./package.json').version
+    } catch {
+      return 'dev'
+    }
+  })()
 
 db.configure({ dir: './data' })
-const Bio = new db.Collection('bios', {
-  uid: '',
-  url: '',
-})
+
 const Death = new db.Collection('deaths', {
   uid: '',
   deaths: '',
 })
+
 const Haiku = new db.Collection('haikus', {
   uid: '',
   channel: '',
   content: '',
 })
+
 const Immortal = new db.Collection('immortals', {
   uid: '',
   score: '',
 })
+
 const Meta = new db.Collection('meta', {
   uid: '',
   name: '',
   value: '',
 })
+
 const Resurrection = new db.Collection('resurrections', {
   uid: '',
 })
 
-client.on('message', (message) => {
+client.on('messageCreate', async (message) => {
   const args = message.content.slice(1).trim().split(/ +/g)
   const command = args.shift().toLowerCase()
-  const { isHaiku, formattedHaiku } = findahaiku.analyzeText(message.content)
+  const { isHaiku, formattedHaiku } = detectHaiku(message.content)
 
   const permaDeath = () => {
     const channelGraveyard = client.channels.cache.get(CHANNELIDS.graveyard)
-    const obituary = new Discord.MessageEmbed()
+    const obituary = new EmbedBuilder()
       .setColor(COLORS.embedBlack)
       .setThumbnail(message.author.avatarURL())
       .setTitle(`Death 💀`)
@@ -271,9 +417,10 @@ client.on('message', (message) => {
     if (!isImmortal(message.author.id)) {
       if (message) setReactions(message, 'skull')
       message.member.roles.add(ROLEIDS.ghost)
-      channelGraveyard.send(obituary)
+      channelGraveyard.send({ embeds: [obituary] })
       permaDeathScore(true)
     } else {
+      if (message) setReactions(message, 'immortal')
       permaDeathScore(false, Math.floor(Math.random() * 10) + 1)
     }
   }
@@ -336,7 +483,7 @@ client.on('message', (message) => {
       message.channel.id === CHANNELIDS.allcaps
         ? message.author.username.toUpperCase()
         : message.author.username
-    const embed = new Discord.MessageEmbed()
+    const embed = new EmbedBuilder()
       .setColor(COLORS.embed)
       .setDescription(`${formattedHaiku}\n—*${author}*`)
 
@@ -346,7 +493,7 @@ client.on('message', (message) => {
       content: formattedHaiku,
     })
 
-    message.lineReply(embed)
+    message.reply({ embeds: [embed] })
   }
 
   if (message.author.bot) {
@@ -364,7 +511,7 @@ client.on('message', (message) => {
 
           if (ranks[level]) {
             const id = matches[1]
-            const embed = new Discord.MessageEmbed()
+            const embed = new EmbedBuilder()
 
             let adjective = `a contributing member`
 
@@ -396,26 +543,21 @@ client.on('message', (message) => {
                   `You have joined the <#831769969095344128>, ` +
                   `and Rootkit access has been granted. `
                 break
-              case 60:
-                description +=
-                  `You have entered <#>, ` +
-                  `and may change your color at will. ` +
-                  `Access to <#831769762518007839> has also been granted.`
-                break
-              case 75:
-                description += `You have reached the end of the internet.`
               default:
-                description += `Enjoy your new color, comrade.`
+                description += `Enjoy your new color, comrade!`
             }
 
             message.guild.members.fetch(id).then((member) => {
               setTimeout(() => {
                 embed
-                  .setAuthor(member.user.username, member.user.avatarURL())
+                  .setAuthor({
+                    name: member.user.username,
+                    iconURL: member.user.displayAvatarURL(),
+                  })
                   .setColor(member.displayHexColor)
                   .setDescription(description)
-                  .setThumbnail(member.user.avatarURL())
-                promotionChannel.send(embed).then((message) => {
+                  .setThumbnail(member.user.displayAvatarURL())
+                promotionChannel.send({ embeds: [embed] }).then((message) => {
                   setReactions(message, 'csc')
                 })
               }, 5 * 60 * 1000)
@@ -462,32 +604,6 @@ client.on('message', (message) => {
   } else if (message.channel.id === CHANNELIDS.bandnames) {
     setReactions(message, 'upvote')
     trackByName(message.author.id, 'bandnames')
-  } else if (message.channel.id === CHANNELIDS.comrades) {
-    const embed = new Discord.MessageEmbed()
-      .setColor(COLORS.embed)
-      .setTitle(`Warning`)
-    const matches = Bio.find().matches('uid', message.author.id).limit(1).run()
-
-    if (matches.length > 0) {
-      if (message) message.delete()
-      embed.setDescription(
-        `You're only allowed one (\`1\`) post in this channel.` +
-          `\n\n[Edit your last post](${
-            matches[matches.length - 1].url
-          }) :pencil2:`
-      )
-      message.channel.send(embed).then((message) => {
-        setTimeout(() => {
-          if (message) message.delete()
-        }, timerFeedbackDelete)
-      })
-    } else {
-      setReactions(message, 'heart')
-      Bio.add({
-        uid: message.author.id,
-        url: message.url,
-      })
-    }
   } else if (message.channel.id === CHANNELIDS.counting) {
     const matches = Meta.find().matches('name', 'counting').limit(1).run()
     const numOnly = /^\d+$/
@@ -553,11 +669,6 @@ client.on('message', (message) => {
     setReactions(message, 'heart')
   } else if (message.channel.id === CHANNELIDS.patrons && hasContent(message)) {
     setReactions(message, 'binaerpilot')
-  } else if (
-    message.channel.id === CHANNELIDS.scarydoor &&
-    hasContent(message)
-  ) {
-    setReactions(message, 'upvote')
   } else if (message.channel.id === CHANNELIDS.wordwar) {
     const matches = Meta.find().matches('name', 'word-war').limit(1).run()
     const word = message.content.toLowerCase().trim()
@@ -580,12 +691,7 @@ client.on('message', (message) => {
         permaDeath()
       }
     }
-  } else if (
-    [CHANNELIDS.comrades, CHANNELIDS.creative, CHANNELIDS.wip].includes(
-      message.channel.id
-    ) &&
-    hasContent(message)
-  ) {
+  } else if (message.channel.id === CHANNELIDS.wip && hasContent(message)) {
     setReactions(message, 'csc')
     trackByName(message.author.id, 'oc')
   }
@@ -594,10 +700,6 @@ client.on('message', (message) => {
     if (command === 'acronym') {
       const matches = Meta.find('name', 'acronym').limit(1).run()
       const acronym = matches[0].value
-      console.log(acronym)
-      console.log(acronyms.length)
-      console.log(acronyms[acronym])
-      console.log(acronyms)
       if (matches.length > 0) return message.channel.send(acronyms[acronym])
     } else if (command === 'age') {
       const id = subjectId(message)
@@ -607,19 +709,12 @@ client.on('message', (message) => {
         return message.channel.send(prettyMs(memberFor))
       })
     } else if (command === 'badge' || command === 'badges') {
-      const embed = new Discord.MessageEmbed().setColor(COLORS.embed)
+      const embed = new EmbedBuilder().setColor(COLORS.embed)
       if (args[0]) {
         let badge = BADGES.find((badge) => {
           return badge.name.toLowerCase() === args[0].toLowerCase()
         })
         let output = `No such badge exists.`
-
-        if (badge && badge.name !== 'Rabbit') {
-          embed
-            .setDescription(badge.description)
-            .setTitle(`${badge.name} ${badge.emoji}`)
-          output = embed
-        }
 
         return message.channel.send(output)
       }
@@ -627,13 +722,13 @@ client.on('message', (message) => {
       embed.setTitle('Badges')
 
       let badges = []
-      BADGES.forEach((badge) => badges.push(`${badge.name} ${badge.emoji}`))
+      BADGES.forEach((badge) => badges.push(`${badge.emoji} ${badge.name}`))
 
       embed.setDescription(badges.join('\n'))
 
-      return message.channel.send(embed)
+      return message.channel.send({ embeds: [embed] })
     } else if (command === 'bot-info') {
-      const embed = new Discord.MessageEmbed()
+      const embed = new EmbedBuilder()
         .setColor(COLORS.embed)
         .setDescription(
           `I have an IQ of 6000; the same IQ as 6000 neoliberals.` +
@@ -655,9 +750,9 @@ client.on('message', (message) => {
           },
           { name: 'Version', value: version, inline: true }
         )
-      return message.channel.send(embed)
-    } else if (command === 'commands') {
-      const embed = new Discord.MessageEmbed()
+      return message.channel.send({ embeds: [embed] })
+    } else if (command === 'commands' || command === 'command') {
+      const embed = new EmbedBuilder()
         .setColor(COLORS.embed)
         .setDescription(quotes[Math.floor(Math.random() * quotes.length)])
         .setTitle('Commands')
@@ -670,12 +765,12 @@ client.on('message', (message) => {
           },
           {
             name: 'Permadeath :skull:',
-            value: '`!deaths`\n`!leaderboard`\n`!points`',
+            value: '`!deaths`\n`!permadeath`\n`!points`',
             inline: true,
           }
         )
 
-      return message.channel.send(embed)
+      return message.channel.send({ embeds: [embed] })
     } else if (command === 'deaths') {
       const deaths = Death.find().run()
       let deathCount = 0
@@ -683,7 +778,7 @@ client.on('message', (message) => {
         deathCount = deathCount + parseInt(death.deaths)
       })
 
-      const embed = new Discord.MessageEmbed()
+      const embed = new EmbedBuilder()
         .setColor(COLORS.embedBlack)
         .setDescription(`There have been \`${deathCount}\` recorded deaths.`)
         .setTitle(`Deaths 🪦`)
@@ -693,7 +788,7 @@ client.on('message', (message) => {
         const deathsRanked = deathsSorted.reverse()
 
         let entries =
-          deaths.length > countLeaderboard ? countLeaderboard : deaths.length
+          deaths.length > leaderboardCount ? leaderboardCount : deaths.length
         let leaderboard = []
 
         for (let i = 0; i < entries; i++) {
@@ -702,63 +797,89 @@ client.on('message', (message) => {
 
           leaderboard.push(`\`${i + 1}.\` ${user} \`${score}\``)
         }
-        embed.addField('Leaderboard', leaderboard.join('\n'), false)
+        embed.addFields({
+          name: 'Leaderboard',
+          value: leaderboard.join('\n'),
+          inline: false,
+        })
 
-        return message.channel.send(embed)
+        return message.channel.send({ embeds: [embed] })
       } else message.channel.send('There have been no recorded deaths.')
     } else if (command === 'deploy') {
       if (message.member.roles.cache.has(ROLEIDS.admin)) {
-        // client.api
-        //   .applications(client.user.id)
-        //   .guilds(IDS.csc)
-        //   .commands.get()
-        //   .then((commands) => {
-        //     client.api
-        //       .applications(client.user.id)
-        //       .guilds(IDS.csc)
-        //       .commands(commands[0].id)
-        //       .delete()
-        //   })
+        const commands = [
+          new SlashCommandBuilder()
+            .setName('anon')
+            .setDescription('Send #anonymous messages')
+            .addStringOption((o) =>
+              o
+                .setName('message')
+                .setDescription('Text to send')
+                .setRequired(true)
+            )
+            .addBooleanOption((o) =>
+              o.setName('random').setDescription('Randomize avatar')
+            ),
+        ].map((c) => c.toJSON())
 
-        // client.api
-        //   .applications(client.user.id)
-        //   .guilds(IDS.csc)
-        //   .commands.post({
-        //     data: {
-        //       name: 'anon',
-        //       description: 'Send #anonymous messages',
-        //       options: [
-        //         {
-        //           type: 3,
-        //           name: 'message',
-        //           description: 'Text to send',
-        //           required: true,
-        //         },
-        //         {
-        //           type: 5,
-        //           name: 'random',
-        //           description: 'Randomize avatar',
-        //           required: false,
-        //         },
-        //       ],
-        //     },
-        //   })
+        const rest = new REST({ version: '10' }).setToken(
+          process.env.DISCORD_TOKEN
+        )
+        await rest.put(
+          Routes.applicationGuildCommands(client.user.id, IDS.csc),
+          { body: commands }
+        )
 
         randomAcronym()
         randomLetter()
 
         message.channel.send('Deployment successful.')
       }
-    } else if (command === 'haikus') {
+    } else if (command === 'haiku' || command === 'haikus') {
       const id = subjectId(message)
       const haikus = Haiku.find().matches('uid', id).run()
 
-      if (args[0] === 'remove') {
-        if (haikus[args[1]]) {
-          Haiku.remove(haikus[args[1] - 1]._id_)
-          message.channel.send(`Haiku removed.`)
+      if (args[0] === 'show') {
+        const nRaw = args[1]
+        const n = parseInt(nRaw, 10)
+        if (isNaN(n) || n < 1) {
+          return message.channel.send(
+            'Please provide a valid haiku number to show, e.g. `!haiku show 2`.'
+          )
+        }
+
+        const myHaikus = Haiku.find().matches('uid', message.author.id).run()
+        const idx = n - 1
+        if (idx >= 0 && idx < myHaikus.length) {
+          const h = myHaikus[idx]
+          const embed = new EmbedBuilder()
+            .setColor(COLORS.embed)
+            .setAuthor({
+              name: message.author.username,
+              iconURL: message.author.displayAvatarURL(),
+            })
+            .setDescription(`#${n}\n${h.content}\n<#${h.channel}>`)
+
+          return message.channel.send({ embeds: [embed] })
         } else {
-          message.channel.send(`Haiku not found.`)
+          return message.channel.send('Haiku not found in your list.')
+        }
+      } else if (args[0] === 'remove') {
+        const nRaw = args[1]
+        const n = parseInt(nRaw, 10)
+        if (isNaN(n) || n < 1) {
+          return message.channel.send(
+            'Please provide a valid haiku number to remove, e.g. `!haiku remove 3`.'
+          )
+        }
+
+        const myHaikus = Haiku.find().matches('uid', message.author.id).run()
+        const idx = n - 1
+        if (idx >= 0 && idx < myHaikus.length) {
+          Haiku.remove(myHaikus[idx]._id_)
+          return message.channel.send(`Haiku #${n} removed.`)
+        } else {
+          return message.channel.send('Haiku not found in your list.')
         }
       } else {
         if (haikus.length > 0) {
@@ -770,8 +891,11 @@ client.on('message', (message) => {
               for (let page = 0; page < pageCount; page++) {
                 let displayHaikus = ''
 
-                const embed = new Discord.MessageEmbed()
-                  .setAuthor(member.user.username, member.user.avatarURL())
+                const embed = new EmbedBuilder()
+                  .setAuthor({
+                    name: member.user.username,
+                    iconURL: member.user.displayAvatarURL(),
+                  })
                   .setColor(COLORS.embed)
                 const haikuIndex = perPage * page
 
@@ -788,12 +912,15 @@ client.on('message', (message) => {
                 pages.push(embed)
               }
 
-              return paginationEmbed(message, pages)
+              return paginateEmbeds(message, pages)
             })
           } else {
             message.guild.members.fetch(id).then((member) => {
-              const embed = new Discord.MessageEmbed()
-                .setAuthor(member.user.username, member.user.avatarURL())
+              const embed = new EmbedBuilder()
+                .setAuthor({
+                  name: member.user.username,
+                  iconURL: member.user.displayAvatarURL(),
+                })
                 .setColor(COLORS.embed)
 
               let displayHaikus = ''
@@ -804,20 +931,27 @@ client.on('message', (message) => {
               })
 
               embed.setDescription(displayHaikus)
-              return message.channel.send(embed)
+              return message.channel.send({ embeds: [embed] })
             })
           }
         } else return message.channel.send(`No haikus found.`)
       }
+    } else if (command === 'letter') {
+      const matches = Meta.find().matches('name', 'word-war').limit(1).run()
+
+      if (matches.length > 0)
+        return message.channel.send(
+          alphabetEmoji[alphabet.indexOf(matches[0].value)]
+        )
     } else if (command === 'permadeath' || command === 'leaderboard') {
-      const embed = new Discord.MessageEmbed()
+      const embed = new EmbedBuilder()
         .setColor(COLORS.embedBlack)
         .setDescription(
           `Contributing in :skull: channels awards points. ` +
             `Points reset on death. ` +
             `Whoever has the most points is immortal.`
         )
-        .setTitle(`Permadeath`)
+        .setTitle(`Permadeath 🧛`)
 
       message.channel.send(embed)
 
@@ -828,8 +962,8 @@ client.on('message', (message) => {
         const immortalRanked = immortalsSorted.reverse()
 
         let entries =
-          immortals.length > countLeaderboard
-            ? countLeaderboard
+          immortals.length > leaderboardCount
+            ? leaderboardCount
             : immortals.length
         let leaderboard = []
 
@@ -839,10 +973,14 @@ client.on('message', (message) => {
 
           leaderboard.push(`\`${i + 1}.\` ${user} \`${score}\``)
         }
-        embed.addField('Leaderboard', leaderboard.join('\n'), false)
+        embed.addFields({
+          name: 'Leaderboard',
+          value: leaderboard.join('\n'),
+          inline: false,
+        })
         message.guild.members.fetch(immortalRanked[0].uid).then((member) => {
-          embed.setThumbnail(member.user.avatarURL())
-          message.channel.send(embed)
+          embed.setThumbnail(member.user.displayAvatarURL())
+          message.channel.send({ embeds: [embed] })
         })
       }
     } else if (command === 'letter') {
@@ -870,7 +1008,7 @@ client.on('message', (message) => {
         message.channel.send(`You have \`${matches[0].score}\` ${points}.`)
       } else message.channel.send(`You have \`0\` points.`)
     } else if (command === 'profile' || command === 'bio') {
-      const embed = new Discord.MessageEmbed()
+      const embed = new EmbedBuilder()
       const id = subjectId(message)
 
       message.guild.members.fetch(id).then((member) => {
@@ -883,7 +1021,6 @@ client.on('message', (message) => {
             .matches('name', 'avatar')
             .limit(1)
             .run()[0] || false
-        const bio = Bio.find().matches('uid', id).limit(1).run()[0] || false
         const deaths = Death.find().matches('uid', id).limit(1).run()
         const haikus = Haiku.find().matches('uid', id).run()
         const immortal = Immortal.find().matches('uid', id).limit(1).run()
@@ -897,6 +1034,9 @@ client.on('message', (message) => {
           stats = [],
           rank = ''
 
+        let creative = false,
+          memer = false
+
         METASTATS.forEach((stat) => {
           const match = Meta.find()
             .matches('uid', id)
@@ -907,11 +1047,13 @@ client.on('message', (message) => {
             let name = capitalize(match[0].name)
             if (name.length <= 2) name = name.toUpperCase()
             stats.push(`${name} \`${match[0].value}\``)
+
+            if (match[0].name == 'oc' && match[0].value >= 10) creative = true
+            if (match[0].name == 'memes' && match[0].value >= 100) memer = true
           }
         })
 
-        if (member.roles.cache.has(ROLEIDS.tron)) rank = 'Tron'
-        else if (member.roles.cache.has(ROLEIDS.cyberpunk)) rank = 'Cyberpunk'
+        if (member.roles.cache.has(ROLEIDS.cyberpunk)) rank = 'Cyberpunk'
         else if (member.roles.cache.has(ROLEIDS.replicant)) rank = 'Replicant'
         else if (member.roles.cache.has(ROLEIDS.android)) rank = 'Android'
         else if (member.roles.cache.has(ROLEIDS.cyborg)) rank = 'Cyborg'
@@ -929,19 +1071,19 @@ client.on('message', (message) => {
           let badge = BADGES.find((badge) => {
             return badge.name === 'Anonymous'
           })
-          badges.push(`${badge.name} ${badge.emoji}\n`)
+          badges.push(` ${badge.emoji} ${badge.name}\n`)
         }
-        if (bio) {
+        if (creative) {
           let badge = BADGES.find((badge) => {
-            return badge.name === 'Comrade'
+            return badge.name === 'Creative'
           })
-          badges.push(`${badge.name} [${badge.emoji}](${bio.url})\n`)
+          badges.push(`${badge.emoji} ${badge.name}\n`)
         }
         if (admin) {
           let badge = BADGES.find((badge) => {
             return badge.name === 'Operator'
           })
-          badges.push(`${badge.name} ${badge.emoji}\n`)
+          badges.push(`${badge.emoji} ${badge.name}\n`)
         }
         if (
           member.roles.cache.has(ROLEIDS.engineer) ||
@@ -953,63 +1095,81 @@ client.on('message', (message) => {
           let badge = BADGES.find((badge) => {
             return badge.name === 'Hacker'
           })
-          badges.push(`${badge.name} ${badge.emoji}\n`)
+          badges.push(`${badge.emoji} ${badge.name}\n`)
         }
         if (immortal.length > 0) {
           if (isImmortal(id)) {
             let badge = BADGES.find((badge) => {
               return badge.name === 'Immortal'
             })
-            badges.push(`${badge.name} ${badge.emoji}\n`)
+            badges.push(`${badge.emoji} ${badge.name}\n`)
           }
+        }
+        if (memer) {
+          let badge = BADGES.find((badge) => {
+            return badge.name === 'Memer'
+          })
+          badges.push(`${badge.emoji} ${badge.name}\n`)
         }
         if (patron) {
           let badge = BADGES.find((badge) => {
             return badge.name === 'Patron'
           })
-          badges.push(`${badge.name} ${badge.emoji}\n`)
+          badges.push(`${badge.emoji} ${badge.name}\n`)
+        }
+        if (haikus && haikus.length >= 10) {
+          let badge = BADGES.find((badge) => {
+            return badge.name === 'Poet'
+          })
+          badges.push(`${badge.emoji} ${badge.name}\n`)
         }
         if (psyop) {
           let badge = BADGES.find((badge) => {
             return badge.name === 'PSYOP'
           })
-          badges.push(`${badge.name} ${badge.emoji}\n`)
-        }
-        if (rabbit) {
-          let badge = BADGES.find((badge) => {
-            return badge.name === 'Rabbit'
-          })
-          description += ` ${badge.emoji}`
+          badges.push(`${badge.emoji} ${badge.name}\n`)
         }
 
         if (deaths.length > 0) stats.push(`Deaths \`${deaths[0].deaths}\``)
         if (haikus.length > 0) {
           const haiku = haikus[Math.floor(Math.random() * haikus.length)]
-          embed.addField('Haiku', `*${haiku.content}*`, false)
+          embed.addFields({
+            name: 'Haiku',
+            value: `*${haiku.content}*`,
+            inline: false,
+          })
           stats.push(`Haikus \`${haikus.length}\``)
         }
         if (badges.length > 0) {
-          embed.addField('Badges', badges.join(' '), true)
+          embed.addFields({
+            name: 'Badges',
+            value: badges.join(' '),
+            inline: true,
+          })
         }
         if (stats.length > 0) {
           stats.sort()
-          embed.addField('Stats', stats.join('\n'), true)
+          embed.addFields({
+            name: 'Stats',
+            value: stats.join('\n'),
+            inline: true,
+          })
         }
         embed
           .setColor(member.displayHexColor || COLORS.embed)
           .setDescription(description)
-          .setThumbnail(member.user.avatarURL())
+          .setThumbnail(member.user.displayAvatarURL())
           .setTitle(rank)
 
         if (rank.length > 0) embed.setTitle(rank)
 
-        message.channel.send(embed)
+        message.channel.send({ embeds: [embed] })
       })
     } else if (command === 'resurrect') {
       if (!message.member.roles.cache.has(ROLEIDS.ghost))
         return message.channel.send(`You're not dead.`)
 
-      const embed = new Discord.MessageEmbed()
+      const embed = new EmbedBuilder()
         .setColor(COLORS.embedBlack)
         .setTitle(`Resurrection 🙏`)
       const matches = Resurrection.find()
@@ -1033,16 +1193,26 @@ client.on('message', (message) => {
           `You have to wait \`${prettyMs(timeRemaining)}\` to resurrect.`
         )
       }
-      return message.channel.send(embed)
+      return message.channel.send({ embeds: [embed] })
+    } else if (command === 'ressurrect' || command === 'ressurect') {
+      message.channel.send(`Did you mean \`!resurrect\`? 😉`)
     } else if (command === 'stats') {
-      const countBios = Bio.find().run().length
+      const acronyms = Meta.find().matches('name', 'acronyms').run()
+      const bandnames = Meta.find().matches('name', 'bandnames').run()
       const deaths = Death.find().run()
       const memes = Meta.find().matches('name', 'memes').run()
       const oc = Meta.find().matches('name', 'oc').run()
-      const acronyms = Meta.find().matches('name', 'acronyms').run()
-      const bandnames = Meta.find().matches('name', 'bandnames').run()
       const stimulus = Meta.find().matches('name', 'stimulus').run()
 
+      let countAcronyms = 0
+      acronyms.forEach((user) => {
+        if (!isNaN(user.value))
+          countAcronyms = countAcronyms + parseInt(user.value)
+      })
+      let countBandNames = 0
+      bandnames.forEach((user) => {
+        countBandNames = countBandNames + parseInt(user.value)
+      })
       let countDeaths = 0
       deaths.forEach((death) => {
         countDeaths = countDeaths + parseInt(death.deaths)
@@ -1054,15 +1224,6 @@ client.on('message', (message) => {
       let countOC = 0
       oc.forEach((user) => {
         countOC = countOC + parseInt(user.value)
-      })
-      let countAcronyms = 0
-      acronyms.forEach((user) => {
-        if (!isNaN(user.value))
-          countAcronyms = countAcronyms + parseInt(user.value)
-      })
-      let countBandNames = 0
-      bandnames.forEach((user) => {
-        countBandNames = countBandNames + parseInt(user.value)
       })
       let countStimulus = 0
       stimulus.forEach((user) => {
@@ -1081,7 +1242,6 @@ client.on('message', (message) => {
         `Counting Highscore \`${countHighscore}\`` +
         `\nDeath Toll \`${countDeaths}\`` +
         `\nMemes \`${countMemes}\`` +
-        `\nMini-Bios \`${countBios}\`` +
         `\nStimulus \`${countStimulus}\``
 
       const statsOriginal =
@@ -1090,7 +1250,7 @@ client.on('message', (message) => {
         `\nBand Names \`${countBandNames}\`` +
         `\nCreative Work \`${countOC}\``
 
-      const embed = new Discord.MessageEmbed()
+      const embed = new EmbedBuilder()
         .setColor(COLORS.embed)
         .setDescription(
           `Some more or *less* useful information. ` +
@@ -1106,13 +1266,13 @@ client.on('message', (message) => {
           }
         )
 
-      message.channel.send(embed)
+      message.channel.send({ embeds: [embed] })
     } else if (command === 'uptime') {
       message.channel.send(prettyMs(message.client.uptime))
     } else if (command === 'version') {
       message.channel.send(version)
     }
-  } else if (message.content.includes(KEY)) {
+  } else if (hasKey() && message.content.includes(KEY)) {
     message.delete()
     if (message.member.roles.cache.has(ROLEIDS.leet)) {
       message.channel.send('🐇').then((message) => {
@@ -1130,32 +1290,31 @@ client.on('message', (message) => {
           }, timerFeedbackDelete)
         })
     }
-  } else if (
-    message.channel.id === CHANNELIDS.gaybar &&
-    Math.random() < randomChance
-  ) {
-    fetch('https://complimentr.com/api')
-      .then((response) => response.json())
-      .then((data) => {
-        let compliment =
-          data.compliment.charAt(0).toUpperCase() + data.compliment.slice(1)
-
-        message.channel.send(`${compliment}, ${message.author}`)
-      })
   } else if (message.content.includes(':420:')) {
     message.react(EMOJIIDS.weed)
+  } else if (
+    message.content.includes('--debug') &&
+    message.author.id === IDS.admin
+  ) {
+    const dataDir = path.resolve(__dirname, 'data')
+    const dataBytes = getDirSize(dataDir)
+    const dataReadable = formatBytes(dataBytes)
+
+    message.channel.send(`🧠 ${dataReadable}`)
   }
 })
 
-client.on('ready', () => {
+client.on('clientReady', () => {
   console.log(`Holly ${version} is online.`)
 
   client.user.setPresence({
     status: 'online',
-    activity: {
-      name: STATUS[Math.floor(Math.random() * STATUS.length)],
-      type: 'PLAYING',
-    },
+    activities: [
+      {
+        name: STATUS[Math.floor(Math.random() * STATUS.length)],
+        type: ActivityType.Playing,
+      },
+    ],
   })
 
   cron.schedule('0 */8 * * *', () => {
@@ -1164,69 +1323,64 @@ client.on('ready', () => {
   })
 })
 
-client.ws.on('INTERACTION_CREATE', async (interaction) => {
-  const channel = client.channels.cache.get(interaction.channel_id)
-  const guild = client.guilds.cache.get(interaction.guild_id)
-  const member = guild.members.cache.get(interaction.member.user.id)
+client.on('threadCreate', async (thread) => {
+  console.log(
+    `id: ${thread.id}, name: ${thread.name}, parent: ${thread.parentId}`
+  )
+  if (thread.parentId === CHANNELIDS.creative) {
+    try {
+      const uid =
+        thread.ownerId || (await thread.fetchStarterMessage()).author.id
+      trackByName(uid, 'oc')
+    } catch (e) {}
+  }
+})
 
-  if (interaction.data.name === 'anon') {
-    if (member.roles.cache.has(ROLEIDS.leet)) {
-      const message = interaction.data.options[0].value
-      const randomize = interaction.data.options[1]
-      const uid = member.id
-      const avatar = Meta.find()
-        .matches('name', 'avatar')
-        .matches('uid', uid)
-        .limit(1)
-        .run()
-      const embed = new Discord.MessageEmbed()
-        .setColor(COLORS.embedBlack)
-        .setDescription(`**Anonymous**\n${message}`)
+client.on('interactionCreate', async (interaction) => {
+  if (!interaction.isChatInputCommand()) return
+  if (interaction.commandName !== 'anon') return
 
-      if (avatar.length > 0)
-        embed.setThumbnail(`https://robohash.org/${avatar[0].value}.png`)
-      else embed.setThumbnail(`https://robohash.org/${uid}.png`)
+  const channel = interaction.channel
+  const member = interaction.member
 
-      if (randomize && randomize.value === true) {
-        const rng = Math.floor(Math.random() * 900000000000000000)
+  if (member.roles.cache.has(ROLEIDS.leet)) {
+    const messageText = interaction.options.getString('message', true)
+    const randomize = interaction.options.getBoolean('random') ?? false
+    const uid = member.id
+    const avatar = Meta.find()
+      .matches('name', 'avatar')
+      .matches('uid', uid)
+      .limit(1)
+      .run()
 
-        if (avatar.length > 0) {
-          Meta.update(avatar[0]._id_, {
-            value: `${rng}`,
-          })
-        } else {
-          Meta.add({
-            name: 'avatar',
-            uid: uid,
-            value: `${rng}`,
-          })
-        }
+    const embed = new EmbedBuilder()
+      .setColor(COLORS.embedBlack)
+      .setDescription(`**Anonymous**\n${messageText}`)
 
-        embed.setThumbnail(`https://robohash.org/${rng}.png`)
+    if (avatar.length > 0)
+      embed.setThumbnail(`https://robohash.org/${avatar[0].value}.png`)
+    else embed.setThumbnail(`https://robohash.org/${uid}.png`)
+
+    if (randomize === true) {
+      const rng = Math.floor(Math.random() * 900000000000000000)
+      if (avatar.length > 0) {
+        Meta.update(avatar[0]._id_, { value: `${rng}` })
+      } else {
+        Meta.add({ name: 'avatar', uid: uid, value: `${rng}` })
       }
-
-      channel.send(embed)
-
-      client.api.interactions(interaction.id, interaction.token).callback.post({
-        data: {
-          type: 4,
-          data: {
-            content: `Message sent <:anonymous:${EMOJIIDS.anonymous}>`,
-            flags: 1 << 6,
-          },
-        },
-      })
-    } else {
-      client.api.interactions(interaction.id, interaction.token).callback.post({
-        data: {
-          type: 4,
-          data: {
-            content: 'Down the rabbit hole :rabbit:',
-            flags: 1 << 6,
-          },
-        },
-      })
+      embed.setThumbnail(`https://robohash.org/${rng}.png`)
     }
+
+    await channel.send({ embeds: [embed] })
+    await interaction.reply({
+      content: `<:anonymous:${EMOJIIDS.anonymous}>`,
+      ephemeral: true,
+    })
+  } else {
+    await interaction.reply({
+      content: 'Down the rabbit hole :rabbit:',
+      ephemeral: true,
+    })
   }
 })
 

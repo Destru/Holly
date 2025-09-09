@@ -1,15 +1,15 @@
 {
   "name": "holly",
-  "version": "5.5.12",
+  "version": "6.0.0",
   "description": "Experimental chatbot for the CSC.",
   "main": "holly.js",
   "engines": {
-    "node": "21.x",
+    "node": "24.x",
     "npm": "*"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node holly.js"
+    "start": "node holly.js",
+    "update-all": "npx npm-check-updates -u && npm i"
   },
   "repository": {
     "type": "git",
@@ -27,17 +27,15 @@
   "homepage": "https://github.com/destru/holly#readme",
   "dependencies": {
     "check-word": "^1.1.0",
-    "discord-reply": "^0.1.2",
-    "discord.js": "^12.5.3",
-    "discord.js-pagination": "^1.0.3",
-    "dotenv": "^9.0.2",
-    "findahaiku": "^1.1.2",
+    "discord.js": "^14.22.1",
+    "dotenv": "^17.2.2",
+    "findahaiku": "^2.0.0",
     "flat-db": "^4.0.0",
-    "node-cron": "^3.0.0",
-    "node-fetch": "^2.6.7",
-    "pretty-ms": "^7.0.1"
+    "node-cron": "^4.2.1",
+    "node-fetch": "^3.3.2",
+    "pretty-ms": "^9.2.0"
   },
   "devDependencies": {
-    "prettier": "2.3.0"
+    "prettier": "3.6.2"
   }
 }
