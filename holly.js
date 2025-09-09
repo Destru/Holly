@@ -888,7 +888,7 @@ client.on('message', (message) => {
             stats.push(`${name} \`${match[0].value}\``)
 
             if (match[0].name == 'oc' && match[0].value >= 10) creative = true
-            if (match[0].name == 'meme' && match[0].value >= 100) memer = true
+            if (match[0].name == 'memes' && match[0].value >= 100) memer = true
           }
         })
 
