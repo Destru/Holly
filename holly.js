@@ -27,27 +27,27 @@ const BADGES = [
   {
     name: 'Hacker',
     description: "Member of the Hacker's Club",
-    emoji: '🥷',
+    emoji: '👩‍💻',
   },
   {
     name: 'Immortal',
     description: 'Memento mori.',
-    emoji: '💀',
+    emoji: '🧛‍♀️',
   },
   {
     name: 'Memer',
     description: 'Posts a lot of garbage.',
-    emoji: '🐸',
+    emoji: '👩‍🍳',
   },
   {
     name: 'Operator',
     description: 'Member of the admin team.',
-    emoji: '🕵️‍♀️',
+    emoji: '👷‍♀️',
   },
   {
     name: 'Patron',
     description: 'Patreon supporter.',
-    emoji: '❤️',
+    emoji: '🦸‍♀️',
   },
   {
     name: 'Poet',
