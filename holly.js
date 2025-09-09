@@ -229,6 +229,7 @@ const setReactions = (message, type = false) => {
         break
       case 'immortal':
         message.react(🧛)
+        break
       case 'heart':
       default:
         message.react(EMOJIIDS.heart)
