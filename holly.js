@@ -113,9 +113,7 @@ const acronymString =
 const acronyms = acronymString.split(' ')
 const alphabet = 'abcdefghijklmnopqrstuvwxyz'
 const alphabetEmoji =
-  '🇦 🇧 🇨 🇩 🇪 🇫 🇬 🇭 🇮 🇯 🇰 🇱 🇲 🇳 🇴 🇵 🇶 🇷 🇸 🇹 🇺 🇻 🇼 🇽 🇾 🇿'.split(
-    ' '
-  )
+  '🇦 🇧 🇨 🇩 🇪 🇫 🇬 🇭 🇮 🇯 🇰 🇱 🇲 🇳 🇴 🇵 🇶 🇷 🇸 🇹 🇺 🇻 🇼 🇽 🇾 🇿'.split(' ')
 const capitalize = (string) => {
   if (typeof string !== 'string') return string
   return string.charAt(0).toUpperCase() + string.slice(1)
@@ -146,7 +144,6 @@ const quotes = [
 ]
 
 // 🤓 helpers
-
 const formatBytes = (bytes) => {
   if (typeof bytes !== 'number' || isNaN(bytes) || bytes < 0) return '0 B'
   const units = ['B', 'KB', 'MB', 'GB', 'TB']
@@ -178,30 +175,6 @@ const getDirSize = (dirPath) => {
   }
   return total
 }
-
-const getOne = (col, where) =>
-  col
-    .find()
-    .matches(Object.keys(where)[0], Object.values(where)[0])
-    .limit(1)
-    .run()[0] || null
-
-const getOrCreate = (col, where, defaults) => {
-  const hit = col
-    .find()
-    .matches(Object.keys(where)[0], Object.values(where)[0])
-    .limit(1)
-    .run()[0]
-  if (hit) return hit
-  const key = col.add({ ...where, ...defaults })
-  return col.get(key)
-}
-
-const incMeta = (uid, name, by = 1) => {
-  const row = getOrCreate(Meta, { uid, name }, { value: '0' })
-  Meta.update(row._id_, { value: `${parseInt(row.value, 10) + by}` })
-}
-
 const ROLE_TO_RANK = [
   [ROLEIDS.cyberpunk, 'Cyberpunk'],
   [ROLEIDS.replicant, 'Replicant'],
@@ -215,17 +188,12 @@ const ROLE_TO_RANK = [
 ]
 const resolveRank = (member) =>
   ROLE_TO_RANK.find(([rid]) => member.roles.cache.has(rid))?.[1] || 'Recruit'
-
 const BADGE_BY_NAME = Object.fromEntries(BADGES.map((b) => [b.name, b]))
 const giveBadge = (arr, name) => {
   const b = BADGE_BY_NAME[name]
   if (b) arr.push(b.emoji)
 }
 const makeEmbed = (color = COLORS.embed) => new EmbedBuilder().setColor(color)
-
-const REACT_HEART_CHANNELS = new Set([CHANNELIDS.nsfw, CHANNELIDS.irl])
-const REACT_UPVOTE_CHANNELS = new Set([CHANNELIDS.memes, CHANNELIDS.stimulus])
-
 const getUserHaikus = (uid) => Haiku.find().matches('uid', uid).run()
 const parseIndexArg = (arg) => {
   const n = parseInt(arg, 10)
@@ -242,7 +210,7 @@ const buildHaikuListEmbeds = (member, haikus, pageSize = perPage) => {
           iconURL: member.user.displayAvatarURL(),
         })
         .setDescription(
-          haikus.map((h, i) => formatHaikuItem(h, i)).join('\n\n')
+          haikus.map((h, i) => formatHaikuItem(h, i)).join('\n\n'),
         ),
     ]
   }
@@ -256,8 +224,8 @@ const buildHaikuListEmbeds = (member, haikus, pageSize = perPage) => {
           iconURL: member.user.displayAvatarURL(),
         })
         .setDescription(
-          slice.map((h, i) => formatHaikuItem(h, start + i)).join('\n\n')
-        )
+          slice.map((h, i) => formatHaikuItem(h, start + i)).join('\n\n'),
+        ),
     )
   }
   return pages
@@ -274,7 +242,7 @@ const paginateEmbeds = async (message, pages, timeout = 120000) => {
     new ButtonBuilder()
       .setCustomId('next')
       .setLabel('▶')
-      .setStyle(ButtonStyle.Secondary)
+      .setStyle(ButtonStyle.Secondary),
   )
 
   const msg = await message.channel.send({
@@ -326,10 +294,6 @@ const detectHaiku = (text) => {
 
 // 🤖 commands
 const commands = new Map()
-
-const registerCommand = (name, fn) => {
-  commands.set(name, fn)
-}
 const tryRouter = async (name, ctx) => {
   const fn = commands.get(name)
   if (!fn) return false
@@ -337,18 +301,260 @@ const tryRouter = async (name, ctx) => {
   return true
 }
 
-// bio
-registerCommand('bio', handleProfile)
-registerCommand('profile', handleProfile)
+const registerCommands = (names, fn) => {
+  const list = Array.isArray(names) ? names : [names]
+  for (const n of list) commands.set(n, fn)
+}
+
+registerCommands('acronym', handleAcronym)
+registerCommands('age', handleAge)
+registerCommands(['badge', 'badges'], handleBadge)
+registerCommands(['bio', 'profile'], handleProfile)
+registerCommands('bot-info', handleBotInfo)
+registerCommands(['command', 'commands'], handleCommands)
+registerCommands('deaths', handleDeaths)
+registerCommands('deploy', handleDeploy)
+registerCommands(['haiku', 'haikus'], handleHaiku)
+registerCommands(['leaderboard', 'permadeath'], handlePermadeath)
+registerCommands('letter', handleLetter)
+registerCommands('migrate-permadeath', handleMigratePermadeath)
+registerCommands('ping', handlePing)
+registerCommands('points', handlePoints)
+registerCommands(['resurrect', 'ressurect', 'ressurrect'], handleResurrect)
+registerCommands('rotate', handleRotate)
+registerCommands('stats', handleStats)
+registerCommands('uptime', handleUptime)
+registerCommands('version', handleVersion)
+
+async function handleAcronym({ message }) {
+  const matches = Meta.find().matches('name', 'acronyms').limit(1).run()
+  if (matches.length === 0 || !matches[0].value) {
+    return message.channel.send('No acronym is currently active.')
+  }
+  const value = String(matches[0].value).toLowerCase().trim()
+  let acronym = ''
+  for (let i = 0; i < value.length; i++) {
+    const code = value.charCodeAt(i)
+    if (code >= 97 && code <= 122) acronym += `${alphabetEmoji[code - 97]} `
+  }
+  return message.channel.send(`${acronym}`)
+}
+
+async function handleAge({ message }) {
+  const id = subjectId(message)
+  const member = await message.guild.members.fetch(id)
+  const memberFor = Date.now() - member.joinedAt.getTime()
+  return message.channel.send(prettyMs(memberFor))
+}
+
+async function handleBadge({ message, args }) {
+  if (args.length > 0) {
+    const query = args.join(' ').toLowerCase().trim()
+    const match =
+      BADGES.find((b) => b.name.toLowerCase() === query) ||
+      BADGES.find((b) => b.emoji === query)
+    if (!match)
+      return message.channel.send(
+        'No such badge exists. Try `!badges` to see all of them.',
+      )
+    const embed = makeEmbed()
+      .setTitle(`${match.emoji} ${match.name}`)
+      .setDescription(match.description)
+    return message.channel.send({ embeds: [embed] })
+  }
+  const embed = makeEmbed()
+    .setTitle('Badges')
+    .setDescription(BADGES.map((b) => `${b.emoji} ${b.name}`).join('\n'))
+    .setFooter({ text: 'Tip: Use !badge <name> to see details.' })
+  return message.channel.send({ embeds: [embed] })
+}
+
+async function handleBotInfo({ message }) {
+  const embed = makeEmbed()
+    .setDescription(
+      `I have an IQ of 6000; the same IQ as 6000 liberals.` +
+        `\n[GitHub Repo](https://github.com/destru/holly) :link:`,
+    )
+    .setTitle('Holly')
+    .addFields(
+      {
+        name: 'Latency',
+        value: `${Date.now() - message.createdTimestamp}ms / ${Math.round(message.client.ws.ping)}ms`,
+        inline: true,
+      },
+      { name: 'Uptime', value: prettyMs(message.client.uptime), inline: true },
+      { name: 'Version', value: version, inline: true },
+    )
+  return message.channel.send({ embeds: [embed] })
+}
+
+async function handleCommands({ message }) {
+  const embed = makeEmbed()
+    .setDescription(quotes[Math.floor(Math.random() * quotes.length)])
+    .setTitle('Commands')
+    .addFields(
+      {
+        name: 'Community <:cscbob:846528128524091422>',
+        value:
+          '`!age`\n`!badges`\n`!haikus`\n`!profile`\n`!resurrect`\n`!stats`',
+        inline: true,
+      },
+      {
+        name: 'Permadeath :skull:',
+        value: '`!deaths`\n`!permadeath`\n`!points`',
+        inline: true,
+      },
+    )
+  return message.channel.send({ embeds: [embed] })
+}
+
+async function handleDeaths({ message }) {
+  const deaths = Death.find().run()
+  let deathCount = 0
+  deaths.forEach((d) => {
+    deathCount += parseInt(d.deaths)
+  })
+  const embed = makeEmbed(COLORS.embedBlack)
+    .setTitle('Deaths 🪦')
+    .setDescription(`There have been \`${deathCount}\` recorded deaths.`)
+  if (deaths.length > 0) {
+    const ranked = deaths.sort((a, b) => b.deaths - a.deaths)
+    const entries = Math.min(ranked.length, leaderboardCount)
+    const leaderboard = ranked
+      .slice(0, entries)
+      .map((d, i) => `\`${i + 1}.\` <@${d.uid}> \`${d.deaths}\``)
+    embed.addFields({
+      name: 'Leaderboard',
+      value: leaderboard.join('\n'),
+      inline: false,
+    })
+  }
+  return message.channel.send({ embeds: [embed] })
+}
+
+async function handleDeploy({ message }) {
+  if (!message.member.roles.cache.has(ROLEIDS.admin)) return
+  if (process.env.DEPLOY_ENABLED !== '1') {
+    return message.channel.send('Deploy is disabled on this instance.')
+  }
+  const commandsBody = [
+    new SlashCommandBuilder()
+      .setName('anon')
+      .setDescription('Send #anonymous messages')
+      .addStringOption((o) =>
+        o.setName('message').setDescription('Text to send').setRequired(true),
+      )
+      .addBooleanOption((o) =>
+        o.setName('random').setDescription('Randomize avatar'),
+      ),
+  ].map((c) => c.toJSON())
+  const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN)
+  await rest.put(Routes.applicationGuildCommands(client.user.id, IDS.csc), {
+    body: commandsBody,
+  })
+  randomAcronym()
+  randomLetter()
+  return message.channel.send('Deployment successful.')
+}
+
+async function handleHaiku({ message, args }) {
+  const targetId = subjectId(message)
+  const targetHaikus = getUserHaikus(targetId)
+  const myHaikus = getUserHaikus(message.author.id)
+  if (args[0] === 'show') {
+    const idx = parseIndexArg(args[1])
+    if (idx === null)
+      return message.channel.send(
+        'Please provide a valid haiku number to show, e.g. `!haiku show 2`.',
+      )
+    if (idx < 0 || idx >= myHaikus.length)
+      return message.channel.send('Haiku not found in your list.')
+    const h = myHaikus[idx]
+    const embed = makeEmbed()
+      .setAuthor({
+        name: message.author.username,
+        iconURL: message.author.displayAvatarURL(),
+      })
+      .setDescription(`#${idx + 1}\n${h.content}\n<#${h.channel}>`)
+    return message.channel.send({ embeds: [embed] })
+  }
+  if (args[0] === 'remove') {
+    const idx = parseIndexArg(args[1])
+    if (idx === null)
+      return message.channel.send(
+        'Please provide a valid haiku number to remove, e.g. `!haiku remove 3`.',
+      )
+    if (idx < 0 || idx >= myHaikus.length)
+      return message.channel.send('Haiku not found in your list.')
+    Haiku.remove(myHaikus[idx]._id_)
+    return message.channel.send(`Haiku #${idx + 1} removed.`)
+  }
+  if (targetHaikus.length === 0) return message.channel.send('No haikus found.')
+  const member = await message.guild.members.fetch(targetId)
+  const pages = buildHaikuListEmbeds(member, targetHaikus, perPage)
+  if (pages.length === 1) return message.channel.send({ embeds: [pages[0]] })
+  return paginateEmbeds(message, pages)
+}
+
+async function handleLetter({ message }) {
+  const matches = Meta.find().matches('name', 'word-war').limit(1).run()
+  if (matches.length > 0)
+    return message.channel.send(
+      alphabetEmoji[alphabet.indexOf(matches[0].value)],
+    )
+}
+
+async function handlePermadeath({ message }) {
+  const embed = makeEmbed(COLORS.embedBlack)
+    .setTitle('Permadeath 💀')
+    .setDescription(
+      'Contributing in marked channels awards points. Points reset on death. Whoever has the most points is immortal.',
+    )
+  message.channel.send({ embeds: [embed] })
+  const immortals = Immortal.find().run()
+  if (immortals.length > 0) {
+    const ranked = immortals.sort((a, b) => b.score - a.score)
+    const entries = Math.min(ranked.length, leaderboardCount)
+    const leaderboard = ranked
+      .slice(0, entries)
+      .map((d, i) => `\`${i + 1}.\` <@${d.uid}> \`${d.score}\``)
+    embed.addFields({
+      name: 'Leaderboard',
+      value: leaderboard.join('\n'),
+      inline: false,
+    })
+    const topMember = await message.guild.members.fetch(ranked[0].uid)
+    embed.setThumbnail(topMember.user.displayAvatarURL())
+    return message.channel.send({ embeds: [embed] })
+  }
+}
+
+async function handlePing({ message }) {
+  return message.channel.send(
+    `${Date.now() - message.createdTimestamp}ms / ${Math.round(message.client.ws.ping)}ms`,
+  )
+}
+
+async function handlePoints({ message }) {
+  const matches = Immortal.find()
+    .matches('uid', message.author.id)
+    .limit(1)
+    .run()
+  if (matches.length > 0) {
+    const points = matches[0].score === 1 ? 'point' : 'points'
+    return message.channel.send(`You have \`${matches[0].score}\` ${points}.`)
+  } else {
+    return message.channel.send('You have \`0\` points.')
+  }
+}
+
 async function handleProfile({ message }) {
   const embed = makeEmbed()
   const id = subjectId(message)
   const member = await message.guild.members.fetch(id)
-
   const admin =
     member.roles.cache.has(ROLEIDS.admin) ||
     member.roles.cache.has(ROLEIDS.operator)
-
   const avatar =
     Meta.find()
       .matches('uid', id)
@@ -362,16 +568,12 @@ async function handleProfile({ message }) {
   const psyop = member.roles.cache.has(ROLEIDS.psyop)
   const rabbit = member.roles.cache.has(ROLEIDS.leet)
   const memberFor = Date.now() - member.joinedAt.getTime()
-
   const rank = resolveRank(member)
   const badges = []
   const stats = []
-
   let creative = false,
     memer = false
-
   if (deaths.length > 0) stats.push(`Deaths \`${deaths[0].deaths}\``)
-
   METASTATS.forEach((stat) => {
     const m = Meta.find()
       .matches('uid', id)
@@ -386,7 +588,6 @@ async function handleProfile({ message }) {
       if (m[0].name === 'memes' && m[0].value >= 100) memer = true
     }
   })
-
   if (avatar) giveBadge(badges, 'Anonymous')
   if (creative) giveBadge(badges, 'Creative')
   if (admin) giveBadge(badges, 'Operator')
@@ -403,12 +604,9 @@ async function handleProfile({ message }) {
   if (patron) giveBadge(badges, 'Patron')
   if (haikus && haikus.length >= 10) giveBadge(badges, 'Poet')
   if (psyop) giveBadge(badges, 'PSYOP')
-
   const description = `\`${prettyMs(memberFor)}\``
-
   if (badges.length > 0)
     embed.addFields({ name: 'Badges', value: badges.join(' '), inline: false })
-
   if (haikus.length > 0) {
     const h = haikus[Math.floor(Math.random() * haikus.length)]
     embed.addFields({ name: 'Haiku', value: `*${h.content}*`, inline: false })
@@ -420,135 +618,150 @@ async function handleProfile({ message }) {
       value: stats.sort().join('\n'),
       inline: true,
     })
-
   embed
     .setColor(member.displayHexColor || COLORS.embed)
     .setDescription(description)
     .setThumbnail(member.user.displayAvatarURL())
     .setTitle(rank)
-
   return message.channel.send({ embeds: [embed] })
 }
 
-// bot-info
-registerCommand('bot-info', async ({ message }) => {
-  const embed = makeEmbed()
-    .setDescription(
-      `I have an IQ of 6000; the same IQ as 6000 liberals.` +
-        `\n[GitHub Repo](https://github.com/destru/holly) :link:`
-    )
-    .setTitle('Holly')
-    .addFields(
-      {
-        name: 'Latency',
-        value: `${Date.now() - message.createdTimestamp}ms / ${Math.round(
-          message.client.ws.ping
-        )}ms`,
-        inline: true,
-      },
-      {
-        name: 'Uptime',
-        value: prettyMs(message.client.uptime),
-        inline: true,
-      },
-      { name: 'Version', value: version, inline: true }
-    )
-  return message.channel.send({ embeds: [embed] })
-})
-
-// commands
-registerCommand('commands', handleCommands)
-registerCommand('command', handleCommands)
-async function handleCommands({ message }) {
-  const embed = makeEmbed()
-    .setDescription(quotes[Math.floor(Math.random() * quotes.length)])
-    .setTitle('Commands')
-    .addFields(
-      {
-        name: 'Community <:cscbob:846528128524091422>',
-        value:
-          '`!age`\n`!badges`\n`!haikus`\n`!profile`\n`!resurrect`\n`!stats`',
-        inline: true,
-      },
-      {
-        name: 'Permadeath :skull:',
-        value: '`!deaths`\n`!permadeath`\n`!points`',
-        inline: true,
-      }
-    )
-  return message.channel.send({ embeds: [embed] })
-}
-
-// deploy
-registerCommand('deploy', handleDeploy)
-async function handleDeploy({ message }) {
+async function handleRotate({ message }) {
   if (!message.member.roles.cache.has(ROLEIDS.admin)) return
-  const commandsBody = [
-    new SlashCommandBuilder()
-      .setName('anon')
-      .setDescription('Send #anonymous messages')
-      .addStringOption((o) =>
-        o.setName('message').setDescription('Text to send').setRequired(true)
-      )
-      .addBooleanOption((o) =>
-        o.setName('random').setDescription('Randomize avatar')
-      ),
-  ].map((c) => c.toJSON())
-
-  const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN)
-  await rest.put(Routes.applicationGuildCommands(client.user.id, IDS.csc), {
-    body: commandsBody,
-  })
-
-  randomAcronym()
-  randomLetter()
-
-  return message.channel.send('Deployment successful.')
+  try {
+    randomAcronym()
+    randomLetter()
+    return message.channel.send('Rotated acronym and letter.')
+  } catch (e) {
+    return message.channel.send('Failed to rotate prompts.')
+  }
 }
 
-// haikus
-registerCommand('haiku', handleHaiku)
-registerCommand('haikus', handleHaiku)
-async function handleHaiku({ message, args }) {
-  const targetId = subjectId(message)
-  const targetHaikus = getUserHaikus(targetId)
-  const myHaikus = getUserHaikus(message.author.id)
+async function handleResurrect({ message }) {
+  if (!message.member.roles.cache.has(ROLEIDS.ghost))
+    return message.channel.send("You're not dead.")
+  const embed = makeEmbed(COLORS.embedBlack).setTitle('Resurrection 🙏')
+  const matches = Resurrection.find().matches('uid', message.author.id).run()
+  const hasResurrected = matches.length > 0
+  let timeRemaining
+  if (hasResurrected) {
+    const expires = matches[0]._ts_ + 3 * 24 * 60 * 60 * 1000
+    if (Date.now() < expires) timeRemaining = expires - Date.now()
+  }
+  if (!timeRemaining) {
+    message.member.roles.remove(ROLEIDS.ghost)
+    if (hasResurrected) Resurrection.remove(matches[0]._id_)
+    Resurrection.add({ uid: message.author.id })
+    pdResurrect(message.author.id)
+    embed.setDescription('You have been resurrected.')
+  } else {
+    embed.setDescription(
+      `You have to wait \`${prettyMs(timeRemaining)}\` to resurrect.`,
+    )
+  }
+  return message.channel.send({ embeds: [embed] })
+}
 
-  if (args[0] === 'show') {
-    const idx = parseIndexArg(args[1])
-    if (idx === null)
-      return message.channel.send(
-        'Please provide a valid haiku number to show, e.g. `!haiku show 2`.'
-      )
-    if (idx < 0 || idx >= myHaikus.length)
-      return message.channel.send('Haiku not found in your list.')
-    const h = myHaikus[idx]
-    const embed = makeEmbed()
-      .setAuthor({
-        name: message.author.username,
-        iconURL: message.author.displayAvatarURL(),
+async function handleStats({ message }) {
+  const acronyms = Meta.find().matches('name', 'acronyms').run()
+  const bandnames = Meta.find().matches('name', 'bandnames').run()
+  const deaths = Death.find().run()
+  const memes = Meta.find().matches('name', 'memes').run()
+  const oc = Meta.find().matches('name', 'oc').run()
+  const stimulus = Meta.find().matches('name', 'stimulus').run()
+  let count = (col) =>
+    col.reduce((a, b) => a + parseInt(b.value || b.deaths || 0), 0)
+  const countAcronyms = count(acronyms)
+  const countBandNames = count(bandnames)
+  const countDeaths = count(deaths)
+  const countMemes = count(memes)
+  const countOC = count(oc)
+  const countStimulus = count(stimulus)
+  const countHaikus = Haiku.find().run().length
+  const highscore = Meta.find().matches('name', 'counting').limit(1).run()
+  let countHighscore = 1
+  if (highscore.length > 0) countHighscore = highscore[0].value.split('|')[1]
+  const statsNumbers =
+    `Counting Highscore \`${countHighscore}\`` +
+    `\nDeath Toll \`${countDeaths}\`` +
+    `\nMemes \`${countMemes}\`` +
+    `\nStimulus \`${countStimulus}\``
+  const statsOriginal =
+    `Accidental Haikus \`${countHaikus}\`` +
+    `\nAcronyms \`${countAcronyms}\`` +
+    `\nBand Names \`${countBandNames}\`` +
+    `\nCreative Work \`${countOC}\``
+  const embed = makeEmbed()
+    .setTitle('Statistics')
+    .setDescription(
+      "Some more or *less* useful information. It's less, it's definitely less.",
+    )
+    .addFields(
+      { name: 'Numbers', value: statsNumbers, inline: true },
+      { name: 'Original Content', value: statsOriginal, inline: true },
+    )
+  return message.channel.send({ embeds: [embed] })
+}
+
+async function handleUptime({ message }) {
+  return message.channel.send(prettyMs(message.client.uptime))
+}
+
+async function handleVersion({ message }) {
+  return message.channel.send(version)
+}
+
+async function handleMigratePermadeath({ message }) {
+  if (!message.member.roles.cache.has(ROLEIDS.admin)) return
+
+  const users = new Set()
+  Death.find()
+    .run()
+    .forEach((r) => users.add(r.uid))
+  Immortal.find()
+    .run()
+    .forEach((r) => users.add(r.uid))
+  Resurrection.find()
+    .run()
+    .forEach((r) => users.add(r.uid))
+
+  let created = 0,
+    updated = 0
+  for (const uid of users) {
+    const d = Death.find().matches('uid', uid).limit(1).run()[0]
+    const i = Immortal.find().matches('uid', uid).limit(1).run()[0]
+    const resAll = Resurrection.find().matches('uid', uid).run()
+    const latestRes = resAll.sort((a, b) => (b._ts_ || 0) - (a._ts_ || 0))[0]
+
+    const deaths = d ? parseInt(d.deaths || '0', 10) : 0
+    const points = i ? parseInt(i.score || '0', 10) : 0
+    const resurrectedAt = latestRes
+      ? new Date(latestRes._ts_).toISOString()
+      : ''
+
+    const existing = Permadeath.find().matches('uid', uid).limit(1).run()[0]
+    if (existing) {
+      updated++
+      Permadeath.update(existing._id_, {
+        uid,
+        points: String(points),
+        deaths: String(deaths),
+        resurrectedAt,
       })
-      .setDescription(`#${idx + 1}\n${h.content}\n<#${h.channel}>`)
-    return message.channel.send({ embeds: [embed] })
+    } else {
+      created++
+      Permadeath.add({
+        uid,
+        points: String(points),
+        deaths: String(deaths),
+        resurrectedAt,
+      })
+    }
   }
 
-  if (args[0] === 'remove') {
-    const idx = parseIndexArg(args[1])
-    if (idx === null)
-      return message.channel.send(
-        'Please provide a valid haiku number to remove, e.g. `!haiku remove 3`.'
-      )
-    if (idx < 0 || idx >= myHaikus.length)
-      return message.channel.send('Haiku not found in your list.')
-    Haiku.remove(myHaikus[idx]._id_)
-    return message.channel.send(`Haiku #${idx + 1} removed.`)
-  }
-
-  if (targetHaikus.length === 0) return message.channel.send('No haikus found.')
-  const member = await message.guild.members.fetch(targetId)
-  const pages = buildHaikuListEmbeds(member, targetHaikus, perPage)
-  if (pages.length === 1) return message.channel.send({ embeds: [pages[0]] })
-  return paginateEmbeds(message, pages)
+  return message.channel.send(
+    `Permadeath migrated. Users: \`${users.size}\`, created: \`${created}\`, updated: \`${updated}\`.`,
+  )
 }
 
 // legacy
@@ -573,10 +786,12 @@ const randomAcronym = () => {
 
   channel.setTopic(`${topic} :skull:`)
 }
+
 const randomEmoji = () => {
   const emoji = ['<:csc:837251418247004205>', '<:cscbob:846528128524091422>']
   return emoji[Math.floor(Math.random() * emoji.length)]
 }
+
 const randomLetter = () => {
   const channel = client.channels.cache.get(CHANNELIDS.wordwar)
   const matches = Meta.find().matches('name', 'word-war').limit(1).run()
@@ -595,6 +810,7 @@ const randomLetter = () => {
 
   channel.setTopic(`${alphabetEmoji[random]} :skull:`)
 }
+
 const ranks = {
   5: 'Comrade',
   10: 'Activist',
@@ -606,6 +822,7 @@ const ranks = {
   40: 'Replicant',
   50: 'Cyberpunk',
 }
+
 const setReactions = (message, type = false) => {
   setTimeout(() => {
     switch (type) {
@@ -638,7 +855,9 @@ const subjectId = (message) => {
   if (matches) id = matches[1]
   return id
 }
+
 const timerFeedbackDelete = 10000
+
 const trackByName = (id, name) => {
   let match = Meta.find()
     .matches('uid', id)
@@ -657,6 +876,7 @@ const trackByName = (id, name) => {
     })
   }
 }
+
 const version =
   process.env.npm_package_version ||
   (function () {
@@ -691,9 +911,50 @@ const Meta = new db.Collection('meta', {
   value: '',
 })
 
+const Permadeath = new db.Collection('permadeath', {
+  uid: '',
+  points: '',
+  deaths: '',
+  resurrectedAt: '',
+})
+
 const Resurrection = new db.Collection('resurrections', {
   uid: '',
 })
+
+const pdGet = (uid) => {
+  const hit = Permadeath.find().matches('uid', uid).limit(1).run()[0]
+  if (hit) return hit
+  const key = Permadeath.add({
+    uid,
+    points: '0',
+    deaths: '0',
+    resurrectedAt: '',
+  })
+  return Permadeath.get(key)
+}
+const pdSet = (row) => Permadeath.update(row._id_, row)
+const pdAddPoint = (uid) => {
+  const row = pdGet(uid)
+  pdSet({ ...row, points: String(parseInt(row.points || '0', 10) + 1) })
+}
+const pdSubPoints = (uid, by) => {
+  const row = pdGet(uid)
+  const next = Math.max(0, parseInt(row.points || '0', 10) - Math.max(0, by))
+  pdSet({ ...row, points: String(next) })
+}
+const pdApplyDeath = (uid) => {
+  const row = pdGet(uid)
+  pdSet({
+    ...row,
+    deaths: String(parseInt(row.deaths || '0', 10) + 1),
+    points: '0',
+  })
+}
+const pdResurrect = (uid) => {
+  const row = pdGet(uid)
+  pdSet({ ...row, resurrectedAt: new Date().toISOString() })
+}
 
 client.on('messageCreate', async (message) => {
   const args = message.content.slice(1).trim().split(/ +/g)
@@ -719,6 +980,14 @@ client.on('messageCreate', async (message) => {
     }
   }
   const permaDeathScore = (death = false, penalty = 0) => {
+    if (death === true) {
+      pdApplyDeath(message.author.id)
+    } else if (penalty > 0) {
+      pdSubPoints(message.author.id, penalty)
+    } else {
+      pdAddPoint(message.author.id)
+    }
+
     const matches = Immortal.find()
       .matches('uid', message.author.id)
       .limit(1)
@@ -794,10 +1063,10 @@ client.on('messageCreate', async (message) => {
     if (message.channel.id === CHANNELIDS.terminal) {
       if (message.author.id === IDS.hal9000) {
         const matches = message.content.match(
-          /<@(\d+)> has reached level (\d+)/
+          /<@(\d+)> has reached level (\d+)/,
         )
         const promotionChannel = message.client.channels.cache.get(
-          CHANNELIDS.chat
+          CHANNELIDS.chat,
         )
 
         if (matches) {
@@ -842,19 +1111,22 @@ client.on('messageCreate', async (message) => {
             }
 
             message.guild.members.fetch(id).then((member) => {
-              setTimeout(() => {
-                embed
-                  .setAuthor({
-                    name: member.user.username,
-                    iconURL: member.user.displayAvatarURL(),
+              setTimeout(
+                () => {
+                  embed
+                    .setAuthor({
+                      name: member.user.username,
+                      iconURL: member.user.displayAvatarURL(),
+                    })
+                    .setColor(member.displayHexColor)
+                    .setDescription(description)
+                    .setThumbnail(member.user.displayAvatarURL())
+                  promotionChannel.send({ embeds: [embed] }).then((message) => {
+                    setReactions(message, 'csc')
                   })
-                  .setColor(member.displayHexColor)
-                  .setDescription(description)
-                  .setThumbnail(member.user.displayAvatarURL())
-                promotionChannel.send({ embeds: [embed] }).then((message) => {
-                  setReactions(message, 'csc')
-                })
-              }, 5 * 60 * 1000)
+                },
+                5 * 60 * 1000,
+              )
             })
           }
         }
@@ -992,250 +1264,6 @@ client.on('messageCreate', async (message) => {
 
   if (message.content.startsWith(PREFIX)) {
     if (await tryRouter(command, { message, args })) return
-    if (command === 'acronym') {
-      const matches = Meta.find('name', 'acronym').limit(1).run()
-      const acronym = matches[0].value
-      if (matches.length > 0) return message.channel.send(acronyms[acronym])
-    } else if (command === 'age') {
-      const id = subjectId(message)
-
-      message.guild.members.fetch(id).then((member) => {
-        const memberFor = Date.now() - member.joinedAt.getTime()
-        return message.channel.send(prettyMs(memberFor))
-      })
-    } else if (command === 'badge' || command === 'badges') {
-      if (args.length > 0) {
-        const query = args.join(' ').toLowerCase().trim()
-        let match =
-          BADGES.find((b) => b.name.toLowerCase() === query) ||
-          BADGES.find((b) => b.emoji === query)
-
-        if (!match) {
-          return message.channel.send(
-            'No such badge exists. Try `!badges` to see all of them.'
-          )
-        }
-
-        const embed = new EmbedBuilder()
-          .setColor(COLORS.embed)
-          .setTitle(`${match.emoji} ${match.name}`)
-          .setDescription(match.description)
-
-        return message.channel.send({ embeds: [embed] })
-      }
-
-      const embed = new EmbedBuilder()
-        .setColor(COLORS.embed)
-        .setTitle('Badges')
-        .setDescription(BADGES.map((b) => `${b.emoji} ${b.name}`).join('\n'))
-        .setFooter({ text: 'Tip: Use !badge <name> to see details.' })
-
-      return message.channel.send({ embeds: [embed] })
-    } else if (command === 'deaths') {
-      const deaths = Death.find().run()
-      let deathCount = 0
-      deaths.forEach((death) => {
-        deathCount = deathCount + parseInt(death.deaths)
-      })
-
-      const embed = new EmbedBuilder()
-        .setColor(COLORS.embedBlack)
-        .setDescription(`There have been \`${deathCount}\` recorded deaths.`)
-        .setTitle(`Deaths 🪦`)
-
-      if (deaths.length > 0) {
-        const deathsSorted = deaths.sort((a, b) => a.deaths - b.deaths)
-        const deathsRanked = deathsSorted.reverse()
-
-        let entries =
-          deaths.length > leaderboardCount ? leaderboardCount : deaths.length
-        let leaderboard = []
-
-        for (let i = 0; i < entries; i++) {
-          const score = deathsRanked[i].deaths
-          const user = `<@${deathsRanked[i].uid}>`
-
-          leaderboard.push(`\`${i + 1}.\` ${user} \`${score}\``)
-        }
-        embed.addFields({
-          name: 'Leaderboard',
-          value: leaderboard.join('\n'),
-          inline: false,
-        })
-
-        return message.channel.send({ embeds: [embed] })
-      } else message.channel.send('There have been no recorded deaths.')
-    } else if (command === 'letter') {
-      const matches = Meta.find().matches('name', 'word-war').limit(1).run()
-
-      if (matches.length > 0)
-        return message.channel.send(
-          alphabetEmoji[alphabet.indexOf(matches[0].value)]
-        )
-    } else if (command === 'permadeath' || command === 'leaderboard') {
-      const embed = new EmbedBuilder()
-        .setColor(COLORS.embedBlack)
-        .setDescription(
-          `Contributing in :skull: channels awards points. ` +
-            `Points reset on death. ` +
-            `Whoever has the most points is immortal.`
-        )
-        .setTitle(`Permadeath 🧛`)
-
-      message.channel.send(embed)
-
-      const immortals = Immortal.find().run()
-
-      if (immortals.length > 0) {
-        const immortalsSorted = immortals.sort((a, b) => a.score - b.score)
-        const immortalRanked = immortalsSorted.reverse()
-
-        let entries =
-          immortals.length > leaderboardCount
-            ? leaderboardCount
-            : immortals.length
-        let leaderboard = []
-
-        for (let i = 0; i < entries; i++) {
-          const user = `<@${immortalRanked[i].uid}>`
-          const score = immortalRanked[i].score
-
-          leaderboard.push(`\`${i + 1}.\` ${user} \`${score}\``)
-        }
-        embed.addFields({
-          name: 'Leaderboard',
-          value: leaderboard.join('\n'),
-          inline: false,
-        })
-        message.guild.members.fetch(immortalRanked[0].uid).then((member) => {
-          embed.setThumbnail(member.user.displayAvatarURL())
-          message.channel.send({ embeds: [embed] })
-        })
-      }
-    } else if (command === 'ping') {
-      message.channel.send(
-        `${Date.now() - message.createdTimestamp}ms / ${Math.round(
-          message.client.ws.ping
-        )}ms`
-      )
-    } else if (command === 'points') {
-      const matches = Immortal.find()
-        .matches('uid', message.author.id)
-        .limit(1)
-        .run()
-
-      if (matches.length > 0) {
-        const points = matches[0].score === 1 ? 'point' : 'points'
-
-        message.channel.send(`You have \`${matches[0].score}\` ${points}.`)
-      } else message.channel.send(`You have \`0\` points.`)
-    } else if (command === 'resurrect') {
-      if (!message.member.roles.cache.has(ROLEIDS.ghost))
-        return message.channel.send(`You're not dead.`)
-
-      const embed = new EmbedBuilder()
-        .setColor(COLORS.embedBlack)
-        .setTitle(`Resurrection 🙏`)
-      const matches = Resurrection.find()
-        .matches('uid', message.author.id)
-        .run()
-      const hasResurrected = matches.length > 0
-      let timeRemaining
-
-      if (hasResurrected) {
-        const expires = matches[0]._ts_ + 3 * 24 * 60 * 60 * 1000
-        if (Date.now() < expires) timeRemaining = expires - Date.now()
-      }
-
-      if (!timeRemaining) {
-        message.member.roles.remove(ROLEIDS.ghost)
-        if (hasResurrected) Resurrection.remove(matches[0]._id_)
-        Resurrection.add({ uid: message.author.id })
-        embed.setDescription(`You have been resurrected.`)
-      } else {
-        embed.setDescription(
-          `You have to wait \`${prettyMs(timeRemaining)}\` to resurrect.`
-        )
-      }
-      return message.channel.send({ embeds: [embed] })
-    } else if (command === 'ressurrect' || command === 'ressurect') {
-      message.channel.send(`Did you mean \`!resurrect\`? 😉`)
-    } else if (command === 'stats') {
-      const acronyms = Meta.find().matches('name', 'acronyms').run()
-      const bandnames = Meta.find().matches('name', 'bandnames').run()
-      const deaths = Death.find().run()
-      const memes = Meta.find().matches('name', 'memes').run()
-      const oc = Meta.find().matches('name', 'oc').run()
-      const stimulus = Meta.find().matches('name', 'stimulus').run()
-
-      let countAcronyms = 0
-      acronyms.forEach((user) => {
-        if (!isNaN(user.value))
-          countAcronyms = countAcronyms + parseInt(user.value)
-      })
-      let countBandNames = 0
-      bandnames.forEach((user) => {
-        countBandNames = countBandNames + parseInt(user.value)
-      })
-      let countDeaths = 0
-      deaths.forEach((death) => {
-        countDeaths = countDeaths + parseInt(death.deaths)
-      })
-      let countMemes = 0
-      memes.forEach((user) => {
-        countMemes = countMemes + parseInt(user.value)
-      })
-      let countOC = 0
-      oc.forEach((user) => {
-        countOC = countOC + parseInt(user.value)
-      })
-      let countStimulus = 0
-      stimulus.forEach((user) => {
-        countStimulus = countStimulus + parseInt(user.value)
-      })
-
-      const countHaikus = Haiku.find().run().length
-      const highscore = Meta.find().matches('name', 'counting').limit(1).run()
-
-      let countHighscore = 1
-
-      if (highscore.length > 0)
-        countHighscore = highscore[0].value.split('|')[1]
-
-      const statsNumbers =
-        `Counting Highscore \`${countHighscore}\`` +
-        `\nDeath Toll \`${countDeaths}\`` +
-        `\nMemes \`${countMemes}\`` +
-        `\nStimulus \`${countStimulus}\``
-
-      const statsOriginal =
-        `Accidental Haikus \`${countHaikus}\`` +
-        `\nAcronyms \`${countAcronyms}\`` +
-        `\nBand Names \`${countBandNames}\`` +
-        `\nCreative Work \`${countOC}\``
-
-      const embed = new EmbedBuilder()
-        .setColor(COLORS.embed)
-        .setDescription(
-          `Some more or *less* useful information. ` +
-            `It's less, it's definitely less.`
-        )
-        .setTitle('Statistics')
-        .addFields(
-          { name: 'Numbers', value: statsNumbers, inline: true },
-          {
-            name: 'Original Content',
-            value: statsOriginal,
-            inline: true,
-          }
-        )
-
-      message.channel.send({ embeds: [embed] })
-    } else if (command === 'uptime') {
-      message.channel.send(prettyMs(message.client.uptime))
-    } else if (command === 'version') {
-      message.channel.send(version)
-    }
   } else if (hasKey() && message.content.includes(KEY)) {
     message.delete()
     if (message.member.roles.cache.has(ROLEIDS.leet)) {
@@ -1289,7 +1317,7 @@ client.on('clientReady', () => {
 
 client.on('threadCreate', async (thread) => {
   console.log(
-    `id: ${thread.id}, name: ${thread.name}, parent: ${thread.parentId}`
+    `id: ${thread.id}, name: ${thread.name}, parent: ${thread.parentId}`,
   )
   if (thread.parentId === CHANNELIDS.creative) {
     try {
