@@ -443,31 +443,46 @@ async function handleCommands({ message }) {
 
 async function handleDeaths({ message }) {
   const rows = Permadeath.find().run()
-  const active = await filterActiveMembers(message.guild, rows)
-  const deathCount = active.reduce(
-    (n, r) => n + parseInt(r.deaths || '0', 10),
-    0,
-  )
+  const deathCount = rows.reduce((n, r) => n + parseInt(r.deaths || '0', 10), 0)
   const embed = makeEmbed(COLORS.embedBlack)
     .setTitle('Deaths 🪦')
     .setDescription(`There have been \`${deathCount}\` recorded deaths.`)
-  if (active.length > 0) {
-    const ranked = [...active].sort(
+
+  if (rows.length > 0) {
+    const ranked = [...rows].sort(
       (a, b) => parseInt(b.deaths || '0', 10) - parseInt(a.deaths || '0', 10),
     )
-    const entries = Math.min(ranked.length, leaderboardCount)
-    const leaderboard = ranked
-      .slice(0, entries)
-      .map(
-        (r, i) =>
-          `\`${i + 1}.\` <@${r.uid}> \`${parseInt(r.deaths || '0', 10)}\``,
-      )
+    const topN = ranked.slice(0, leaderboardCount)
+
+    const resolved = await Promise.all(
+      topN.map(async (r) => {
+        try {
+          const member =
+            message.guild.members.cache.get(r.uid) ||
+            (await message.guild.members.fetch({ user: r.uid, force: false }))
+          return { r, member }
+        } catch {
+          return { r, member: null }
+        }
+      }),
+    )
+
+    const leaderboard = resolved.map(({ r, member }, i) => {
+      const who = member ? `<@${r.uid}>` : `\`${r.uid}\``
+      return `\`${i + 1}.\` ${who} \`${parseInt(r.deaths || '0', 10)}\``
+    })
+
     embed.addFields({
       name: 'Leaderboard',
       value: leaderboard.join('\n'),
       inline: false,
     })
+
+    const firstPresent = resolved.find((x) => !!x.member)
+    if (firstPresent)
+      embed.setThumbnail(firstPresent.member.user.displayAvatarURL())
   }
+
   return message.channel.send({ embeds: [embed] })
 }
 
@@ -738,9 +753,10 @@ async function handleStats({ message }) {
   const countAcronyms = count(acronyms)
   const countBandNames = count(bandnames)
   const pdRows = Permadeath.find().run()
-  const countDeaths = pdRows
-    .filter((r) => message.guild.members.cache.has(r.uid))
-    .reduce((n, r) => n + parseInt(r.deaths || '0', 10), 0)
+  const countDeaths = pdRows.reduce(
+    (n, r) => n + parseInt(r.deaths || '0', 10),
+    0,
+  )
   const countMemes = count(memes)
   const countOC = count(oc)
   const countStimulus = count(stimulus)
