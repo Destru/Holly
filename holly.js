@@ -227,6 +227,8 @@ const setReactions = (message, type = false) => {
       case 'binaerpilot':
         message.react(EMOJIIDS.binaerpilot)
         break
+      case 'immortal':
+        message.react(🧛)
       case 'heart':
       default:
         message.react(EMOJIIDS.heart)
@@ -308,6 +310,7 @@ client.on('message', (message) => {
       channelGraveyard.send(obituary)
       permaDeathScore(true)
     } else {
+      if (message) setReactions(message, 'immortal')
       permaDeathScore(false, Math.floor(Math.random() * 10) + 1)
     }
   }
@@ -934,14 +937,14 @@ client.on('message', (message) => {
           let badge = BADGES.find((badge) => {
             return badge.name === 'Hacker'
           })
-          badges.push(`${badge.name} ${badge.emoji}\n`)
+          badges.push(`${badge.emoji} ${badge.name}\n`)
         }
         if (immortal.length > 0) {
           if (isImmortal(id)) {
             let badge = BADGES.find((badge) => {
               return badge.name === 'Immortal'
             })
-            badges.push(`${badge.name} ${badge.emoji}\n`)
+            badges.push(`${badge.emoji} ${badge.name}\n`)
           }
         }
         if (memer) {
@@ -960,7 +963,7 @@ client.on('message', (message) => {
           let badge = BADGES.find((badge) => {
             return badge.name === 'Poet'
           })
-          badges.push(`${badge.name} ${badge.emoji}\n`)
+          badges.push(`${badge.emoji} ${badge.name}\n`)
         }
         if (psyop) {
           let badge = BADGES.find((badge) => {
