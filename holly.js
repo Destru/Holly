@@ -120,10 +120,7 @@ const capitalize = (string) => {
 }
 const leaderboardCount = 5
 const isImmortal = (id) => {
-  const guild = client.guilds.cache.get(IDS.csc)
-  const rows = Permadeath.find()
-    .run()
-    .filter((r) => !guild || guild.members.cache.has(r.uid))
+  const rows = Permadeath.find().run()
   if (!rows || rows.length === 0) return false
   const top = rows.sort(
     (a, b) => parseInt(b.points || '0', 10) - parseInt(a.points || '0', 10),
@@ -295,6 +292,40 @@ const detectHaiku = (text) => {
   return { isHaiku: false, formattedHaiku: '' }
 }
 
+// Guild-aware helpers for active members and Immortal status
+const filterActiveMembers = async (guild, rows) => {
+  const results = await Promise.all(
+    rows.map(async (r) => {
+      try {
+        const m =
+          guild.members.cache.get(r.uid) ||
+          (await guild.members.fetch({ user: r.uid, force: false }))
+        return m ? r : null
+      } catch {
+        return null
+      }
+    }),
+  )
+  return results.filter(Boolean)
+}
+
+const isImmortalInGuild = async (guild, id) => {
+  const rows = Permadeath.find()
+    .run()
+    .sort(
+      (a, b) => parseInt(b.points || '0', 10) - parseInt(a.points || '0', 10),
+    )
+  for (const r of rows) {
+    try {
+      const m =
+        guild.members.cache.get(r.uid) ||
+        (await guild.members.fetch({ user: r.uid, force: false }))
+      if (m) return r.uid === id
+    } catch {}
+  }
+  return false
+}
+
 // 🤖 commands
 const commands = new Map()
 const tryRouter = async (name, ctx) => {
@@ -413,7 +444,7 @@ async function handleCommands({ message }) {
 
 async function handleDeaths({ message }) {
   const rows = Permadeath.find().run()
-  const active = rows.filter((r) => message.guild.members.cache.has(r.uid))
+  const active = await filterActiveMembers(message.guild, rows)
   const deathCount = active.reduce(
     (n, r) => n + parseInt(r.deaths || '0', 10),
     0,
@@ -520,7 +551,7 @@ async function handlePermadeath({ message }) {
       'Contributing in marked channels awards points. Points reset on death. Whoever has the most points is immortal.',
     )
   const rows = Permadeath.find().run()
-  const active = rows.filter((r) => message.guild.members.cache.has(r.uid))
+  const active = await filterActiveMembers(message.guild, rows)
   if (active.length > 0) {
     const ranked = active.sort(
       (a, b) => parseInt(b.points || '0', 10) - parseInt(a.points || '0', 10),
@@ -612,7 +643,8 @@ async function handleProfile({ message }) {
     member.roles.cache.has(ROLEIDS.leet)
   )
     giveBadge(badges, 'Hacker')
-  if (pd.length > 0 && isImmortal(id)) giveBadge(badges, 'Immortal')
+  if (pd.length > 0 && (await isImmortalInGuild(message.guild, id)))
+    giveBadge(badges, 'Immortal')
   if (memer) giveBadge(badges, 'Memer')
   if (patron) giveBadge(badges, 'Patron')
   if (haikus && haikus.length >= 10) giveBadge(badges, 'Poet')
