@@ -185,20 +185,12 @@ const paginateEmbeds = async (message, pages, timeout = 120000) => {
 
   const row = new ActionRowBuilder().addComponents(
     new ButtonBuilder()
-      .setCustomId('first')
-      .setLabel('⏮')
-      .setStyle(ButtonStyle.Secondary),
-    new ButtonBuilder()
       .setCustomId('prev')
       .setLabel('◀')
       .setStyle(ButtonStyle.Secondary),
     new ButtonBuilder()
       .setCustomId('next')
       .setLabel('▶')
-      .setStyle(ButtonStyle.Secondary),
-    new ButtonBuilder()
-      .setCustomId('last')
-      .setLabel('⏭')
       .setStyle(ButtonStyle.Secondary)
   )
 
@@ -218,17 +210,11 @@ const paginateEmbeds = async (message, pages, timeout = 120000) => {
   collector.on('collect', async (i) => {
     try {
       switch (i.customId) {
-        case 'first':
-          index = 0
-          break
         case 'prev':
           index = index > 0 ? index - 1 : pages.length - 1
           break
         case 'next':
           index = index + 1 < pages.length ? index + 1 : 0
-          break
-        case 'last':
-          index = pages.length - 1
           break
       }
       await i.update({ embeds: [pages[index]], components: [row] })
