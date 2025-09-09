@@ -559,7 +559,7 @@ async function handlePermadeath({ message }) {
 
     const leaderboard = resolved.map(({ r, member }, i) => {
       const who = member ? `<@${r.uid}>` : `\`${r.uid}\``
-      return `\`${i + 1}.\` ${who} \`${int(r.points)}\``
+      return `#${i + 1} ${who} \`${int(r.points)}\``
     })
 
     embed.addFields({
