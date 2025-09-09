@@ -669,7 +669,7 @@ async function handleProfile({ message }) {
   if (patron) giveBadge(badges, 'Patron')
   if (haikus && haikus.length >= 10) giveBadge(badges, 'Poet')
   if (psyop) giveBadge(badges, 'PSYOP')
-  const description = `\`${prettyMs(memberFor)}\``
+  let description = `\`${prettyMs(memberFor)}\``
   if (badges.length > 0) description += `\n ${badges.join(' ')}`
   if (haikus.length > 0) {
     const h = haikus[Math.floor(Math.random() * haikus.length)]
