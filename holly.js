@@ -99,7 +99,6 @@ fs.readFile('./key.md', 'utf8', (err, data) => {
   }
   KEY = data.trim()
 })
-
 const hasKey = () => typeof KEY === 'string' && KEY.length > 0
 
 const acronymString =
@@ -146,6 +145,8 @@ const quotes = [
   `Going round in circles for 14 months. Getting my information from the Junior Color Encyclopedia of Space. The respect you have for me is awesome, innit?`,
 ]
 
+// 🤓 helpers
+
 const formatBytes = (bytes) => {
   if (typeof bytes !== 'number' || isNaN(bytes) || bytes < 0) return '0 B'
   const units = ['B', 'KB', 'MB', 'GB', 'TB']
@@ -157,7 +158,6 @@ const formatBytes = (bytes) => {
   const value = Math.round(bytes * 10) / 10
   return `${value} ${units[i]}`
 }
-
 const getDirSize = (dirPath) => {
   let total = 0
   try {
@@ -179,6 +179,90 @@ const getDirSize = (dirPath) => {
   return total
 }
 
+const getOne = (col, where) =>
+  col
+    .find()
+    .matches(Object.keys(where)[0], Object.values(where)[0])
+    .limit(1)
+    .run()[0] || null
+
+const getOrCreate = (col, where, defaults) => {
+  const hit = col
+    .find()
+    .matches(Object.keys(where)[0], Object.values(where)[0])
+    .limit(1)
+    .run()[0]
+  if (hit) return hit
+  const key = col.add({ ...where, ...defaults })
+  return col.get(key)
+}
+
+const incMeta = (uid, name, by = 1) => {
+  const row = getOrCreate(Meta, { uid, name }, { value: '0' })
+  Meta.update(row._id_, { value: `${parseInt(row.value, 10) + by}` })
+}
+
+const ROLE_TO_RANK = [
+  [ROLEIDS.cyberpunk, 'Cyberpunk'],
+  [ROLEIDS.replicant, 'Replicant'],
+  [ROLEIDS.android, 'Android'],
+  [ROLEIDS.cyborg, 'Cyborg'],
+  [ROLEIDS.augmented, 'Augmented'],
+  [ROLEIDS.revolutionary, 'Revolutionary'],
+  [ROLEIDS.insurgent, 'Insurgent'],
+  [ROLEIDS.activist, 'Activist'],
+  [ROLEIDS.comrade, 'Comrade'],
+]
+const resolveRank = (member) =>
+  ROLE_TO_RANK.find(([rid]) => member.roles.cache.has(rid))?.[1] || 'Recruit'
+
+const BADGE_BY_NAME = Object.fromEntries(BADGES.map((b) => [b.name, b]))
+const giveBadge = (arr, name) => {
+  const b = BADGE_BY_NAME[name]
+  if (b) arr.push(`${b.emoji} ${b.name}\n`)
+}
+
+const makeEmbed = (color = COLORS.embed) => new EmbedBuilder().setColor(color)
+
+const REACT_HEART_CHANNELS = new Set([CHANNELIDS.nsfw, CHANNELIDS.irl])
+const REACT_UPVOTE_CHANNELS = new Set([CHANNELIDS.memes, CHANNELIDS.stimulus])
+
+const getUserHaikus = (uid) => Haiku.find().matches('uid', uid).run()
+const parseIndexArg = (arg) => {
+  const n = parseInt(arg, 10)
+  return Number.isInteger(n) && n > 0 ? n - 1 : null
+}
+const formatHaikuItem = (h, index) =>
+  `#${index + 1}\n${h.content}\n<#${h.channel}>`
+const buildHaikuListEmbeds = (member, haikus, pageSize = perPage) => {
+  if (haikus.length <= pageSize) {
+    return [
+      makeEmbed()
+        .setAuthor({
+          name: member.user.username,
+          iconURL: member.user.displayAvatarURL(),
+        })
+        .setDescription(
+          haikus.map((h, i) => formatHaikuItem(h, i)).join('\n\n')
+        ),
+    ]
+  }
+  const pages = []
+  for (let start = 0; start < haikus.length; start += pageSize) {
+    const slice = haikus.slice(start, start + pageSize)
+    pages.push(
+      makeEmbed()
+        .setAuthor({
+          name: member.user.username,
+          iconURL: member.user.displayAvatarURL(),
+        })
+        .setDescription(
+          slice.map((h, i) => formatHaikuItem(h, start + i)).join('\n\n')
+        )
+    )
+  }
+  return pages
+}
 const paginateEmbeds = async (message, pages, timeout = 120000) => {
   if (!Array.isArray(pages) || pages.length === 0) return
   let index = 0
@@ -231,7 +315,6 @@ const paginateEmbeds = async (message, pages, timeout = 120000) => {
     } catch {}
   })
 }
-
 const detectHaiku = (text) => {
   try {
     const lines = findahaiku(text, { strict: true }) || []
@@ -242,6 +325,231 @@ const detectHaiku = (text) => {
   return { isHaiku: false, formattedHaiku: '' }
 }
 
+// 🤖 commands
+const commands = new Map()
+
+const registerCommand = (name, fn) => {
+  commands.set(name, fn)
+}
+const tryRouter = async (name, ctx) => {
+  const fn = commands.get(name)
+  if (!fn) return false
+  await fn(ctx)
+  return true
+}
+
+// bio
+registerCommand('bio', handleProfile)
+registerCommand('profile', handleProfile)
+async function handleProfile({ message }) {
+  const embed = makeEmbed()
+  const id = subjectId(message)
+  const member = await message.guild.members.fetch(id)
+
+  const admin =
+    member.roles.cache.has(ROLEIDS.admin) ||
+    member.roles.cache.has(ROLEIDS.operator)
+
+  const avatar =
+    Meta.find()
+      .matches('uid', id)
+      .matches('name', 'avatar')
+      .limit(1)
+      .run()[0] || null
+  const deaths = Death.find().matches('uid', id).limit(1).run()
+  const haikus = Haiku.find().matches('uid', id).run()
+  const immortal = Immortal.find().matches('uid', id).limit(1).run()
+  const patron = member.roles.cache.has(ROLEIDS.patron)
+  const psyop = member.roles.cache.has(ROLEIDS.psyop)
+  const rabbit = member.roles.cache.has(ROLEIDS.leet)
+  const memberFor = Date.now() - member.joinedAt.getTime()
+
+  const rank = resolveRank(member)
+  const badges = []
+  const stats = []
+
+  let creative = false,
+    memer = false
+  METASTATS.forEach((stat) => {
+    const m = Meta.find()
+      .matches('uid', id)
+      .matches('name', stat)
+      .limit(1)
+      .run()
+    if (m.length > 0) {
+      let name = capitalize(m[0].name)
+      if (name.length <= 2) name = name.toUpperCase()
+      stats.push(`${name} \`${m[0].value}\``)
+      if (m[0].name === 'oc' && m[0].value >= 10) creative = true
+      if (m[0].name === 'memes' && m[0].value >= 100) memer = true
+    }
+  })
+
+  if (avatar) giveBadge(badges, 'Anonymous')
+  if (creative) giveBadge(badges, 'Creative')
+  if (admin) giveBadge(badges, 'Operator')
+  if (
+    member.roles.cache.has(ROLEIDS.engineer) ||
+    member.roles.cache.has(ROLEIDS.cyberpunk) ||
+    member.roles.cache.has(ROLEIDS.hacker) ||
+    member.roles.cache.has(ROLEIDS.coder) ||
+    member.roles.cache.has(ROLEIDS.leet)
+  )
+    giveBadge(badges, 'Hacker')
+  if (immortal.length > 0 && isImmortal(id)) giveBadge(badges, 'Immortal')
+  if (memer) giveBadge(badges, 'Memer')
+  if (patron) giveBadge(badges, 'Patron')
+  if (haikus && haikus.length >= 10) giveBadge(badges, 'Poet')
+  if (psyop) giveBadge(badges, 'PSYOP')
+
+  const description = `\`${prettyMs(memberFor)}\``
+
+  if (deaths.length > 0) stats.push(`Deaths \`${deaths[0].deaths}\``)
+  if (haikus.length > 0) {
+    const h = haikus[Math.floor(Math.random() * haikus.length)]
+    embed.addFields({ name: 'Haiku', value: `*${h.content}*`, inline: false })
+    stats.push(`Haikus \`${haikus.length}\``)
+  }
+  if (badges.length > 0)
+    embed.addFields({ name: 'Badges', value: badges.join(' '), inline: true })
+  if (stats.length > 0)
+    embed.addFields({
+      name: 'Stats',
+      value: stats.sort().join('\n'),
+      inline: true,
+    })
+
+  embed
+    .setColor(member.displayHexColor || COLORS.embed)
+    .setDescription(description)
+    .setThumbnail(member.user.displayAvatarURL())
+    .setTitle(rank)
+
+  return message.channel.send({ embeds: [embed] })
+}
+
+// bot-info
+registerCommand('bot-info', async ({ message }) => {
+  const embed = makeEmbed()
+    .setDescription(
+      `I have an IQ of 6000; the same IQ as 6000 liberals.` +
+        `\n[GitHub Repo](https://github.com/destru/holly) :link:`
+    )
+    .setTitle('Holly')
+    .addFields(
+      {
+        name: 'Latency',
+        value: `${Date.now() - message.createdTimestamp}ms / ${Math.round(
+          message.client.ws.ping
+        )}ms`,
+        inline: true,
+      },
+      {
+        name: 'Uptime',
+        value: prettyMs(message.client.uptime),
+        inline: true,
+      },
+      { name: 'Version', value: version, inline: true }
+    )
+  return message.channel.send({ embeds: [embed] })
+})
+
+// commands
+registerCommand('commands', handleCommands)
+registerCommand('command', handleCommands)
+async function handleCommands({ message }) {
+  const embed = makeEmbed()
+    .setDescription(quotes[Math.floor(Math.random() * quotes.length)])
+    .setTitle('Commands')
+    .addFields(
+      {
+        name: 'Community <:cscbob:846528128524091422>',
+        value:
+          '`!age`\n`!badges`\n`!haikus`\n`!profile`\n`!resurrect`\n`!stats`',
+        inline: true,
+      },
+      {
+        name: 'Permadeath :skull:',
+        value: '`!deaths`\n`!permadeath`\n`!points`',
+        inline: true,
+      }
+    )
+  return message.channel.send({ embeds: [embed] })
+}
+
+// deploy
+registerCommand('deploy', handleDeploy)
+async function handleDeploy({ message }) {
+  if (!message.member.roles.cache.has(ROLEIDS.admin)) return
+  const commandsBody = [
+    new SlashCommandBuilder()
+      .setName('anon')
+      .setDescription('Send #anonymous messages')
+      .addStringOption((o) =>
+        o.setName('message').setDescription('Text to send').setRequired(true)
+      )
+      .addBooleanOption((o) =>
+        o.setName('random').setDescription('Randomize avatar')
+      ),
+  ].map((c) => c.toJSON())
+
+  const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN)
+  await rest.put(Routes.applicationGuildCommands(client.user.id, IDS.csc), {
+    body: commandsBody,
+  })
+
+  randomAcronym()
+  randomLetter()
+
+  return message.channel.send('Deployment successful.')
+}
+
+// haikus
+registerCommand('haiku', handleHaiku)
+registerCommand('haikus', handleHaiku)
+async function handleHaiku({ message, args }) {
+  const targetId = subjectId(message)
+  const targetHaikus = getUserHaikus(targetId)
+  const myHaikus = getUserHaikus(message.author.id)
+
+  if (args[0] === 'show') {
+    const idx = parseIndexArg(args[1])
+    if (idx === null)
+      return message.channel.send(
+        'Please provide a valid haiku number to show, e.g. `!haiku show 2`.'
+      )
+    if (idx < 0 || idx >= myHaikus.length)
+      return message.channel.send('Haiku not found in your list.')
+    const h = myHaikus[idx]
+    const embed = makeEmbed()
+      .setAuthor({
+        name: message.author.username,
+        iconURL: message.author.displayAvatarURL(),
+      })
+      .setDescription(`#${idx + 1}\n${h.content}\n<#${h.channel}>`)
+    return message.channel.send({ embeds: [embed] })
+  }
+
+  if (args[0] === 'remove') {
+    const idx = parseIndexArg(args[1])
+    if (idx === null)
+      return message.channel.send(
+        'Please provide a valid haiku number to remove, e.g. `!haiku remove 3`.'
+      )
+    if (idx < 0 || idx >= myHaikus.length)
+      return message.channel.send('Haiku not found in your list.')
+    Haiku.remove(myHaikus[idx]._id_)
+    return message.channel.send(`Haiku #${idx + 1} removed.`)
+  }
+
+  if (targetHaikus.length === 0) return message.channel.send('No haikus found.')
+  const member = await message.guild.members.fetch(targetId)
+  const pages = buildHaikuListEmbeds(member, targetHaikus, perPage)
+  if (pages.length === 1) return message.channel.send({ embeds: [pages[0]] })
+  return paginateEmbeds(message, pages)
+}
+
+// legacy
 const randomAcronym = () => {
   const channel = client.channels.cache.get(CHANNELIDS.acronyms)
   const matches = Meta.find().matches('name', 'acronyms').limit(1).run()
@@ -263,7 +571,6 @@ const randomAcronym = () => {
 
   channel.setTopic(`${topic} :skull:`)
 }
-const randomChance = 0.025
 const randomEmoji = () => {
   const emoji = ['<:csc:837251418247004205>', '<:cscbob:846528128524091422>']
   return emoji[Math.floor(Math.random() * emoji.length)]
@@ -329,7 +636,6 @@ const subjectId = (message) => {
   if (matches) id = matches[1]
   return id
 }
-
 const timerFeedbackDelete = 10000
 const trackByName = (id, name) => {
   let match = Meta.find()
@@ -396,7 +702,7 @@ client.on('messageCreate', async (message) => {
     const channelGraveyard = client.channels.cache.get(CHANNELIDS.graveyard)
     const obituary = new EmbedBuilder()
       .setColor(COLORS.embedBlack)
-      .setThumbnail(message.author.avatarURL())
+      .setThumbnail(message.author.displayAvatarURL())
       .setTitle(`Death 💀`)
       .setDescription(`${message.author} died in ${message.channel}`)
 
@@ -683,6 +989,7 @@ client.on('messageCreate', async (message) => {
   }
 
   if (message.content.startsWith(PREFIX)) {
+    if (await tryRouter(command, { message, args })) return
     if (command === 'acronym') {
       const matches = Meta.find('name', 'acronym').limit(1).run()
       const acronym = matches[0].value
@@ -711,50 +1018,6 @@ client.on('messageCreate', async (message) => {
       BADGES.forEach((badge) => badges.push(`${badge.emoji} ${badge.name}`))
 
       embed.setDescription(badges.join('\n'))
-
-      return message.channel.send({ embeds: [embed] })
-    } else if (command === 'bot-info') {
-      const embed = new EmbedBuilder()
-        .setColor(COLORS.embed)
-        .setDescription(
-          `I have an IQ of 6000; the same IQ as 6000 neoliberals.` +
-            `\n[GitHub Repo](https://github.com/destru/holly) :link:`
-        )
-        .setTitle('Holly')
-        .addFields(
-          {
-            name: 'Latency',
-            value:
-              `${Date.now() - message.createdTimestamp}ms /` +
-              `${Math.round(message.client.ws.ping)}ms`,
-            inline: true,
-          },
-          {
-            name: 'Uptime',
-            value: prettyMs(message.client.uptime),
-            inline: true,
-          },
-          { name: 'Version', value: version, inline: true }
-        )
-      return message.channel.send({ embeds: [embed] })
-    } else if (command === 'commands' || command === 'command') {
-      const embed = new EmbedBuilder()
-        .setColor(COLORS.embed)
-        .setDescription(quotes[Math.floor(Math.random() * quotes.length)])
-        .setTitle('Commands')
-        .addFields(
-          {
-            name: 'Community <:cscbob:846528128524091422>',
-            value:
-              '`!age`\n`!badges`\n`!haikus`\n`!profile`\n`!resurrect`\n`!stats`',
-            inline: true,
-          },
-          {
-            name: 'Permadeath :skull:',
-            value: '`!deaths`\n`!permadeath`\n`!points`',
-            inline: true,
-          }
-        )
 
       return message.channel.send({ embeds: [embed] })
     } else if (command === 'deaths') {
@@ -791,137 +1054,6 @@ client.on('messageCreate', async (message) => {
 
         return message.channel.send({ embeds: [embed] })
       } else message.channel.send('There have been no recorded deaths.')
-    } else if (command === 'deploy') {
-      if (message.member.roles.cache.has(ROLEIDS.admin)) {
-        const commands = [
-          new SlashCommandBuilder()
-            .setName('anon')
-            .setDescription('Send #anonymous messages')
-            .addStringOption((o) =>
-              o
-                .setName('message')
-                .setDescription('Text to send')
-                .setRequired(true)
-            )
-            .addBooleanOption((o) =>
-              o.setName('random').setDescription('Randomize avatar')
-            ),
-        ].map((c) => c.toJSON())
-
-        const rest = new REST({ version: '10' }).setToken(
-          process.env.DISCORD_TOKEN
-        )
-        await rest.put(
-          Routes.applicationGuildCommands(client.user.id, IDS.csc),
-          { body: commands }
-        )
-
-        randomAcronym()
-        randomLetter()
-
-        message.channel.send('Deployment successful.')
-      }
-    } else if (command === 'haiku' || command === 'haikus') {
-      const id = subjectId(message)
-      const haikus = Haiku.find().matches('uid', id).run()
-
-      if (args[0] === 'show') {
-        const nRaw = args[1]
-        const n = parseInt(nRaw, 10)
-        if (isNaN(n) || n < 1) {
-          return message.channel.send(
-            'Please provide a valid haiku number to show, e.g. `!haiku show 2`.'
-          )
-        }
-
-        const myHaikus = Haiku.find().matches('uid', message.author.id).run()
-        const idx = n - 1
-        if (idx >= 0 && idx < myHaikus.length) {
-          const h = myHaikus[idx]
-          const embed = new EmbedBuilder()
-            .setColor(COLORS.embed)
-            .setAuthor({
-              name: message.author.username,
-              iconURL: message.author.displayAvatarURL(),
-            })
-            .setDescription(`#${n}\n${h.content}\n<#${h.channel}>`)
-
-          return message.channel.send({ embeds: [embed] })
-        } else {
-          return message.channel.send('Haiku not found in your list.')
-        }
-      } else if (args[0] === 'remove') {
-        const nRaw = args[1]
-        const n = parseInt(nRaw, 10)
-        if (isNaN(n) || n < 1) {
-          return message.channel.send(
-            'Please provide a valid haiku number to remove, e.g. `!haiku remove 3`.'
-          )
-        }
-
-        const myHaikus = Haiku.find().matches('uid', message.author.id).run()
-        const idx = n - 1
-        if (idx >= 0 && idx < myHaikus.length) {
-          Haiku.remove(myHaikus[idx]._id_)
-          return message.channel.send(`Haiku #${n} removed.`)
-        } else {
-          return message.channel.send('Haiku not found in your list.')
-        }
-      } else {
-        if (haikus.length > 0) {
-          if (haikus.length > perPage) {
-            const pages = []
-            const pageCount = Math.ceil(haikus.length / perPage)
-
-            message.guild.members.fetch(id).then((member) => {
-              for (let page = 0; page < pageCount; page++) {
-                let displayHaikus = ''
-
-                const embed = new EmbedBuilder()
-                  .setAuthor({
-                    name: member.user.username,
-                    iconURL: member.user.displayAvatarURL(),
-                  })
-                  .setColor(COLORS.embed)
-                const haikuIndex = perPage * page
-
-                for (i = haikuIndex; i < haikuIndex + perPage; i++) {
-                  if (haikus[i]) {
-                    displayHaikus +=
-                      `\`${i + 1}.\`` +
-                      `\n${haikus[i].content}` +
-                      `\n<#${haikus[i].channel}>\n\n`
-                  }
-                }
-
-                embed.setDescription(displayHaikus)
-                pages.push(embed)
-              }
-
-              return paginateEmbeds(message, pages)
-            })
-          } else {
-            message.guild.members.fetch(id).then((member) => {
-              const embed = new EmbedBuilder()
-                .setAuthor({
-                  name: member.user.username,
-                  iconURL: member.user.displayAvatarURL(),
-                })
-                .setColor(COLORS.embed)
-
-              let displayHaikus = ''
-
-              haikus.forEach((haiku) => {
-                displayHaikus +=
-                  `${haiku.content}` + `\n<#${haiku.channel}>\n\n`
-              })
-
-              embed.setDescription(displayHaikus)
-              return message.channel.send({ embeds: [embed] })
-            })
-          }
-        } else return message.channel.send(`No haikus found.`)
-      }
     } else if (command === 'letter') {
       const matches = Meta.find().matches('name', 'word-war').limit(1).run()
 
@@ -969,13 +1101,6 @@ client.on('messageCreate', async (message) => {
           message.channel.send({ embeds: [embed] })
         })
       }
-    } else if (command === 'letter') {
-      const matches = Meta.find().matches('name', 'word-war').limit(1).run()
-
-      if (matches.length > 0)
-        return message.channel.send(
-          alphabetEmoji[alphabet.indexOf(matches[0].value)]
-        )
     } else if (command === 'ping') {
       message.channel.send(
         `${Date.now() - message.createdTimestamp}ms / ${Math.round(
@@ -993,164 +1118,6 @@ client.on('messageCreate', async (message) => {
 
         message.channel.send(`You have \`${matches[0].score}\` ${points}.`)
       } else message.channel.send(`You have \`0\` points.`)
-    } else if (command === 'profile' || command === 'bio') {
-      const embed = new EmbedBuilder()
-      const id = subjectId(message)
-
-      message.guild.members.fetch(id).then((member) => {
-        const admin =
-          member.roles.cache.has(ROLEIDS.admin) ||
-          member.roles.cache.has(ROLEIDS.operator)
-        const avatar =
-          Meta.find()
-            .matches('uid', id)
-            .matches('name', 'avatar')
-            .limit(1)
-            .run()[0] || false
-        const deaths = Death.find().matches('uid', id).limit(1).run()
-        const haikus = Haiku.find().matches('uid', id).run()
-        const immortal = Immortal.find().matches('uid', id).limit(1).run()
-        const patron = member.roles.cache.has(ROLEIDS.patron)
-        const psyop = member.roles.cache.has(ROLEIDS.psyop)
-        const rabbit = member.roles.cache.has(ROLEIDS.leet)
-        const memberFor = Date.now() - member.joinedAt.getTime()
-
-        let badges = [],
-          description = '',
-          stats = [],
-          rank = ''
-
-        let creative = false,
-          memer = false
-
-        METASTATS.forEach((stat) => {
-          const match = Meta.find()
-            .matches('uid', id)
-            .matches('name', stat)
-            .limit(1)
-            .run()
-          if (match.length > 0) {
-            let name = capitalize(match[0].name)
-            if (name.length <= 2) name = name.toUpperCase()
-            stats.push(`${name} \`${match[0].value}\``)
-
-            if (match[0].name == 'oc' && match[0].value >= 10) creative = true
-            if (match[0].name == 'memes' && match[0].value >= 100) memer = true
-          }
-        })
-
-        if (member.roles.cache.has(ROLEIDS.cyberpunk)) rank = 'Cyberpunk'
-        else if (member.roles.cache.has(ROLEIDS.replicant)) rank = 'Replicant'
-        else if (member.roles.cache.has(ROLEIDS.android)) rank = 'Android'
-        else if (member.roles.cache.has(ROLEIDS.cyborg)) rank = 'Cyborg'
-        else if (member.roles.cache.has(ROLEIDS.augmented)) rank = 'Augmented'
-        else if (member.roles.cache.has(ROLEIDS.revolutionary))
-          rank = 'Revolutionary'
-        else if (member.roles.cache.has(ROLEIDS.insurgent)) rank = 'Insurgent'
-        else if (member.roles.cache.has(ROLEIDS.activist)) rank = 'Activist'
-        else if (member.roles.cache.has(ROLEIDS.comrade)) rank = 'Comrade'
-        else rank = 'Recruit'
-
-        description += `\`${prettyMs(memberFor)}\``
-
-        if (avatar) {
-          let badge = BADGES.find((badge) => {
-            return badge.name === 'Anonymous'
-          })
-          badges.push(` ${badge.emoji} ${badge.name}\n`)
-        }
-        if (creative) {
-          let badge = BADGES.find((badge) => {
-            return badge.name === 'Creative'
-          })
-          badges.push(`${badge.emoji} ${badge.name}\n`)
-        }
-        if (admin) {
-          let badge = BADGES.find((badge) => {
-            return badge.name === 'Operator'
-          })
-          badges.push(`${badge.emoji} ${badge.name}\n`)
-        }
-        if (
-          member.roles.cache.has(ROLEIDS.engineer) ||
-          member.roles.cache.has(ROLEIDS.cyberpunk) ||
-          member.roles.cache.has(ROLEIDS.hacker) ||
-          member.roles.cache.has(ROLEIDS.coder) ||
-          member.roles.cache.has(ROLEIDS.leet)
-        ) {
-          let badge = BADGES.find((badge) => {
-            return badge.name === 'Hacker'
-          })
-          badges.push(`${badge.emoji} ${badge.name}\n`)
-        }
-        if (immortal.length > 0) {
-          if (isImmortal(id)) {
-            let badge = BADGES.find((badge) => {
-              return badge.name === 'Immortal'
-            })
-            badges.push(`${badge.emoji} ${badge.name}\n`)
-          }
-        }
-        if (memer) {
-          let badge = BADGES.find((badge) => {
-            return badge.name === 'Memer'
-          })
-          badges.push(`${badge.emoji} ${badge.name}\n`)
-        }
-        if (patron) {
-          let badge = BADGES.find((badge) => {
-            return badge.name === 'Patron'
-          })
-          badges.push(`${badge.emoji} ${badge.name}\n`)
-        }
-        if (haikus && haikus.length >= 10) {
-          let badge = BADGES.find((badge) => {
-            return badge.name === 'Poet'
-          })
-          badges.push(`${badge.emoji} ${badge.name}\n`)
-        }
-        if (psyop) {
-          let badge = BADGES.find((badge) => {
-            return badge.name === 'PSYOP'
-          })
-          badges.push(`${badge.emoji} ${badge.name}\n`)
-        }
-
-        if (deaths.length > 0) stats.push(`Deaths \`${deaths[0].deaths}\``)
-        if (haikus.length > 0) {
-          const haiku = haikus[Math.floor(Math.random() * haikus.length)]
-          embed.addFields({
-            name: 'Haiku',
-            value: `*${haiku.content}*`,
-            inline: false,
-          })
-          stats.push(`Haikus \`${haikus.length}\``)
-        }
-        if (badges.length > 0) {
-          embed.addFields({
-            name: 'Badges',
-            value: badges.join(' '),
-            inline: true,
-          })
-        }
-        if (stats.length > 0) {
-          stats.sort()
-          embed.addFields({
-            name: 'Stats',
-            value: stats.join('\n'),
-            inline: true,
-          })
-        }
-        embed
-          .setColor(member.displayHexColor || COLORS.embed)
-          .setDescription(description)
-          .setThumbnail(member.user.displayAvatarURL())
-          .setTitle(rank)
-
-        if (rank.length > 0) embed.setTitle(rank)
-
-        message.channel.send({ embeds: [embed] })
-      })
     } else if (command === 'resurrect') {
       if (!message.member.roles.cache.has(ROLEIDS.ghost))
         return message.channel.send(`You're not dead.`)
