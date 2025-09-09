@@ -311,9 +311,14 @@ const resolveTopN = async (guild, rows, key, n) => {
         const member =
           guild.members.cache.get(r.uid) ||
           (await guild.members.fetch({ user: r.uid, force: false }))
-        return { r, member }
+        return { r, member, user: null }
       } catch {
-        return { r, member: null }
+        try {
+          const user = await guild.client.users.fetch(r.uid, { force: false })
+          return { r, member: null, user }
+        } catch {
+          return { r, member: null, user: null }
+        }
       }
     }),
   )
@@ -450,8 +455,12 @@ async function handleDeaths({ message }) {
       leaderboardCount,
     )
 
-    const leaderboard = resolved.map(({ r, member }, i) => {
-      const who = member ? `<@${r.uid}>` : `\`${r.uid}\``
+    const leaderboard = resolved.map(({ r, member, user }, i) => {
+      const who = member
+        ? `<@${r.uid}>`
+        : user
+          ? `@${user.username}`
+          : `\`${r.uid}\``
       return `${i + 1}. ${who} \`${int(r.deaths)}\``
     })
 
@@ -461,9 +470,13 @@ async function handleDeaths({ message }) {
       inline: false,
     })
 
-    const firstPresent = resolved.find((x) => !!x.member)
-    if (firstPresent)
-      embed.setThumbnail(firstPresent.member.user.displayAvatarURL())
+    const firstPresent = resolved.find((x) => x.member || x.user)
+    if (firstPresent) {
+      const avatar = firstPresent.member
+        ? firstPresent.member.user.displayAvatarURL()
+        : firstPresent.user.displayAvatarURL()
+      embed.setThumbnail(avatar)
+    }
   }
 
   return message.channel.send({ embeds: [embed] })
@@ -557,8 +570,12 @@ async function handlePermadeath({ message }) {
       leaderboardCount,
     )
 
-    const leaderboard = resolved.map(({ r, member }, i) => {
-      const who = member ? `<@${r.uid}>` : `\`${r.uid}\``
+    const leaderboard = resolved.map(({ r, member, user }, i) => {
+      const who = member
+        ? `<@${r.uid}>`
+        : user
+          ? `@${user.username}`
+          : `\`${r.uid}\``
       return `${i + 1}. ${who} \`${int(r.points)}\``
     })
 
@@ -568,9 +585,13 @@ async function handlePermadeath({ message }) {
       inline: false,
     })
 
-    const firstPresent = resolved.find((x) => !!x.member)
-    if (firstPresent)
-      embed.setThumbnail(firstPresent.member.user.displayAvatarURL())
+    const firstPresent = resolved.find((x) => x.member || x.user)
+    if (firstPresent) {
+      const avatar = firstPresent.member
+        ? firstPresent.member.user.displayAvatarURL()
+        : firstPresent.user.displayAvatarURL()
+      embed.setThumbnail(avatar)
+    }
   }
 
   return message.channel.send({ embeds: [embed] })
