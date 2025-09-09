@@ -291,39 +291,33 @@ const detectHaiku = (text) => {
   } catch (e) {}
   return { isHaiku: false, formattedHaiku: '' }
 }
+const int = (x) => {
+  const n = parseInt(x, 10)
+  return Number.isFinite(n) && !isNaN(n) ? n : 0
+}
 
-// Guild-aware helpers for active members and Immortal status
-const filterActiveMembers = async (guild, rows) => {
-  const results = await Promise.all(
-    rows.map(async (r) => {
+const metaCount = (name) =>
+  Meta.find()
+    .matches('name', name)
+    .run()
+    .reduce((a, b) => a + int(b.value), 0)
+
+const resolveTopN = async (guild, rows, key, n) => {
+  const ranked = [...rows].sort((a, b) => int(b[key]) - int(a[key]))
+  const topN = ranked.slice(0, n)
+  const resolved = await Promise.all(
+    topN.map(async (r) => {
       try {
-        const m =
+        const member =
           guild.members.cache.get(r.uid) ||
           (await guild.members.fetch({ user: r.uid, force: false }))
-        return m ? r : null
+        return { r, member }
       } catch {
-        return null
+        return { r, member: null }
       }
     }),
   )
-  return results.filter(Boolean)
-}
-
-const isImmortalInGuild = async (guild, id) => {
-  const rows = Permadeath.find()
-    .run()
-    .sort(
-      (a, b) => parseInt(b.points || '0', 10) - parseInt(a.points || '0', 10),
-    )
-  for (const r of rows) {
-    try {
-      const m =
-        guild.members.cache.get(r.uid) ||
-        (await guild.members.fetch({ user: r.uid, force: false }))
-      if (m) return r.uid === id
-    } catch {}
-  }
-  return false
+  return { ranked, topN, resolved }
 }
 
 // 🤖 commands
@@ -443,33 +437,22 @@ async function handleCommands({ message }) {
 
 async function handleDeaths({ message }) {
   const rows = Permadeath.find().run()
-  const deathCount = rows.reduce((n, r) => n + parseInt(r.deaths || '0', 10), 0)
+  const deathCount = rows.reduce((n, r) => n + int(r.deaths), 0)
   const embed = makeEmbed(COLORS.embedBlack)
     .setTitle('Deaths 🪦')
     .setDescription(`There have been \`${deathCount}\` recorded deaths.`)
 
   if (rows.length > 0) {
-    const ranked = [...rows].sort(
-      (a, b) => parseInt(b.deaths || '0', 10) - parseInt(a.deaths || '0', 10),
-    )
-    const topN = ranked.slice(0, leaderboardCount)
-
-    const resolved = await Promise.all(
-      topN.map(async (r) => {
-        try {
-          const member =
-            message.guild.members.cache.get(r.uid) ||
-            (await message.guild.members.fetch({ user: r.uid, force: false }))
-          return { r, member }
-        } catch {
-          return { r, member: null }
-        }
-      }),
+    const { topN, resolved } = await resolveTopN(
+      message.guild,
+      rows,
+      'deaths',
+      leaderboardCount,
     )
 
     const leaderboard = resolved.map(({ r, member }, i) => {
       const who = member ? `<@${r.uid}>` : `\`${r.uid}\``
-      return `\`${i + 1}.\` ${who} \`${parseInt(r.deaths || '0', 10)}\``
+      return `\`${i + 1}.\` ${who} \`${int(r.deaths)}\``
     })
 
     embed.addFields({
@@ -567,27 +550,16 @@ async function handlePermadeath({ message }) {
 
   const rows = Permadeath.find().run()
   if (rows.length > 0) {
-    const ranked = [...rows].sort(
-      (a, b) => parseInt(b.points || '0', 10) - parseInt(a.points || '0', 10),
-    )
-    const topN = ranked.slice(0, leaderboardCount)
-
-    const resolved = await Promise.all(
-      topN.map(async (r) => {
-        try {
-          const member =
-            message.guild.members.cache.get(r.uid) ||
-            (await message.guild.members.fetch({ user: r.uid, force: false }))
-          return { r, member }
-        } catch {
-          return { r, member: null }
-        }
-      }),
+    const { topN, resolved } = await resolveTopN(
+      message.guild,
+      rows,
+      'points',
+      leaderboardCount,
     )
 
     const leaderboard = resolved.map(({ r, member }, i) => {
       const who = member ? `<@${r.uid}>` : `\`${r.uid}\``
-      return `\`${i + 1}.\` ${who} \`${parseInt(r.points || '0', 10)}\``
+      return `\`${i + 1}.\` ${who} \`${int(r.points)}\``
     })
 
     embed.addFields({
@@ -615,7 +587,7 @@ async function handlePoints({ message }) {
     .matches('uid', message.author.id)
     .limit(1)
     .run()[0]
-  const score = row ? parseInt(row.points || '0', 10) : 0
+  const score = row ? int(row.points) : 0
   const points = score === 1 ? 'point' : 'points'
   return message.channel.send(`You have \`${score}\` ${points}.`)
 }
@@ -671,15 +643,13 @@ async function handleProfile({ message }) {
     member.roles.cache.has(ROLEIDS.leet)
   )
     giveBadge(badges, 'Hacker')
-  if (pd.length > 0 && (await isImmortalInGuild(message.guild, id)))
-    giveBadge(badges, 'Immortal')
+  if (pd.length > 0 && isImmortal(id)) giveBadge(badges, 'Immortal')
   if (memer) giveBadge(badges, 'Memer')
   if (patron) giveBadge(badges, 'Patron')
   if (haikus && haikus.length >= 10) giveBadge(badges, 'Poet')
   if (psyop) giveBadge(badges, 'PSYOP')
   const description = `\`${prettyMs(memberFor)}\``
-  if (badges.length > 0)
-    embed.addFields({ name: 'Badges', value: badges.join(' '), inline: false })
+  if (badges.length > 0) description += `\n ${badges.join(' ')}`
   if (haikus.length > 0) {
     const h = haikus[Math.floor(Math.random() * haikus.length)]
     embed.addFields({ name: 'Haiku', value: `*${h.content}*`, inline: false })
@@ -739,28 +709,14 @@ async function handleResurrect({ message }) {
 }
 
 async function handleStats({ message }) {
-  const acronyms = Meta.find().matches('name', 'acronyms').run()
-  const bandnames = Meta.find().matches('name', 'bandnames').run()
-  const memes = Meta.find().matches('name', 'memes').run()
-  const oc = Meta.find().matches('name', 'oc').run()
-  const stimulus = Meta.find().matches('name', 'stimulus').run()
-  const toInt = (x) => {
-    const n = parseInt(x, 10)
-    return Number.isFinite(n) && !isNaN(n) ? n : 0
-  }
-  let count = (col) =>
-    col.reduce((a, b) => a + toInt(b.value ?? b.deaths ?? '0'), 0)
-  const countAcronyms = count(acronyms)
-  const countBandNames = count(bandnames)
-  const pdRows = Permadeath.find().run()
-  const countDeaths = pdRows.reduce(
-    (n, r) => n + parseInt(r.deaths || '0', 10),
-    0,
-  )
-  const countMemes = count(memes)
-  const countOC = count(oc)
-  const countStimulus = count(stimulus)
+  const countAcronyms = metaCount('acronyms')
+  const countBandNames = metaCount('bandnames')
+  const countMemes = metaCount('memes')
+  const countOC = metaCount('oc')
+  const countStimulus = metaCount('stimulus')
   const countHaikus = Haiku.find().run().length
+  const pdRows = Permadeath.find().run()
+  const countDeaths = pdRows.reduce((n, r) => n + int(r.deaths), 0)
   const highscore = Meta.find().matches('name', 'counting').limit(1).run()
   let countHighscore = 1
   if (highscore.length > 0) countHighscore = highscore[0].value.split('|')[1]
