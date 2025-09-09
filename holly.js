@@ -219,9 +219,8 @@ const resolveRank = (member) =>
 const BADGE_BY_NAME = Object.fromEntries(BADGES.map((b) => [b.name, b]))
 const giveBadge = (arr, name) => {
   const b = BADGE_BY_NAME[name]
-  if (b) arr.push(`${b.emoji} ${b.name}\n`)
+  if (b) arr.push(b.emoji)
 }
-
 const makeEmbed = (color = COLORS.embed) => new EmbedBuilder().setColor(color)
 
 const REACT_HEART_CHANNELS = new Set([CHANNELIDS.nsfw, CHANNELIDS.irl])
