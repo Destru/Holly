@@ -452,7 +452,7 @@ async function handleDeaths({ message }) {
 
     const leaderboard = resolved.map(({ r, member }, i) => {
       const who = member ? `<@${r.uid}>` : `\`${r.uid}\``
-      return `\`${i + 1}.\` ${who} \`${int(r.deaths)}\``
+      return `${i + 1}. ${who} \`${int(r.deaths)}\``
     })
 
     embed.addFields({
@@ -559,7 +559,7 @@ async function handlePermadeath({ message }) {
 
     const leaderboard = resolved.map(({ r, member }, i) => {
       const who = member ? `<@${r.uid}>` : `\`${r.uid}\``
-      return `#${i + 1} ${who} \`${int(r.points)}\``
+      return `${i + 1}. ${who} \`${int(r.points)}\``
     })
 
     embed.addFields({
@@ -726,10 +726,10 @@ async function handleStats({ message }) {
     `\nMemes \`${countMemes}\`` +
     `\nStimulus \`${countStimulus}\``
   const statsOriginal =
-    `Accidental Haikus \`${countHaikus}\`` +
-    `\nAcronyms \`${countAcronyms}\`` +
+    `Acronyms \`${countAcronyms}\`` +
     `\nBand Names \`${countBandNames}\`` +
-    `\nCreative Work \`${countOC}\``
+    `\nCreative Work \`${countOC}\`` +
+    `\nHaikus \`${countHaikus}\``
   const embed = makeEmbed()
     .setTitle('Statistics')
     .setDescription(
@@ -737,7 +737,7 @@ async function handleStats({ message }) {
     )
     .addFields(
       { name: 'Numbers', value: statsNumbers, inline: true },
-      { name: 'Original Content', value: statsOriginal, inline: true },
+      { name: 'OC', value: statsOriginal, inline: true },
     )
   return message.channel.send({ embeds: [embed] })
 }
