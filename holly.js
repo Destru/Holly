@@ -1157,12 +1157,16 @@ client.on('ready', () => {
   })
 })
 
-client.on('threadCreate', async (thread) => {
+client.on('THREAD_CREATE', async (thread) => {
   console.log(
     `id: ${thread.id}, name: ${thread.name}, parent: ${thread.parentId}`
   )
   if (thread.parentId === CHANNELIDS.creative) {
-    trackByName(message.author.id, 'oc')
+    try {
+      const uid =
+        thread.ownerId || (await thread.fetchStarterMessage()).author.id
+      trackByName(uid, 'oc')
+    } catch (e) {}
   }
 })
 
