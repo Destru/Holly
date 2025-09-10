@@ -1318,19 +1318,18 @@ client.on('interactionCreate', async (interaction) => {
 
 client.on('threadCreate', async (thread) => {
   try {
+    const message = await thread.fetchStarterMessage()
+    if (!message) return
+
     if (thread.parentId === CHANNELIDS.comrades) {
-      const message = await thread.fetchStarterMessage()
-      if (!message) return
       setReactions(message, 'heart')
     } else if (thread.parentId === CHANNELIDS.creative) {
-      const message = await thread.fetchStarterMessage()
-      if (!message) return
       const uid = thread.ownerId || message.author.id
       setReactions(message, 'csc')
       trackByName(uid, 'oc')
     }
   } catch (e) {
-    console.log(e)
+    console.error(`🤷‍♀️ ${e}`)
   }
 })
 
