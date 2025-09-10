@@ -124,9 +124,7 @@ const capitalize = (string) => {
 const isImmortal = (id) => {
   const rows = Permadeath.find().run()
   if (!rows || rows.length === 0) return false
-  const top = rows.sort(
-    (a, b) => parseInt(b.points || '0', 10) - parseInt(a.points || '0', 10),
-  )[0]
+  const top = rows.sort((a, b) => int(b.points) - int(a.points))[0]
   return !!top && top.uid === id
 }
 
@@ -620,8 +618,7 @@ async function handleProfile({ message }) {
   const stats = []
   let creative = false,
     memer = false
-  if (pd.length > 0)
-    stats.push(`Deaths \`${parseInt(pd[0].deaths || '0', 10)}\``)
+  if (pd.length > 0) stats.push(`Deaths \`${int(pd[0].deaths)}\``)
   METASTATS.forEach((stat) => {
     const m = Meta.find()
       .matches('uid', id)
@@ -888,7 +885,7 @@ const trackByName = (id, name) => {
     .run()
   if (match.length > 0) {
     Meta.update(match[0]._id_, {
-      value: `${parseInt(match[0].value) + 1}`,
+      value: `${int(match[0].value) + 1}`,
     })
   } else {
     Meta.add({
@@ -944,18 +941,18 @@ const pdGet = (uid) => {
 const pdSet = (row) => Permadeath.update(row._id_, row)
 const pdAddPoint = (uid) => {
   const row = pdGet(uid)
-  pdSet({ ...row, points: String(parseInt(row.points || '0', 10) + 1) })
+  pdSet({ ...row, points: String(int(row.points) + 1) })
 }
 const pdSubPoints = (uid, by) => {
   const row = pdGet(uid)
-  const next = Math.max(0, parseInt(row.points || '0', 10) - Math.max(0, by))
+  const next = Math.max(0, int(row.points) - Math.max(0, by))
   pdSet({ ...row, points: String(next) })
 }
 const pdApplyDeath = (uid) => {
   const row = pdGet(uid)
   pdSet({
     ...row,
-    deaths: String(parseInt(row.deaths || '0', 10) + 1),
+    deaths: String(int(row.deaths) + 1),
     points: '0',
   })
 }
@@ -1026,7 +1023,7 @@ client.on('messageCreate', async (message) => {
         )
 
         if (matches) {
-          const level = parseInt(matches[2])
+          const level = int(matches[2])
 
           if (ranks[level]) {
             const id = matches[1]
@@ -1145,9 +1142,9 @@ client.on('messageCreate', async (message) => {
       meta = Meta.get(metaKey)
     }
 
-    desiredCount = parseInt(meta.value.split('|')[0]) + 1
-    highscore = parseInt(meta.value.split('|')[1])
-    messageCount = parseInt(message.content)
+    desiredCount = int(meta.value.split('|')[0]) + 1
+    highscore = int(meta.value.split('|')[1])
+    messageCount = int(message.content)
 
     if (
       message.author.id !== meta.uid &&
