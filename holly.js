@@ -1,4 +1,5 @@
 require('dotenv').config()
+
 const {
   Client,
   GatewayIntentBits,
@@ -13,7 +14,17 @@ const {
   ButtonStyle,
   ComponentType,
 } = require('discord.js')
+
 const fs = require('fs')
+const db = require('flat-db')
+const cron = require('node-cron')
+const findahaikuLib = require('findahaiku')
+const findahaiku = findahaikuLib.default || findahaikuLib
+const path = require('path')
+const prettyMsLib = require('pretty-ms')
+const prettyMs = prettyMsLib.default || prettyMsLib
+const checkWord = require('check-word')
+
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
@@ -24,14 +35,7 @@ const client = new Client({
   ],
   partials: [Partials.Channel, Partials.Message, Partials.Reaction],
 })
-const db = require('flat-db')
-const cron = require('node-cron')
-const findahaikuLib = require('findahaiku')
-const findahaiku = findahaikuLib.default || findahaikuLib
-const path = require('path')
-const prettyMsLib = require('pretty-ms')
-const prettyMs = prettyMsLib.default || prettyMsLib
-const checkWord = require('check-word')
+
 const dictionary = checkWord('en')
 
 const { COLORS, CHANNELIDS, EMOJIIDS, IDS, ROLEIDS } = require('./config')
@@ -82,7 +86,7 @@ const BADGES = [
     emoji: '👩‍🚀',
   },
 ]
-const METASTATS = ['oc', 'memes', 'stimulus', 'acronyms', 'bandnames']
+const METASTATS = ['acronyms', 'bandnames', 'oc', 'memes', 'stimulus']
 const PREFIX = '!'
 const STATUS = [
   'Back to Reality',
@@ -118,7 +122,7 @@ const capitalize = (string) => {
   if (typeof string !== 'string') return string
   return string.charAt(0).toUpperCase() + string.slice(1)
 }
-const leaderboardCount = 5
+
 const isImmortal = (id) => {
   const rows = Permadeath.find().run()
   if (!rows || rows.length === 0) return false
@@ -127,6 +131,7 @@ const isImmortal = (id) => {
   )[0]
   return !!top && top.uid === id
 }
+
 const hasContent = (message) => {
   return (
     message.content.includes('http://') ||
@@ -134,7 +139,7 @@ const hasContent = (message) => {
     message.attachments.size > 0
   )
 }
-const perPage = 5
+
 const quotes = [
   `Rude alert! Rude alert! An electrical fire has knocked out my voice recognition unicycle! Many Wurlitzers are missing from my database.`,
   `We have enough food to last thirty thousand years, but we've only got one Milk Dud left. And everyone's too polite to take it.`,
@@ -142,6 +147,10 @@ const quotes = [
   `Well, the thing about a black hole, its main distinguishing feature, is it's black. And the thing about space, the colour of space, your basic space colour, is black. So how are you supposed to see them?`,
   `Going round in circles for 14 months. Getting my information from the Junior Color Encyclopedia of Space. The respect you have for me is awesome, innit?`,
 ]
+
+const leaderboardCount = 5
+const rabbitDelete = 10000
+const perPage = 5
 
 // 🤓 helpers
 const formatBytes = (bytes) => {
@@ -155,6 +164,7 @@ const formatBytes = (bytes) => {
   const value = Math.round(bytes * 10) / 10
   return `${value} ${units[i]}`
 }
+
 const getDirSize = (dirPath) => {
   let total = 0
   try {
@@ -175,6 +185,7 @@ const getDirSize = (dirPath) => {
   }
   return total
 }
+
 const ROLE_TO_RANK = [
   [ROLEIDS.cyberpunk, 'Cyberpunk'],
   [ROLEIDS.replicant, 'Replicant'],
@@ -186,21 +197,29 @@ const ROLE_TO_RANK = [
   [ROLEIDS.activist, 'Activist'],
   [ROLEIDS.comrade, 'Comrade'],
 ]
+
 const resolveRank = (member) =>
   ROLE_TO_RANK.find(([rid]) => member.roles.cache.has(rid))?.[1] || 'Recruit'
+
 const BADGE_BY_NAME = Object.fromEntries(BADGES.map((b) => [b.name, b]))
+
 const giveBadge = (arr, name) => {
   const b = BADGE_BY_NAME[name]
   if (b) arr.push(b.emoji)
 }
+
 const makeEmbed = (color = COLORS.embed) => new EmbedBuilder().setColor(color)
+
 const getUserHaikus = (uid) => Haiku.find().matches('uid', uid).run()
+
 const parseIndexArg = (arg) => {
   const n = parseInt(arg, 10)
   return Number.isInteger(n) && n > 0 ? n - 1 : null
 }
+
 const formatHaikuItem = (h, index) =>
   `#${index + 1}\n${h.content}\n<#${h.channel}>`
+
 const buildHaikuListEmbeds = (member, haikus, pageSize = perPage) => {
   if (haikus.length <= pageSize) {
     return [
@@ -282,6 +301,7 @@ const paginateEmbeds = async (message, pages, timeout = 120000) => {
     } catch {}
   })
 }
+
 const detectHaiku = (text) => {
   try {
     const lines = findahaiku(text, { strict: true }) || []
@@ -836,40 +856,56 @@ const ranks = {
   50: 'Cyberpunk',
 }
 
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
+const safeReact = async (message, emoji, retries = 2) => {
+  try {
+    if (message?.partial) await message.fetch()
+    await message.react(emoji)
+  } catch (e) {
+    if (retries <= 0) return
+    await sleep(300)
+    try {
+      await message.react(emoji)
+    } catch {
+      await sleep(600)
+      return safeReact(message, emoji, retries - 1)
+    }
+  }
+}
+
 const setReactions = (message, type = false) => {
   setTimeout(() => {
     switch (type) {
       case 'csc':
-        message.react(EMOJIIDS.csc)
+        safeReact(message, EMOJIIDS.csc)
         break
       case 'upvote':
         if (message.channel.id === CHANNELIDS.memes)
-          message.react(EMOJIIDS.kekw)
-        else message.react(EMOJIIDS.upvote)
+          safeReact(message, EMOJIIDS.kekw)
+        else safeReact(message, EMOJIIDS.upvote)
         break
       case 'skull':
-        message.react('💀')
+        safeReact(message, '💀')
         break
       case 'binaerpilot':
-        message.react(EMOJIIDS.binaerpilot)
+        safeReact(message, EMOJIIDS.binaerpilot)
         break
       case 'immortal':
-        message.react('🧛')
+        safeReact(message, '🧛')
         break
       case 'heart':
       default:
-        message.react(EMOJIIDS.heart)
+        safeReact(message, EMOJIIDS.heart)
     }
   }, 1000)
 }
+
 const subjectId = (message) => {
   const matches = message.content.match(/<@!?(\d+)>/)
   let id = message.author.id
   if (matches) id = matches[1]
   return id
 }
-
-const timerFeedbackDelete = 10000
 
 const trackByName = (id, name) => {
   let match = Meta.find()
@@ -1105,19 +1141,19 @@ client.on('messageCreate', async (message) => {
       } else fail = true
 
       if (fail === false) {
-        message.react('✅')
+        await safeReact(message, '✅')
         permaDeathScore()
         trackByName(message.author.id, 'acronyms')
       } else {
-        message.react('❌')
+        await safeReact(message, '❌')
         permaDeath()
       }
     }
   } else if (message.channel.id === CHANNELIDS.allcaps) {
     const allCaps = /^[A-Z0-9\s-_,./?;:'"‘’“”`~!@#$%^&*()=+|\\<>\[\]{}]+$/gm
 
-    if (!message.content.match(allCaps)) {
-      message.react('❌')
+    if (!message.text.match(allCaps)) {
+      await safeReact(message, '❌')
       permaDeath()
     } else permaDeathScore()
   } else if (message.channel.id === CHANNELIDS.bandnames) {
@@ -1151,13 +1187,13 @@ client.on('messageCreate', async (message) => {
       messageCount === desiredCount
     ) {
       if (messageCount > highscore) {
-        message.react('☑️')
+        await safeReact(message, '☑️')
         Meta.update(meta._id_, {
           uid: message.author.id,
           value: `${messageCount}|${messageCount}`,
         })
       } else {
-        message.react('✅')
+        await safeReact(message, '✅')
         Meta.update(meta._id_, {
           uid: message.author.id,
           value: `${messageCount}|${highscore}`,
@@ -1165,7 +1201,7 @@ client.on('messageCreate', async (message) => {
       }
       permaDeathScore()
     } else {
-      message.react('❌')
+      await safeReact(message, '❌')
       Meta.update(meta._id_, {
         uid: message.author.id,
         value: `0|${highscore}`,
@@ -1203,10 +1239,10 @@ client.on('messageCreate', async (message) => {
         word.endsWith(letter)
       ) {
         Meta.update(matches[0]._id_, { uid: message.author.id, value: letter })
-        message.react('✅')
+        await safeReact(message, '✅')
         permaDeathScore()
       } else {
-        message.react('❌')
+        await safeReact(message, '❌')
         permaDeath()
       }
     }
@@ -1223,7 +1259,7 @@ client.on('messageCreate', async (message) => {
       message.channel.send('🐇').then((message) => {
         setTimeout(() => {
           message.delete()
-        }, timerFeedbackDelete)
+        }, rabbitDelete)
       })
     } else {
       message.member.roles.add(ROLEIDS.leet)
@@ -1232,11 +1268,11 @@ client.on('messageCreate', async (message) => {
         .then((message) => {
           setTimeout(() => {
             message.delete()
-          }, timerFeedbackDelete)
+          }, rabbitDelete)
         })
     }
   } else if (message.content.includes(':420:')) {
-    message.react(EMOJIIDS.weed)
+    await safeReact(message, EMOJIIDS.weed)
   } else if (
     message.content.includes('--debug') &&
     message.author.id === IDS.admin
