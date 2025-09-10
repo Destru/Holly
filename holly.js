@@ -149,40 +149,6 @@ const quotes = [
 const leaderboardCount = 5
 const paginationItems = 5
 
-// 🤓 helpers
-const formatBytes = (bytes) => {
-  if (typeof bytes !== 'number' || isNaN(bytes) || bytes < 0) return '0 B'
-  const units = ['B', 'KB', 'MB', 'GB', 'TB']
-  let i = 0
-  while (bytes >= 1024 && i < units.length - 1) {
-    bytes = bytes / 1024
-    i++
-  }
-  const value = Math.round(bytes * 10) / 10
-  return `${value} ${units[i]}`
-}
-
-const getDirSize = (dirPath) => {
-  let total = 0
-  try {
-    const entries = fs.readdirSync(dirPath, { withFileTypes: true })
-    for (const entry of entries) {
-      const fullPath = path.join(dirPath, entry.name)
-      if (entry.isFile()) {
-        try {
-          const stats = fs.statSync(fullPath)
-          total += stats.size
-        } catch (e) {}
-      } else if (entry.isDirectory()) {
-        total += getDirSize(fullPath)
-      }
-    }
-  } catch (e) {
-    return 0
-  }
-  return total
-}
-
 const ROLE_TO_RANK = [
   [ROLEIDS.cyberpunk, 'Cyberpunk'],
   [ROLEIDS.replicant, 'Replicant'],
@@ -897,6 +863,16 @@ const setReactions = (message, type = false) => {
   }, 1000)
 }
 
+const sendTemp = async (channel, content, ms = 10000) => {
+  try {
+    const msg = await channel.send(content)
+    setTimeout(() => msg.delete().catch(() => {}), ms)
+    return msg
+  } catch {
+    return null
+  }
+}
+
 const subjectId = (message) => {
   const matches = message.content.match(/<@!?(\d+)>/)
   let id = message.author.id
@@ -993,8 +969,8 @@ client.on('messageCreate', async (message) => {
   const command = args.shift().toLowerCase()
   const { isHaiku, formattedHaiku } = detectHaiku(message.content)
 
-  const pdUpdate = async (type = 'point', penalty = 0) => {
-    if (type === 'death') {
+  const permadeath = async (action = 'point') => {
+    if (action === 'death') {
       const channelGraveyard = client.channels.cache.get(CHANNELIDS.graveyard)
       const obituary = new EmbedBuilder()
         .setColor(COLORS.embedBlack)
@@ -1004,27 +980,19 @@ client.on('messageCreate', async (message) => {
 
       if (!isImmortal(message.author.id)) {
         if (message) setReactions(message, 'skull')
-        try {
-          await message.member.roles.add(ROLEIDS.ghost)
-        } catch {}
-        try {
-          channelGraveyard?.send({ embeds: [obituary] })
-        } catch {}
+        const tasks = [message.member.roles.add(ROLEIDS.ghost)]
+        if (channelGraveyard)
+          tasks.push(channelGraveyard.send({ embeds: [obituary] }))
+        await Promise.allSettled(tasks)
         pdApplyDeath(message.author.id)
         return
-      } else {
-        if (message) setReactions(message, 'immortal')
-        const by = penalty > 0 ? penalty : Math.floor(Math.random() * 10) + 1
-        pdSubPoints(message.author.id, by)
-        return
       }
+      if (message) setReactions(message, 'immortal')
+      const by = Math.floor(Math.random() * 10) + 1
+      pdSubPoints(message.author.id, by)
+      return
     }
-
-    if (type === 'penalty' && penalty > 0) {
-      pdSubPoints(message.author.id, penalty)
-    } else {
-      pdAddPoint(message.author.id)
-    }
+    pdAddPoint(message.author.id)
   }
 
   if (
@@ -1143,20 +1111,20 @@ client.on('messageCreate', async (message) => {
 
       if (fail === false) {
         await safeReact(message, '✅')
-        pdUpdate('point')
+        permadeath('point')
         trackByName(message.author.id, 'acronyms')
       } else {
         await safeReact(message, '❌')
-        pdUpdate('death')
+        permadeath('death')
       }
     }
   } else if (message.channel.id === CHANNELIDS.allcaps) {
     const text = message.content || ''
     if (/[a-z]/.test(text)) {
       await safeReact(message, '❌')
-      pdUpdate('death')
+      permadeath('death')
     } else {
-      pdUpdate('point')
+      permadeath('point')
     }
   } else if (message.channel.id === CHANNELIDS.bandnames) {
     setReactions(message, 'upvote')
@@ -1189,26 +1157,35 @@ client.on('messageCreate', async (message) => {
       messageCount === desiredCount
     ) {
       if (messageCount > highscore) {
-        await safeReact(message, '☑️')
-        Meta.update(meta._id_, {
-          uid: message.author.id,
-          value: `${messageCount}|${messageCount}`,
-        })
+        await Promise.allSettled([
+          safeReact(message, '☑️'),
+          (async () =>
+            Meta.update(meta._id_, {
+              uid: message.author.id,
+              value: `${messageCount}|${messageCount}`,
+            }))(),
+        ])
       } else {
-        await safeReact(message, '✅')
-        Meta.update(meta._id_, {
-          uid: message.author.id,
-          value: `${messageCount}|${highscore}`,
-        })
+        await Promise.allSettled([
+          safeReact(message, '✅'),
+          (async () =>
+            Meta.update(meta._id_, {
+              uid: message.author.id,
+              value: `${messageCount}|${highscore}`,
+            }))(),
+        ])
       }
-      pdUpdate('point')
+      permadeath('point')
     } else {
-      await safeReact(message, '❌')
-      Meta.update(meta._id_, {
-        uid: message.author.id,
-        value: `0|${highscore}`,
-      })
-      pdUpdate('death')
+      await Promise.allSettled([
+        safeReact(message, '❌'),
+        (async () =>
+          Meta.update(meta._id_, {
+            uid: message.author.id,
+            value: `0|${highscore}`,
+          }))(),
+      ])
+      permadeath('death')
     }
   } else if (
     (message.channel.id === CHANNELIDS.memes ||
@@ -1242,10 +1219,10 @@ client.on('messageCreate', async (message) => {
       ) {
         Meta.update(matches[0]._id_, { uid: message.author.id, value: letter })
         await safeReact(message, '✅')
-        pdUpdate('point')
+        permadeath('point')
       } else {
         await safeReact(message, '❌')
-        pdUpdate('death')
+        permadeath('death')
       }
     }
   } else if (message.channel.id === CHANNELIDS.wip && hasContent(message)) {
@@ -1256,16 +1233,15 @@ client.on('messageCreate', async (message) => {
   if (message.content.startsWith(PREFIX)) {
     if (await tryRouter(command, { message, args })) return
   } else if (KEY && message.content.includes(KEY)) {
-    message.delete().catch(() => {})
     const hasLeet = message.member.roles.cache.has(ROLEIDS.leet)
-    if (!hasLeet) message.member.roles.add(ROLEIDS.leet).catch(() => {})
     const text = hasLeet
       ? '🐇'
       : 'You can now send anonymous messages with `/anon` 🕵️‍♀️'
-    message.channel
-      .send(text)
-      .then((m) => setTimeout(() => m.delete().catch(() => {}), 10000))
-      .catch(() => {})
+    await Promise.allSettled([
+      message.delete(),
+      hasLeet ? Promise.resolve() : message.member.roles.add(ROLEIDS.leet),
+      sendTemp(message.channel, text, 10000),
+    ])
   } else if (message.content.includes(':420:')) {
     await safeReact(message, EMOJIIDS.weed)
   }
