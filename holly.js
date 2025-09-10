@@ -95,15 +95,13 @@ const STATUS = [
   'Play-by-mail Chess',
 ]
 
-let KEY
-fs.readFile('./key.md', 'utf8', (err, data) => {
-  if (err) {
-    console.error(err)
-    return
+const KEY = (() => {
+  try {
+    return (process.env.KEY || fs.readFileSync('./key.md', 'utf8')).trim()
+  } catch {
+    return ''
   }
-  KEY = data.trim()
-})
-const hasKey = () => typeof KEY === 'string' && KEY.length > 0
+})()
 
 const acronymString =
   'csc '.repeat(42) +
@@ -149,7 +147,7 @@ const quotes = [
 ]
 
 const leaderboardCount = 5
-const rabbitDelete = 10000
+const rabbitDelay = 10000
 const perPage = 5
 
 // 🤓 helpers
@@ -1253,13 +1251,13 @@ client.on('messageCreate', async (message) => {
 
   if (message.content.startsWith(PREFIX)) {
     if (await tryRouter(command, { message, args })) return
-  } else if (hasKey() && message.content.includes(KEY)) {
+  } else if (KEY && message.content.includes(KEY)) {
     message.delete()
     if (message.member.roles.cache.has(ROLEIDS.leet)) {
       message.channel.send('🐇').then((message) => {
         setTimeout(() => {
           message.delete()
-        }, rabbitDelete)
+        }, rabbitDelay)
       })
     } else {
       message.member.roles.add(ROLEIDS.leet)
@@ -1268,7 +1266,7 @@ client.on('messageCreate', async (message) => {
         .then((message) => {
           setTimeout(() => {
             message.delete()
-          }, rabbitDelete)
+          }, rabbitDelay)
         })
     }
   } else if (message.content.includes(':420:')) {
