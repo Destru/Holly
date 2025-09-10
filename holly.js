@@ -147,8 +147,7 @@ const quotes = [
 ]
 
 const leaderboardCount = 5
-const rabbitDelay = 10000
-const perPage = 5
+const paginationItems = 5
 
 // 🤓 helpers
 const formatBytes = (bytes) => {
@@ -218,7 +217,7 @@ const parseIndexArg = (arg) => {
 const formatHaikuItem = (h, index) =>
   `#${index + 1}\n${h.content}\n<#${h.channel}>`
 
-const buildHaikuListEmbeds = (member, haikus, pageSize = perPage) => {
+const buildHaikuListEmbeds = (member, haikus, pageSize = paginationItems) => {
   if (haikus.length <= pageSize) {
     return [
       makeEmbed()
@@ -559,7 +558,7 @@ async function handleHaiku({ message, args }) {
   }
   if (targetHaikus.length === 0) return message.channel.send('No haikus found.')
   const member = await message.guild.members.fetch(targetId)
-  const pages = buildHaikuListEmbeds(member, targetHaikus, perPage)
+  const pages = buildHaikuListEmbeds(member, targetHaikus, paginationItems)
   if (pages.length === 1) return message.channel.send({ embeds: [pages[0]] })
   return paginateEmbeds(message, pages)
 }
@@ -994,30 +993,34 @@ client.on('messageCreate', async (message) => {
   const command = args.shift().toLowerCase()
   const { isHaiku, formattedHaiku } = detectHaiku(message.content)
 
-  const permaDeath = () => {
-    const channelGraveyard = client.channels.cache.get(CHANNELIDS.graveyard)
-    const obituary = new EmbedBuilder()
-      .setColor(COLORS.embedBlack)
-      .setThumbnail(message.author.displayAvatarURL())
-      .setTitle(`Death 💀`)
-      .setDescription(`${message.author} died in ${message.channel}`)
+  const pdUpdate = async (type = 'point', penalty = 0) => {
+    if (type === 'death') {
+      const channelGraveyard = client.channels.cache.get(CHANNELIDS.graveyard)
+      const obituary = new EmbedBuilder()
+        .setColor(COLORS.embedBlack)
+        .setThumbnail(message.author.displayAvatarURL())
+        .setTitle('Death 💀')
+        .setDescription(`${message.author} died in ${message.channel}`)
 
-    if (!isImmortal(message.author.id)) {
-      if (message) setReactions(message, 'skull')
-      message.member.roles.add(ROLEIDS.ghost)
-      channelGraveyard.send({ embeds: [obituary] })
-      permaDeathScore(true)
-    } else {
-      if (message) setReactions(message, 'immortal')
-      permaDeathScore(false, Math.floor(Math.random() * 10) + 1)
+      if (!isImmortal(message.author.id)) {
+        if (message) setReactions(message, 'skull')
+        try {
+          await message.member.roles.add(ROLEIDS.ghost)
+        } catch {}
+        try {
+          channelGraveyard?.send({ embeds: [obituary] })
+        } catch {}
+        pdApplyDeath(message.author.id)
+        return
+      } else {
+        if (message) setReactions(message, 'immortal')
+        const by = penalty > 0 ? penalty : Math.floor(Math.random() * 10) + 1
+        pdSubPoints(message.author.id, by)
+        return
+      }
     }
-  }
-  const permaDeathScore = (death = false, penalty = 0) => {
-    if (death === true) {
-      pdApplyDeath(message.author.id)
-      return
-    }
-    if (penalty > 0) {
+
+    if (type === 'penalty' && penalty > 0) {
       pdSubPoints(message.author.id, penalty)
     } else {
       pdAddPoint(message.author.id)
@@ -1031,11 +1034,11 @@ client.on('messageCreate', async (message) => {
   ) {
     const author =
       message.channel.id === CHANNELIDS.allcaps
-        ? message.author.username.toUpperCase()
-        : message.author.username
+        ? message.author.displayName.toUpperCase()
+        : message.author.displayName
     const embed = new EmbedBuilder()
       .setColor(COLORS.embed)
-      .setDescription(`${formattedHaiku}\n—*${author}*`)
+      .setDescription(`${formattedHaiku}\n— ${author}`)
 
     Haiku.add({
       uid: message.author.id,
@@ -1140,20 +1143,21 @@ client.on('messageCreate', async (message) => {
 
       if (fail === false) {
         await safeReact(message, '✅')
-        permaDeathScore()
+        pdUpdate('point')
         trackByName(message.author.id, 'acronyms')
       } else {
         await safeReact(message, '❌')
-        permaDeath()
+        pdUpdate('death')
       }
     }
   } else if (message.channel.id === CHANNELIDS.allcaps) {
-    const allCaps = /^[A-Z0-9\s-_,./?;:'"‘’“”`~!@#$%^&*()=+|\\<>\[\]{}]+$/gm
-
-    if (!message.text.match(allCaps)) {
+    const text = message.content || ''
+    if (/[a-z]/.test(text)) {
       await safeReact(message, '❌')
-      permaDeath()
-    } else permaDeathScore()
+      pdUpdate('death')
+    } else {
+      pdUpdate('point')
+    }
   } else if (message.channel.id === CHANNELIDS.bandnames) {
     setReactions(message, 'upvote')
     trackByName(message.author.id, 'bandnames')
@@ -1197,14 +1201,14 @@ client.on('messageCreate', async (message) => {
           value: `${messageCount}|${highscore}`,
         })
       }
-      permaDeathScore()
+      pdUpdate('point')
     } else {
       await safeReact(message, '❌')
       Meta.update(meta._id_, {
         uid: message.author.id,
         value: `0|${highscore}`,
       })
-      permaDeath()
+      pdUpdate('death')
     }
   } else if (
     (message.channel.id === CHANNELIDS.memes ||
@@ -1238,10 +1242,10 @@ client.on('messageCreate', async (message) => {
       ) {
         Meta.update(matches[0]._id_, { uid: message.author.id, value: letter })
         await safeReact(message, '✅')
-        permaDeathScore()
+        pdUpdate('point')
       } else {
         await safeReact(message, '❌')
-        permaDeath()
+        pdUpdate('death')
       }
     }
   } else if (message.channel.id === CHANNELIDS.wip && hasContent(message)) {
@@ -1252,34 +1256,18 @@ client.on('messageCreate', async (message) => {
   if (message.content.startsWith(PREFIX)) {
     if (await tryRouter(command, { message, args })) return
   } else if (KEY && message.content.includes(KEY)) {
-    message.delete()
-    if (message.member.roles.cache.has(ROLEIDS.leet)) {
-      message.channel.send('🐇').then((message) => {
-        setTimeout(() => {
-          message.delete()
-        }, rabbitDelay)
-      })
-    } else {
-      message.member.roles.add(ROLEIDS.leet)
-      message.channel
-        .send('You can now send anonymous messages with `/anon` :rabbit:')
-        .then((message) => {
-          setTimeout(() => {
-            message.delete()
-          }, rabbitDelay)
-        })
-    }
+    message.delete().catch(() => {})
+    const hasLeet = message.member.roles.cache.has(ROLEIDS.leet)
+    if (!hasLeet) message.member.roles.add(ROLEIDS.leet).catch(() => {})
+    const text = hasLeet
+      ? '🐇'
+      : 'You can now send anonymous messages with `/anon` 🕵️‍♀️'
+    message.channel
+      .send(text)
+      .then((m) => setTimeout(() => m.delete().catch(() => {}), 10000))
+      .catch(() => {})
   } else if (message.content.includes(':420:')) {
     await safeReact(message, EMOJIIDS.weed)
-  } else if (
-    message.content.includes('--debug') &&
-    message.author.id === IDS.admin
-  ) {
-    const dataDir = path.resolve(__dirname, 'data')
-    const dataBytes = getDirSize(dataDir)
-    const dataReadable = formatBytes(dataBytes)
-
-    message.channel.send(`🧠 ${dataReadable}`)
   }
 })
 
