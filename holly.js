@@ -980,10 +980,8 @@ client.on('messageCreate', async (message) => {
 
       if (!isImmortal(message.author.id)) {
         if (message) setReactions(message, 'skull')
-        const tasks = [message.member.roles.add(ROLEIDS.ghost)]
-        if (channelGraveyard)
-          tasks.push(channelGraveyard.send({ embeds: [obituary] }))
-        await Promise.allSettled(tasks)
+        message.member.roles.add(ROLEIDS.ghost)
+        channelGraveyard.send({ embeds: [obituary] })
         pdApplyDeath(message.author.id)
         return
       }
@@ -1157,34 +1155,25 @@ client.on('messageCreate', async (message) => {
       messageCount === desiredCount
     ) {
       if (messageCount > highscore) {
-        await Promise.allSettled([
-          safeReact(message, '☑️'),
-          (async () =>
-            Meta.update(meta._id_, {
-              uid: message.author.id,
-              value: `${messageCount}|${messageCount}`,
-            }))(),
-        ])
+        safeReact(message, '☑️')
+        Meta.update(meta._id_, {
+          uid: message.author.id,
+          value: `${messageCount}|${messageCount}`,
+        })
       } else {
-        await Promise.allSettled([
-          safeReact(message, '✅'),
-          (async () =>
-            Meta.update(meta._id_, {
-              uid: message.author.id,
-              value: `${messageCount}|${highscore}`,
-            }))(),
-        ])
+        safeReact(message, '✅')
+        Meta.update(meta._id_, {
+          uid: message.author.id,
+          value: `${messageCount}|${highscore}`,
+        })
       }
       permadeath('point')
     } else {
-      await Promise.allSettled([
-        safeReact(message, '❌'),
-        (async () =>
-          Meta.update(meta._id_, {
-            uid: message.author.id,
-            value: `0|${highscore}`,
-          }))(),
-      ])
+      safeReact(message, '❌')
+      Meta.update(meta._id_, {
+        uid: message.author.id,
+        value: `0|${highscore}`,
+      })
       permadeath('death')
     }
   } else if (
