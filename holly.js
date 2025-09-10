@@ -820,14 +820,15 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 const safeReact = async (message, emoji, retries = 2) => {
   try {
     if (message?.partial) await message.fetch()
+    await sleep(150)
     await message.react(emoji)
   } catch (e) {
     if (retries <= 0) return
-    await sleep(300)
+    await sleep(350)
     try {
       await message.react(emoji)
     } catch {
-      await sleep(600)
+      await sleep(700)
       return safeReact(message, emoji, retries - 1)
     }
   }
