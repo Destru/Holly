@@ -962,6 +962,83 @@ const pdResurrect = (uid) => {
   pdSet({ ...row, resurrectedAt: new Date().toISOString() })
 }
 
+const EVE_CHAR_ID = '1761654327'
+const ZKILL_CHANNEL_ID = CHANNELIDS.terminal
+const ZKILL_REDISQ_URL = 'https://zkillredisq.stream/listen.php?ttw=10'
+
+const seenKillmails = new Set()
+
+async function zKillLoop() {
+  if (!EVE_CHAR_ID) return
+  const channel = client.channels.cache.get(ZKILL_CHANNEL_ID)
+  if (!channel) return
+
+  const queueID = `holly-${client.user.id}-${Math.random().toString(36).slice(2)}`
+  const base = ZKILL_REDISQ_URL.includes('queueID=')
+    ? ZKILL_REDISQ_URL
+    : `${ZKILL_REDISQ_URL}&queueID=${queueID}`
+
+  for (;;) {
+    try {
+      const res = await fetch(base, {
+        redirect: 'follow',
+        headers: { 'User-Agent': 'Holly' },
+      })
+      if (!res.ok) {
+        await new Promise((r) => setTimeout(r, 1500))
+        continue
+      }
+      const data = await res.json().catch(() => ({}))
+      const pkg = data?.package
+      if (!pkg) continue
+
+      const km = pkg.killmail
+      const zkb = pkg.zkb || {}
+      const id = km?.killmail_id
+      if (!id || seenKillmails.has(id)) continue
+
+      const youFB =
+        Array.isArray(km?.attackers) &&
+        km.attackers.some(
+          (a) => a?.character_id === EVE_CHAR_ID && a?.final_blow,
+        )
+      if (!youFB) {
+        seenKillmails.add(id)
+        continue
+      }
+
+      const victimName = km?.victim?.character_id
+        ? `<https://zkillboard.com/character/${km.victim.character_id}/>`
+        : 'unknown target'
+      const shipType = km?.victim?.ship_type_id
+        ? `ship ${km.victim.ship_type_id}`
+        : 'unknown ship'
+      const value = zkb?.totalValue
+        ? ` (${Math.round(zkb.totalValue).toLocaleString()} ISK)`
+        : ''
+      const link = `https://zkillboard.com/kill/${id}/`
+
+      await channel.send({
+        embeds: [
+          new EmbedBuilder()
+            .setColor(COLORS.embedBlack)
+            .setTitle('🏴‍☠️ Destru')
+            .setDescription(`[Killmail #${id}](${link})`)
+            .addFields(
+              { name: 'Victim', value: victimName, inline: true },
+              { name: 'Ship', value: shipType, inline: true },
+              ...(value ? [{ name: 'Value', value, inline: true }] : []),
+            ),
+        ],
+      })
+
+      seenKillmails.add(id)
+    } catch (e) {
+      await new Promise((r) => setTimeout(r, 2000))
+    }
+  }
+}
+
 client.on('messageCreate', async (message) => {
   const args = message.content.slice(1).trim().split(/ +/g)
   const command = args.shift().toLowerCase()
@@ -1236,6 +1313,8 @@ client.on('messageCreate', async (message) => {
 
 client.on('clientReady', () => {
   console.log(`Holly ${version} is online.`)
+
+  zKillLoop()
 
   client.user.setPresence({
     status: 'online',
