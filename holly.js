@@ -969,10 +969,7 @@ const ZKILL_REDISQ_URL = 'https://zkillredisq.stream/listen.php?ttw=10'
 const seenKillmails = new Set()
 
 async function zKillLoop() {
-  if (!EVE_CHAR_ID) return
   const channel = client.channels.cache.get(ZKILL_CHANNEL_ID)
-  if (!channel) return
-
   const queueID = `holly-${client.user.id}-${Math.random().toString(36).slice(2)}`
   const base = ZKILL_REDISQ_URL.includes('queueID=')
     ? ZKILL_REDISQ_URL
@@ -985,7 +982,7 @@ async function zKillLoop() {
         headers: { 'User-Agent': 'Holly' },
       })
       if (!res.ok) {
-        await new Promise((r) => setTimeout(r, 1500))
+        await new Promise((r) => setTimeout(r, 2500))
         continue
       }
       const data = await res.json().catch(() => ({}))
@@ -996,13 +993,15 @@ async function zKillLoop() {
       const zkb = pkg.zkb || {}
       const id = km?.killmail_id
       if (!id || seenKillmails.has(id)) continue
+      console.log(`[zkill] package received: ${id}`)
 
-      const youFB =
+      const mine =
         Array.isArray(km?.attackers) &&
         km.attackers.some(
-          (a) => a?.character_id === EVE_CHAR_ID && a?.final_blow,
+          (a) => Number(a?.character_id) === Number(EVE_CHAR_ID),
         )
-      if (!youFB) {
+      if (!mine) {
+        console.log(`[zkill] skip not-mine: ${id}`)
         seenKillmails.add(id)
         continue
       }
@@ -1034,7 +1033,7 @@ async function zKillLoop() {
 
       seenKillmails.add(id)
     } catch (e) {
-      await new Promise((r) => setTimeout(r, 2000))
+      await new Promise((r) => setTimeout(r, 5000))
     }
   }
 }
