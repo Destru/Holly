@@ -1048,48 +1048,35 @@ async function zKillLoop() {
         continue
       }
 
-      const victimId = km?.victim?.character_id
-        ? km.victim.character_id
-        : 'unknown'
-      const shipId = km?.victim?.ship_type_id
-        ? km.victim.ship_type_id
-        : 'unknown'
-      const loot = zkb?.droppedValue
-        ? `${Math.round(zkb.droppedValue).toLocaleString()} ISK`
-        : 'unknown'
+      const shipId = km?.victim?.ship_type_id || null
       const value = zkb?.totalValue
         ? `${Math.round(zkb.totalValue).toLocaleString()} ISK`
-        : 'unknown'
+        : null
+      const valueLoot = zkb?.droppedValue
+        ? `${Math.round(zkb.droppedValue).toLocaleString()} ISK`
+        : null
       const link = `https://zkillboard.com/kill/${id}/`
 
-      await channel.send({
-        embeds: [
-          new EmbedBuilder()
-            .setColor(COLORS.embedBlack)
-            .setTitle(ZKILL_DEBUG ? '🛰️ Debug' : '🏴‍☠️ Destru')
-            .setThumbnail(
-              `https://images.evetech.net/types/${shipId}/render?size=128`,
-            )
-            .setDescription(`[Killmail #${id}](${link})`)
-            .addFields(
-              {
-                name: 'Victim',
-                value: `[${victimId}](https://zkillboard.com/character/${victimId})`,
-                inline: true,
-              },
-              {
-                name: 'Ship',
-                value: `[${shipId}](https://zkillboard.com/ship/${shipId})`,
-                inline: true,
-              },
-              ...(loot ? [{ name: 'Loot', loot, inline: true }] : []),
-              ...(value ? [{ name: 'Value', value, inline: true }] : []),
-            ),
-        ],
-      })
+      const fields = []
+      if (value) fields.push({ name: 'Value', value, inline: true })
+      if (valueLoot)
+        fields.push({ name: 'Loot', value: valueLoot, inline: true })
+
+      const embed = new EmbedBuilder()
+        .setColor(COLORS.embedBlack)
+        .setDescription(`[Open on zKillboard](${link})`)
+        .setTitle(ZKILL_DEBUG ? 'Debug 🛰️' : 'Killmail 🛰️')
+
+      if (shipId)
+        embed.setThumbnail(
+          `https://images.evetech.net/types/${shipId}/render?size=128`,
+        )
+      if (fields.length > 0) embed.addFields(fields)
+
+      await channel.send({ embeds: [embed] })
       markSeen(id)
     } catch (e) {
-      console.log('[zkill] loop error', e?.message || e)
+      console.log('[zkill] error:', e?.message || e)
       await new Promise((r) => setTimeout(r, 5000))
     }
   }
@@ -1267,7 +1254,7 @@ client.on('messageCreate', async (message) => {
     if (matches.length > 0) {
       meta = { ...matches[0] }
     } else {
-      metaKey = Meta.add({
+      const metaKey = Meta.add({
         name: 'counting',
         uid: message.author.id,
         value: '0|1',
