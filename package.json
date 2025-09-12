@@ -8,6 +8,7 @@
     "npm": "*"
   },
   "scripts": {
+    "dev": "nodemon holly.js",
     "start": "node holly.js",
     "update-all": "npx npm-check-updates -u && npm i"
   },
@@ -32,10 +33,10 @@
     "findahaiku": "^2.0.0",
     "flat-db": "^4.0.0",
     "node-cron": "^4.2.1",
-    "node-fetch": "^3.3.2",
     "pretty-ms": "^9.2.0"
   },
   "devDependencies": {
+    "nodemon": "^3.1.10",
     "prettier": "3.6.2"
   }
 }
