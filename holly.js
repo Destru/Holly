@@ -1010,7 +1010,7 @@ async function zKillLoop() {
       })
       const pkg = data?.package
       if (!pkg) {
-        if (ZKILL_DEBUG) console.log('[zkill] tick (no package)')
+        if (ZKILL_DEBUG) console.log('[zkill] tick')
         continue
       }
       if (ZKILL_DEBUG) {
@@ -1043,7 +1043,7 @@ async function zKillLoop() {
         Array.isArray(km?.attackers) &&
         km.attackers.some((a) => Number(a?.character_id) === CHAR_ID)
       if (!ZKILL_DEBUG && !involved) {
-        if (ZKILL_DEBUG) console.log(`[zkill] skip not-mine: ${id}`)
+        if (ZKILL_DEBUG) console.log(`[zkill] skip: ${id}`)
         markSeen(id)
         continue
       }
@@ -1053,6 +1053,9 @@ async function zKillLoop() {
         : 'unknown'
       const shipId = km?.victim?.ship_type_id
         ? km.victim.ship_type_id
+        : 'unknown'
+      const loot = zkb?.droppedValue
+        ? `${Math.round(zkb.droppedValue).toLocaleString()} ISK`
         : 'unknown'
       const value = zkb?.totalValue
         ? `${Math.round(zkb.totalValue).toLocaleString()} ISK`
@@ -1071,14 +1074,15 @@ async function zKillLoop() {
             .addFields(
               {
                 name: 'Victim',
-                value: `https://zkillboard.com/character/${victimId}`,
+                value: `[${victimId}](https://zkillboard.com/character/${victimId})`,
                 inline: true,
               },
               {
                 name: 'Ship',
-                value: `https://zkillboard.com/ship/${shipId}`,
+                value: `[${shipId}](https://zkillboard.com/ship/${shipId})`,
                 inline: true,
               },
+              ...(loot ? [{ name: 'Loot', loot, inline: true }] : []),
               ...(value ? [{ name: 'Value', value, inline: true }] : []),
             ),
         ],
