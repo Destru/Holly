@@ -1237,8 +1237,6 @@ client.on('messageCreate', async (message) => {
 client.on('clientReady', () => {
   console.log(`Holly ${version} is online.`)
 
-  zKillLoop()
-
   client.user.setPresence({
     status: 'online',
     activities: [
