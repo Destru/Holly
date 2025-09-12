@@ -1028,6 +1028,7 @@ async function zKillLoop() {
         : ''
       const link = `https://zkillboard.com/kill/${id}/`
 
+      console.log('posting killmail')
       await channel.send({
         embeds: [
           new EmbedBuilder()
@@ -1041,6 +1042,7 @@ async function zKillLoop() {
             ),
         ],
       })
+      console.log('posted killmail')
       markSeen(id)
     } catch (e) {
       await new Promise((r) => setTimeout(r, 5000))
