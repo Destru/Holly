@@ -1013,11 +1013,29 @@ async function zKillLoop() {
         if (ZKILL_DEBUG) console.log('[zkill] tick (no package)')
         continue
       }
-      if (ZKILL_DEBUG)
+      if (ZKILL_DEBUG) {
         console.log(`[zkill] package received: ${pkg.killmail?.killmail_id}`)
+      }
 
       const km = pkg.killmail
       const zkb = pkg.zkb || {}
+
+      if (ZKILL_DEBUG) {
+        try {
+          console.log('[zkill] km keys:', Object.keys(km || {}))
+          console.log(
+            '[zkill] victim keys:',
+            Object.keys((km && km.victim) || {}),
+          )
+          console.log(
+            '[zkill] attackers[0] keys:',
+            Object.keys((km && km.attackers && km.attackers[0]) || {}),
+          )
+          console.log('[zkill] zkb keys:', Object.keys(zkb || {}))
+        } catch (e) {
+          console.log('[zkill] debug key dump error', e?.message || e)
+        }
+      }
       const id = km?.killmail_id
       if (!id || seenKillmails.has(id)) continue
 
@@ -1030,26 +1048,37 @@ async function zKillLoop() {
         continue
       }
 
-      const victimName = km?.victim?.character_id
-        ? `<https://zkillboard.com/character/${km.victim.character_id}/>`
-        : 'unknown target'
-      const shipType = km?.victim?.ship_type_id
-        ? `ship ${km.victim.ship_type_id}`
-        : 'unknown ship'
+      const victimId = km?.victim?.character_id
+        ? km.victim.character_id
+        : 'unknown'
+      const shipId = km?.victim?.ship_type_id
+        ? km.victim.ship_type_id
+        : 'unknown'
       const value = zkb?.totalValue
-        ? ` (${Math.round(zkb.totalValue).toLocaleString()} ISK)`
-        : ''
+        ? `${Math.round(zkb.totalValue).toLocaleString()} ISK`
+        : 'unknown'
       const link = `https://zkillboard.com/kill/${id}/`
 
       await channel.send({
         embeds: [
           new EmbedBuilder()
             .setColor(COLORS.embedBlack)
-            .setTitle(ZKILL_DEBUG ? '🛰️ Killmail' : '🏴‍☠️ Destru')
+            .setTitle(ZKILL_DEBUG ? '🛰️ Debug' : '🏴‍☠️ Destru')
+            .setThumbnail(
+              `https://images.evetech.net/types/${shipId}/render?size=128`,
+            )
             .setDescription(`[Killmail #${id}](${link})`)
             .addFields(
-              { name: 'Victim', value: victimName, inline: true },
-              { name: 'Ship', value: shipType, inline: true },
+              {
+                name: 'Victim',
+                value: `https://zkillboard.com/character/${victimId}`,
+                inline: true,
+              },
+              {
+                name: 'Ship',
+                value: `https://zkillboard.com/ship/${shipId}`,
+                inline: true,
+              },
               ...(value ? [{ name: 'Value', value, inline: true }] : []),
             ),
         ],
