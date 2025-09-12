@@ -978,7 +978,7 @@ const markSeen = (id) => {
   }
 }
 
-const ZKILL_DEBUG = process.env.ZKILL_DEBUG === '0'
+const ZKILL_DEBUG = process.env.ZKILL_DEBUG === '1'
 const CHAR_ID = Number(process.env.EVE_CHAR_ID || EVE_CHAR_ID)
 
 async function zKillLoop() {
@@ -994,15 +994,27 @@ async function zKillLoop() {
     try {
       const res = await fetch(base, {
         redirect: 'follow',
-        headers: { 'User-Agent': 'Holly' },
+        headers: {
+          'User-Agent': 'Holly (Discord bot, zKill RedisQ)',
+          Accept: 'application/json',
+        },
       })
       if (!res.ok) {
+        console.log(`[zkill] http ${res.status} ${res.statusText}`)
         await new Promise((r) => setTimeout(r, 2500))
         continue
       }
-      const data = await res.json().catch(() => ({}))
+      const data = await res.json().catch((e) => {
+        console.log('[zkill] json error', e?.message || e)
+        return {}
+      })
       const pkg = data?.package
-      if (!pkg) continue
+      if (!pkg) {
+        if (ZKILL_DEBUG) console.log('[zkill] tick (no package)')
+        continue
+      }
+      if (ZKILL_DEBUG)
+        console.log(`[zkill] package received: ${pkg.killmail?.killmail_id}`)
 
       const km = pkg.killmail
       const zkb = pkg.zkb || {}
@@ -1013,6 +1025,7 @@ async function zKillLoop() {
         Array.isArray(km?.attackers) &&
         km.attackers.some((a) => Number(a?.character_id) === CHAR_ID)
       if (!ZKILL_DEBUG && !involved) {
+        if (ZKILL_DEBUG) console.log(`[zkill] skip not-mine: ${id}`)
         markSeen(id)
         continue
       }
@@ -1028,7 +1041,6 @@ async function zKillLoop() {
         : ''
       const link = `https://zkillboard.com/kill/${id}/`
 
-      console.log('posting killmail')
       await channel.send({
         embeds: [
           new EmbedBuilder()
@@ -1042,9 +1054,9 @@ async function zKillLoop() {
             ),
         ],
       })
-      console.log('posted killmail')
       markSeen(id)
     } catch (e) {
+      console.log('[zkill] loop error', e?.message || e)
       await new Promise((r) => setTimeout(r, 5000))
     }
   }
