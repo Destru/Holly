@@ -967,9 +967,24 @@ const ZKILL_CHANNEL_ID = CHANNELIDS.terminal
 const ZKILL_REDISQ_URL = 'https://zkillredisq.stream/listen.php?ttw=10'
 
 const seenKillmails = new Set()
+const seenQueue = []
+const markSeen = (id) => {
+  if (seenKillmails.has(id)) return
+  seenKillmails.add(id)
+  seenQueue.push(id)
+  if (seenQueue.length > 100) {
+    const old = seenQueue.shift()
+    seenKillmails.delete(old)
+  }
+}
+
+const ZKILL_DEBUG = process.env.ZKILL_DEBUG === '0'
+const CHAR_ID = Number(process.env.EVE_CHAR_ID || EVE_CHAR_ID)
 
 async function zKillLoop() {
-  const channel = client.channels.cache.get(ZKILL_CHANNEL_ID)
+  const channel = client.channels.cache.get(
+    ZKILL_DEBUG ? CHANNELIDS.machinecity : ZKILL_CHANNEL_ID,
+  )
   const queueID = `holly-${client.user.id}-${Math.random().toString(36).slice(2)}`
   const base = ZKILL_REDISQ_URL.includes('queueID=')
     ? ZKILL_REDISQ_URL
@@ -993,16 +1008,12 @@ async function zKillLoop() {
       const zkb = pkg.zkb || {}
       const id = km?.killmail_id
       if (!id || seenKillmails.has(id)) continue
-      console.log(`[zkill] package received: ${id}`)
 
-      const mine =
+      const involved =
         Array.isArray(km?.attackers) &&
-        km.attackers.some(
-          (a) => Number(a?.character_id) === Number(EVE_CHAR_ID),
-        )
-      if (!mine) {
-        console.log(`[zkill] skip not-mine: ${id}`)
-        seenKillmails.add(id)
+        km.attackers.some((a) => Number(a?.character_id) === CHAR_ID)
+      if (!ZKILL_DEBUG && !involved) {
+        markSeen(id)
         continue
       }
 
@@ -1021,7 +1032,7 @@ async function zKillLoop() {
         embeds: [
           new EmbedBuilder()
             .setColor(COLORS.embedBlack)
-            .setTitle('🏴‍☠️ Destru')
+            .setTitle(ZKILL_DEBUG ? '🛰️ Killmail' : '🏴‍☠️ Destru')
             .setDescription(`[Killmail #${id}](${link})`)
             .addFields(
               { name: 'Victim', value: victimName, inline: true },
@@ -1030,8 +1041,7 @@ async function zKillLoop() {
             ),
         ],
       })
-
-      seenKillmails.add(id)
+      markSeen(id)
     } catch (e) {
       await new Promise((r) => setTimeout(r, 5000))
     }
