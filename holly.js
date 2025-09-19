@@ -1030,12 +1030,13 @@ client.on('messageCreate', async (message) => {
             const id = matches[1]
             const embed = new EmbedBuilder()
 
-            let adjective = `a contributing member`
+            let adjective = `a member`
 
             if (level >= 50) adjective = `a cornerstone`
             else if (level >= 40) adjective = `an inspiring member`
             else if (level >= 30) adjective = `a prolific member`
             else if (level >= 20) adjective = `an important member`
+            else if (level >= 10) adjective = `a contributing member`
 
             let description =
               `Has been promoted to **${ranks[level]}** ${randomEmoji()}` +
@@ -1043,17 +1044,7 @@ client.on('messageCreate', async (message) => {
 
             switch (level) {
               case 5:
-                description +=
-                  `You're now considered a comrade, ` +
-                  `and have been granted access to \`Limited\` channels. `
-                break
-              case 10:
-                description += `You will now receive the \`Live\` role when you stream. `
-                break
-              case 15:
-                description +=
-                  `You've unlocked an even <#830131461000658994> ` +
-                  `with anonynomous confessions. `
+                description += `You have been granted access to the \`Limited\` channels. `
                 break
               case 50:
                 description +=
