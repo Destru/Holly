@@ -1322,7 +1322,7 @@ client.on('threadCreate', async (thread) => {
     const uid = thread.ownerId || message.author?.id
 
     await Promise.allSettled([
-      (async () => setReactions(message, 'csc'))(),
+      (async () => setReactions(message, 'heart'))(),
       (async () => uid && trackByName(uid, 'oc'))(),
     ])
   } catch (e) {
