@@ -555,7 +555,7 @@ async function handlePermadeath({ message }) {
       const who = member
         ? `<@${r.uid}>`
         : user
-          ? `@${user.globalName}`
+          ? `${user.globalName}`
           : `\`${r.uid}\``
       return `${i + 1}. ${who} \`${int(r.points)}\``
     })
@@ -1294,18 +1294,39 @@ client.on('interactionCreate', async (interaction) => {
 
 client.on('threadCreate', async (thread) => {
   try {
-    const message = await thread.fetchStarterMessage()
+    if (![CHANNELIDS.creative, CHANNELIDS.comrades].includes(thread.parentId))
+      return
+
+    if (thread.joinable) {
+      try {
+        await thread.join()
+      } catch {}
+    }
+
+    let message = null
+    for (let i = 0; i < 3 && !message; i++) {
+      try {
+        message = await thread.fetchStarterMessage()
+      } catch {}
+      if (!message) await sleep(250)
+    }
+
+    if (!message) {
+      try {
+        const coll = await thread.messages.fetch({ limit: 1 })
+        if (coll?.size) message = coll.first()
+      } catch {}
+    }
     if (!message) return
 
-    if (thread.parentId === CHANNELIDS.comrades) {
-      setReactions(message, 'heart')
-    } else if (thread.parentId === CHANNELIDS.creative) {
-      const uid = thread.ownerId || message.author.id
-      setReactions(message, 'csc')
-      trackByName(uid, 'oc')
-    }
+    const uid = thread.ownerId || message.author?.id
+
+    await Promise.allSettled([
+      (async () => setReactions(message, 'csc'))(),
+      (async () => uid && trackByName(uid, 'oc'))(),
+    ])
   } catch (e) {
-    console.error(`🤷‍♀️ ${e}`)
+    console.error(`🤷‍♀️ threadCreate: ${e?.message || e}`)
   }
 })
 
