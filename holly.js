@@ -186,7 +186,7 @@ const buildHaikuListEmbeds = (member, haikus, pageSize = paginationItems) => {
     return [
       makeEmbed()
         .setAuthor({
-          name: member.user.username,
+          name: member.user.globalName,
           iconURL: member.user.displayAvatarURL(),
         })
         .setDescription(
@@ -200,7 +200,7 @@ const buildHaikuListEmbeds = (member, haikus, pageSize = paginationItems) => {
     pages.push(
       makeEmbed()
         .setAuthor({
-          name: member.user.username,
+          name: member.user.globalName,
           iconURL: member.user.displayAvatarURL(),
         })
         .setDescription(
@@ -440,7 +440,7 @@ async function handleDeaths({ message }) {
       const who = member
         ? `<@${r.uid}>`
         : user
-          ? `@${user.username}`
+          ? `@${user.globalName}`
           : `\`${r.uid}\``
       return `${i + 1}. ${who} \`${int(r.deaths)}\``
     })
@@ -503,7 +503,7 @@ async function handleHaiku({ message, args }) {
     const h = myHaikus[idx]
     const embed = makeEmbed()
       .setAuthor({
-        name: message.author.username,
+        name: message.author.globalName,
         iconURL: message.author.displayAvatarURL(),
       })
       .setDescription(`#${idx + 1}\n${h.content}\n<#${h.channel}>`)
@@ -555,7 +555,7 @@ async function handlePermadeath({ message }) {
       const who = member
         ? `<@${r.uid}>`
         : user
-          ? `@${user.username}`
+          ? `@${user.globalName}`
           : `\`${r.uid}\``
       return `${i + 1}. ${who} \`${int(r.points)}\``
     })
@@ -1060,7 +1060,7 @@ client.on('messageCreate', async (message) => {
                 () => {
                   embed
                     .setAuthor({
-                      name: member.user.username,
+                      name: member.user.displayName,
                       iconURL: member.user.displayAvatarURL(),
                     })
                     .setColor(member.displayHexColor)
